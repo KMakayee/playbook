@@ -26,7 +26,7 @@ rmdir playbook
 Open Claude Code in your project and run:
 
 ```
-/setup
+/playbook-setup
 ```
 
 The assistant will:
@@ -61,4 +61,4 @@ See `quickref.md` for the full checklist.
 | `templates/lessons.md` | Structure for self-improvement entries | Referenced when capturing corrections |
 | `templates/todo.md` | Structure for task progress tracking | Referenced when tracking implementation |
 | `quickref.md` | Human-readable RPI cheat sheet | No — for your reference |
-| `.claude/commands/setup.md` | One-time setup slash command | Only when you run `/setup` |
+| `.claude/commands/playbook-setup.md` | One-time setup slash command | Only when you run `/playbook-setup` |
