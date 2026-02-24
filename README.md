@@ -16,10 +16,14 @@ quickref.md                   # Human reference card for the RPI workflow
 templates/
   research.md                 # Template for research phase output
   plan.md                     # Template for plan phase output
+  lessons.md                  # Template for self-improvement entries
+  todo.md                     # Template for task progress tracking
 .claude/
   commands/
     setup.md                  # One-time setup assistant (the /setup command)
 ```
+
+> **Note:** A `tasks/` directory is created at runtime to hold `research.md`, `plan.md`, `todo.md`, and `lessons.md` for the current task. It is not included in this distribution.
 
 You can do this manually or with:
 
@@ -38,7 +42,7 @@ These stay in the playbook repo only — they are reference material that would 
 
 | File | Why it stays here |
 |---|---|
-| `main.md` | 323 lines of theory and rationale — useful for learning, not for every session |
+| `main.md` | ~384 lines of theory and rationale — useful for learning, not for every session |
 | `ref_docs/` | Source documents used to build the playbook |
 | `README.md` | This file — distribution instructions, not project instructions |
 
@@ -79,5 +83,7 @@ See `quickref.md` for the full checklist.
 | `CLAUDE.md` | Project-specific context + RPI rules | Yes — every session |
 | `templates/research.md` | Structure for research output | Referenced when writing research |
 | `templates/plan.md` | Structure for plan output | Referenced when writing plans |
+| `templates/lessons.md` | Structure for self-improvement entries | Referenced when capturing corrections |
+| `templates/todo.md` | Structure for task progress tracking | Referenced when tracking implementation |
 | `quickref.md` | Human-readable RPI cheat sheet | No — for your reference |
 | `.claude/commands/setup.md` | One-time setup slash command | Only when you run `/setup` |

@@ -144,6 +144,7 @@ After all sections are filled:
 1. Print a summary of what was filled
 2. Remind the developer: *"Review the full CLAUDE.md to make sure everything reads well together. You can always edit it manually later."*
 3. If the project doesn't have the `templates/` directory or `quickref.md`, mention that they should copy those from the playbook repo as well
+4. Mention that the `tasks/` directory will be created at runtime to hold `research.md`, `plan.md`, `todo.md`, and `lessons.md` — it does not need to be created manually
 
 ---
 

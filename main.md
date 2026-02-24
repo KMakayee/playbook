@@ -17,7 +17,8 @@
 5. [How to Implement This at Your Team](#part-5-how-to-implement-this-at-your-team)
 6. [Quick Reference — The No Vibes Checklist](#part-6-quick-reference--the-no-vibes-checklist)
 7. [Common Pitfalls and How to Avoid Them](#part-7-common-pitfalls-and-how-to-avoid-them)
-8. [Key Takeaways](#key-takeaways)
+8. [Behavioral Standards — The Layer Above Process](#part-8-behavioral-standards--the-layer-above-process)
+9. [Key Takeaways](#key-takeaways)
 
 ---
 
@@ -299,7 +300,68 @@ The classic failure mode is optimizing for PRs merged instead of features shippe
 
 ---
 
-## Key Takeaways
+## Part 8: Behavioral Standards — The Layer Above Process
+
+The RPI workflow handles *what* the agent does. This section addresses *how well* it does it. These six principles emerged from real-world experience with AI coding agents and address the most common failure modes that survive even when RPI is followed correctly.
+
+---
+
+### Quality Standards: Why "Prove It Works" Beats "Tests Pass"
+
+Running tests is necessary but not sufficient. A test suite can pass while the actual behavior is broken — stale fixtures, mocked-away dependencies, or tests that don't cover the change. The quality bar is: **can you show evidence that the change works as intended?**
+
+This means:
+- Diffing output against expected behavior, not just checking exit codes.
+- Verifying the fix addresses the *reported* symptom, not just the *test-covered* code path.
+- Applying senior-engineer judgment: "Does this look right?" is a valid and necessary check.
+
+The "surgical changes" principle reinforces this. Every changed line should trace back to the plan. Drive-by refactors, style fixes in adjacent code, and "while I'm here" improvements all increase risk without increasing value. They also make code review harder because reviewers can't distinguish intentional changes from noise.
+
+The elegance check — "is there a simpler way?" — is intentionally limited to non-trivial changes. For a one-line typo fix, the question is a waste of time. For a new abstraction that touches 8 files, it's the most important question you can ask. The dividing line is judgment, not a rule.
+
+---
+
+### Self-Improvement Loop: Why Correction Capture Compounds Over Time
+
+Without a persistent record of mistakes, the same corrections recur across sessions. The agent has no memory of what went wrong last time. A `lessons.md` file solves this by making corrections durable.
+
+The key design decisions:
+- **Entries require a root cause and prevention rule**, not just "what happened." A lesson that says "I edited a file without reading it" is useless. A lesson that says "Always read a file before editing — no exceptions, even for obvious changes" is actionable.
+- **Same mistake twice = lesson is too weak.** If the prevention rule didn't prevent the mistake, the rule needs rewriting. This creates a ratchet: lessons get stronger over time.
+- **Session-start review** is critical. The lessons only work if they're loaded into context before work begins. This is why the file lives in `tasks/` (project-local) rather than a global location — lessons are codebase-specific.
+
+Over weeks of use, a well-maintained `lessons.md` becomes a project-specific behavioral profile that makes the agent measurably better at working in *this* codebase.
+
+---
+
+### Autonomous Bug Fixing: Why the Agent Should Diagnose, Not the Human
+
+The most common waste of human attention in AI-assisted workflows is the human diagnosing problems for the agent. When a user receives a bug report and passes it to the agent, the agent should:
+
+1. Read the error log or bug report
+2. Trace from symptoms to root cause (using Research phase if multi-file)
+3. Fix the root cause
+4. Verify the fix
+5. Report what it did and why
+
+Asking the user "what do you think is wrong?" or "which file should I look at?" defeats the purpose. The agent has access to the codebase, the error logs, and the ability to search — it should use them.
+
+This doesn't mean skipping RPI. A bug that spans multiple files still needs Research → Plan → Implement. The autonomy is about *initiative and diagnosis*, not about skipping process. The agent should arrive at the plan on its own, then present it for approval as usual.
+
+---
+
+### Task Progress Tracking: Why Visibility Reduces Anxiety and Improves Debugging
+
+When an agent is implementing a 6-step plan, silence is the enemy. The human doesn't know if the agent is on step 2 or step 5, whether something failed, or whether the agent quietly deviated from the plan.
+
+`tasks/todo.md` solves this by providing:
+- **Real-time visibility** — the human can check progress at any point without interrupting the agent.
+- **Result summaries** — each completed step records what actually happened, not just that it was done. This is critical for debugging when a later step fails.
+- **Separation from the plan** — `plan.md` is the approved spec and should not be modified during implementation. `todo.md` is the live tracker. This distinction prevents the plan from becoming a moving target.
+
+The overhead is minimal — updating a checkbox and writing one line of result text per step — but the payoff in transparency and debuggability is significant.
+
+---
 
 To implement this successfully, keep these principles front and center:
 

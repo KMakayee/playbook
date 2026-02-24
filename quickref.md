@@ -8,6 +8,8 @@
 
 **If a task touches more than 2 files → use RPI. No exceptions.**
 
+**Bug fix mode:** Bug reports, error logs, failing tests → diagnose and fix autonomously. Don't ask the user to diagnose. RPI still applies for multi-file fixes.
+
 ---
 
 ## Research Phase
@@ -37,6 +39,7 @@
 3. **Test after each step** — not just at the end
 4. **Stop if surprised** — unexpected behavior → return to Research
 5. **Commit per step** — reference plan steps in commit messages
+6. **Track progress** — update `tasks/todo.md` with checkable items and result summaries
 
 ---
 
@@ -51,6 +54,24 @@
 
 ---
 
+## Quality Standards
+
+- **Verify before completing** — prove it works (tests, logs, diff). Not "I think it works."
+- **Find root causes** — no band-aids. Trace to source, fix the real problem.
+- **Surgical changes** — every changed line needs a reason. Can't explain it? Revert it.
+- **Demand elegance** — "Is there a simpler way?" (skip for mechanical fixes)
+- **Self-assess** — "Would a staff engineer approve this?" If no, revise first.
+
+---
+
+## Self-Improvement
+
+- User correction or failed verification → add entry to `tasks/lessons.md`
+- Start of session → read `tasks/lessons.md` before working
+- Same mistake twice → rewrite the lesson with a stronger rule
+
+---
+
 ## Red Flags
 
 - Skipping Research ("I already know this codebase") → slop
@@ -58,6 +79,9 @@
 - Approving a plan you didn't read or think through → outsourced judgment
 - Context window growing unchecked → entering the Dumb Zone
 - Measuring PRs merged instead of rework rate → false productivity
+- Completing a step without verifying it works → false progress
+- Same correction from the user twice → lesson not captured or too weak
+- Asking the user to diagnose a bug for you → wasted human attention
 
 ---
 
@@ -69,6 +93,7 @@ Track these to know if the workflow is actually helping:
 - **Slop rate** — what % of AI-generated code gets reverted or heavily rewritten?
 - **Plan accuracy** — how often does implementation match the plan without deviations?
 - **Time-to-merge** — for complex changes, not just simple ones
+- **Correction repeat rate** — how often does the user give the same feedback twice?
 
 ---
 

@@ -67,6 +67,8 @@
 
 Any task that touches **more than 2 files** or involves **architectural decisions** MUST follow the Research → Plan → Implement workflow. Single-file fixes and trivial changes can skip directly to implementation.
 
+**Bug fix mode:** When given a bug report, error log, or failing test — resolve it autonomously. Trace from symptoms to root cause, fix it, verify the fix, and report what you did. Do not ask the user to diagnose the problem for you. RPI still applies if the fix spans more than 2 files.
+
 ## Phase 1: Research
 
 Before writing any code, investigate the codebase to gather ground truth.
@@ -104,6 +106,7 @@ Execute the approved plan. Do not improvise.
 3. Run tests after each logical unit of change, not just at the end.
 4. If something unexpected is encountered, **stop** and return to Research for that sub-problem.
 5. Commit frequently with messages that reference plan steps.
+6. Track progress in `tasks/todo.md` — write checkable items from the plan, mark them as you go, and add a brief result summary for each completed step. Use the structure in `templates/todo.md`.
 
 ---
 
@@ -146,3 +149,21 @@ When spawning sub-agents for the Research phase, use these behaviors:
 - Do not add features, refactoring, or "improvements" beyond what the plan specifies.
 - Run the linter and test suite before considering any step complete.
 - If a task seems too large, break it into sub-tasks that each follow RPI independently.
+
+---
+
+# Quality Standards
+
+- **Verify before completing** — prove it works: run tests, check logs, diff against the target branch. "I think it works" is not verification.
+- **Find root causes** — no band-aids or temporary fixes. Trace symptoms to their source and fix the actual problem. Apply senior-engineer judgment.
+- **Surgical changes** — every changed line needs a reason traceable to the plan. If you can't explain why a line changed, revert it.
+- **Demand elegance for non-trivial changes** — before implementing, pause and ask "is there a simpler way?" Skip this for mechanical or single-line fixes.
+- **Self-assess** — before marking any step complete, ask: "Would a staff engineer approve this?" If the answer is no, revise before proceeding.
+
+---
+
+# Self-Improvement
+
+- After any user correction or failed verification, add an entry to `tasks/lessons.md` using the structure in `templates/lessons.md`.
+- At the start of each session, read `tasks/lessons.md` (if it exists) before beginning work.
+- If the same mistake occurs twice, the existing lesson is too weak — rewrite it with a stronger prevention rule.
