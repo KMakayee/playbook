@@ -6,47 +6,20 @@ The core idea: AI coding agents fail in complex codebases not because of model q
 
 ## Setup
 
-### 1. Copy files to your repo
+### 1. Add the playbook to your project
 
-Copy these files into your project root:
+From your project root:
 
-```
-CLAUDE.md                     # Project instructions (loaded every session)
-quickref.md                   # Human reference card for the RPI workflow
-templates/
-  research.md                 # Template for research phase output
-  plan.md                     # Template for plan phase output
-  lessons.md                  # Template for self-improvement entries
-  todo.md                     # Template for task progress tracking
-.claude/
-  commands/
-    setup.md                  # One-time setup assistant (the /setup command)
+```bash
+git clone https://github.com/KMakayee/playbook.git
+rm -rf playbook/main.md playbook/ref_docs playbook/README.md playbook/.git
+mv playbook/* playbook/.claude .
+rmdir playbook
 ```
 
 > **Note:** A `tasks/` directory is created at runtime to hold `research.md`, `plan.md`, `todo.md`, and `lessons.md` for the current task. It is not included in this distribution.
 
-You can do this manually or with:
-
-```bash
-# From your target repo root:
-cp /path/to/playbook/CLAUDE.md .
-cp /path/to/playbook/quickref.md .
-cp -r /path/to/playbook/templates .
-mkdir -p .claude/commands
-cp /path/to/playbook/.claude/commands/setup.md .claude/commands/
-```
-
-### 2. Do NOT copy these files
-
-These stay in the playbook repo only — they are reference material that would waste context budget if loaded into your project:
-
-| File | Why it stays here |
-|---|---|
-| `main.md` | ~384 lines of theory and rationale — useful for learning, not for every session |
-| `ref_docs/` | Source documents used to build the playbook |
-| `README.md` | This file — distribution instructions, not project instructions |
-
-### 3. Run the setup assistant
+### 2. Run the setup assistant
 
 Open Claude Code in your project and run:
 
