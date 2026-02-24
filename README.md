@@ -17,6 +17,8 @@ mv playbook/* playbook/.claude .
 rmdir playbook
 ```
 
+> **Warning:** The `mv` command will overwrite existing files without prompting. If your project already has a `CLAUDE.md`, `.claude/` directory, `quickref.md`, or `templates/` directory, back them up before running the setup commands.
+
 > **Note:** A `tasks/` directory is created at runtime to hold `research.md`, `plan.md`, `todo.md`, and `lessons.md` for the current task. It is not included in this distribution.
 
 ### 2. Run the setup assistant
