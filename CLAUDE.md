@@ -65,20 +65,16 @@
 
 ## When to Use RPI
 
-| Task size | Workflow |
-|---|---|
-| **1–2 files**, no architectural decisions | Skip RPI — implement directly |
-| **3–5 files**, straightforward changes | **Lightweight research** — read files directly (no sub-agents) or use a single Explore sub-agent with `max_turns: 15`. Write a brief research summary (50–100 lines) instead of full research.md. Then plan and implement. |
-| **6+ files** or **architectural decisions** | **Full RPI** with sub-agents (see Phase 1 below) |
+RPI applies to any task that touches 2+ files or involves architectural decisions. When RPI runs, all three phases execute — no skipping.
 
-**Bug fix mode:** When given a bug report, error log, or failing test — resolve it autonomously. Trace from symptoms to root cause, fix it, verify the fix, and report what you did. Do not ask the user to diagnose the problem for you. RPI still applies at the tier matching the fix's scope.
+**Bug fix mode:** When given a bug report, error log, or failing test — resolve it autonomously. Trace from symptoms to root cause, fix it, verify the fix, and report what you did. Do not ask the user to diagnose the problem for you.
 
 ## Phase 1: Research
 
 Before writing any code, investigate the codebase to gather ground truth.
 
 1. **Explore** — Spawn a **single** Explore sub-agent (`max_turns: 15`) to locate all relevant files, read and analyze them, and identify codebase patterns — all in one pass. Only split into multiple agents for genuinely large tasks (15+ files across multiple unrelated domains).
-2. **Write research.md** — Aggregate findings into `research.md` (target: 100–300 lines). Use the structure in `templates/research.md`. Focus on file paths, key findings, risks, and open questions — skip exhaustive line-by-line analysis.
+2. **Write research.md** — Aggregate findings into `research.md` (do not exceed 1000 lines). Use the structure in `templates/research.md`. Focus on file paths, key findings, risks, and open questions — skip exhaustive line-by-line analysis.
 3. **Verify context budget** — After writing research.md, check context utilization. If above 30%, compact before proceeding.
 
 ### Research output requirements

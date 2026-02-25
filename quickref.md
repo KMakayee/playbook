@@ -6,20 +6,16 @@
 
 ## The Rule
 
-| Task size | Workflow |
-|---|---|
-| **1–2 files**, no architectural decisions | Skip RPI — implement directly |
-| **3–5 files**, straightforward changes | **Lightweight research** — read files directly or single Explore sub-agent (`max_turns: 15`). Brief summary (50–100 lines). |
-| **6+ files** or **architectural decisions** | **Full RPI** with sub-agents |
+RPI applies to any task that touches 2+ files or involves architectural decisions. When RPI runs, all three phases execute — no skipping.
 
-**Bug fix mode:** Bug reports, error logs, failing tests → diagnose and fix autonomously. Don't ask the user to diagnose. RPI applies at the tier matching the fix's scope.
+**Bug fix mode:** Bug reports, error logs, failing tests → diagnose and fix autonomously. Don't ask the user to diagnose.
 
 ---
 
 ## Research Phase (Full RPI)
 
 1. **Explore** — single Explore sub-agent (`max_turns: 15`) locates, reads, analyzes, and identifies patterns in one pass
-2. **Write `research.md`** — aggregate findings (target: 100–300 lines)
+2. **Write `research.md`** — aggregate findings (do not exceed 1000 lines)
 3. **Check context** — if above 30%, compact now
 4. **Compact** — summarize and drop raw content before moving on
 
@@ -104,8 +100,7 @@ Track these to know if the workflow is actually helping:
 ```
 1. Fresh context window (or compact fully)
 2. Define the task: input, output, success criteria
-3. Determine task tier (1–2 files / 3–5 files / 6+ files)
-4. Begin appropriate workflow
+3. If 2+ files or architectural decisions → begin RPI
 ```
 
 ---

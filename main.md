@@ -96,7 +96,7 @@ When the agent receives a task like `/research_codebase ...`, instead of dumping
                        ▼
              ┌─────────────────┐
              │   research.md   │
-             │  100–300 lines  │
+             │  max 1000 lines │
              └─────────────────┘
                   ~20% context used
 ```
@@ -108,7 +108,7 @@ When the agent receives a task like `/research_codebase ...`, instead of dumping
 | **System Instructions** | `CLAUDE.md`, built-in tools, MCP tools — the persistent harness that defines how the agent operates in your codebase. |
 | **User Message** | The task prompt, e.g. `/research_codebase` — kicks off the workflow with minimal context used. |
 | **codebase-explorer** | A single sub-agent that locates relevant files, analyzes each area, and identifies codebase patterns — all in one pass. Cannot spawn further sub-agents (recursion guard). |
-| **Write()** | Main agent writes all findings to `research.md` — a 100–300 line artifact that lives outside the context window. |
+| **Write()** | Main agent writes all findings to `research.md` — an artifact (max 1000 lines) that lives outside the context window. |
 | **research.md output** | The final deliverable of the Research phase. Consumed in the Plan phase without re-doing all the work. |
 
 > **Key Efficiency Insight:** The diagram shows "~20% context used" at the bottom. By consolidating research into a single sub-agent and writing concise findings to `research.md`, the main agent's context window stays well within the Smart Zone for the most important part of the job: planning and implementing changes.
@@ -128,7 +128,7 @@ Before any code is touched, the agent investigates the codebase to understand th
 **What happens in Research:**
 - A single `codebase-explorer` sub-agent (`max_turns: 15`) locates relevant files, reads and analyzes each area, and identifies codebase patterns — all in one pass.
 - Only split into multiple agents for genuinely large tasks (15+ files across multiple unrelated domains).
-- All findings are written to `research.md` (100–300 lines).
+- All findings are written to `research.md` (do not exceed 1000 lines).
 
 **What research.md should contain:**
 - Specific file paths and line numbers relevant to the task.
@@ -236,11 +236,11 @@ The classic failure mode is optimizing for PRs merged instead of features shippe
 - [ ] Ensure `CLAUDE.md` / system instructions are up to date with recent codebase changes.
 - [ ] Start a fresh context window — do not continue from a previous long conversation.
 - [ ] Define the task clearly: what is the expected input, output, and success criteria?
-- [ ] Determine task tier (1–2 files / 3–5 files / 6+ files) to select the appropriate workflow.
+- [ ] If 2+ files or architectural decisions → begin RPI.
 
 ### Research Phase
 - [ ] Run a single `codebase-explorer` sub-agent to locate, analyze, and identify patterns in one pass.
-- [ ] Write all findings to `research.md` (target: 100–300 lines).
+- [ ] Write all findings to `research.md` (do not exceed 1000 lines).
 - [ ] Check: is context still under ~35%? If not, compact before proceeding.
 
 ### Plan Phase
@@ -262,7 +262,7 @@ The classic failure mode is optimizing for PRs merged instead of features shippe
 
 ### ❌ Pitfall: Vibe Coding
 **Problem:** Skipping Research and Plan, going straight to "just ask Claude to fix it."
-**Fix:** Use the tiered workflow: lightweight research for 3–5 file changes, full RPI for 6+ files or architectural concerns.
+**Fix:** If the task touches 2+ files or involves architectural decisions, run full RPI — no shortcuts.
 
 ---
 

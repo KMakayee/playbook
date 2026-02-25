@@ -1,6 +1,6 @@
 # Research: [Task Title]
 
-> **Target length:** 100–300 lines. Be specific — file paths, line numbers, actual behavior. Prefer tables and brief findings over exhaustive analysis.
+> **Do not exceed 1000 lines.** Be specific — file paths, line numbers, actual behavior. Prefer tables and brief findings over exhaustive analysis.
 > **Purpose:** This artifact persists context outside the window so the Plan phase can proceed without re-researching.
 
 ---
