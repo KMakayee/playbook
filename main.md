@@ -126,7 +126,7 @@ The RPI workflow is the top-level process that governs how your team (and your a
 Before any code is touched, the agent investigates the codebase to understand the system. The goal is to gather ground truth — not to make changes.
 
 **What happens in Research:**
-- A single `codebase-explorer` sub-agent (`max_turns: 15`) locates relevant files, reads and analyzes each area, and identifies codebase patterns — all in one pass.
+- A single `codebase-explorer` sub-agent locates relevant files, reads and analyzes each area, and identifies codebase patterns — all in one pass.
 - Only split into multiple agents for genuinely large tasks (15+ files across multiple unrelated domains).
 - All findings are written to `research.md` (do not exceed 1000 lines).
 
