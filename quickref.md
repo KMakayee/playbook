@@ -107,3 +107,21 @@ Track these to know if the workflow is actually helping:
 3. Determine task tier (1–2 files / 3–5 files / 6+ files)
 4. Begin appropriate workflow
 ```
+
+---
+
+## Maintenance
+
+Run `/playbook-audit` periodically to keep the playbook healthy.
+
+**What it does:**
+1. Compares each CLAUDE.md section against the actual codebase — flags stale or unconfigured sections
+2. Reviews `tasks/lessons.md` — graduates old entries, consolidates duplicates, flags high-severity for manual review
+3. Cleans up leftover task artifacts (`research.md`, `plan.md`, `todo.md`)
+4. Generates a health report in `tasks/audit-report.md`
+
+**When to run it:**
+- Every 2–4 weeks as routine maintenance
+- After major refactors that change tech stack, directory structure, or conventions
+- When `tasks/lessons.md` grows past ~25 entries
+- When Claude makes outdated assumptions about your codebase

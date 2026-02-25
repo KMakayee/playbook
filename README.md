@@ -60,5 +60,7 @@ See `quickref.md` for the full checklist.
 | `templates/plan.md` | Structure for plan output | Referenced when writing plans |
 | `templates/lessons.md` | Structure for self-improvement entries | Referenced when capturing corrections |
 | `templates/todo.md` | Structure for task progress tracking | Referenced when tracking implementation |
+| `templates/audit-report.md` | Structure for audit command output | Referenced when generating audit reports |
 | `quickref.md` | Human-readable RPI cheat sheet | No — for your reference |
 | `.claude/commands/playbook-setup.md` | One-time setup slash command | Only when you run `/playbook-setup` |
+| `.claude/commands/playbook-audit.md` | Periodic maintenance slash command | Only when you run `/playbook-audit` |

@@ -21,6 +21,23 @@ Each entry follows this structure:
 
 ---
 
+## Lifecycle
+
+Lessons are not permanent. Apply these rules to keep the file focused and actionable:
+
+**Graduation (removal):** An entry may be removed when ALL of these are true:
+- It is older than 90 days
+- Its severity is low or medium (never auto-graduate high-severity entries)
+- The mistake has not recurred since the entry was written
+
+**Consolidation:** When two or more entries share the same root cause or produce the same prevention rule, merge them into a single entry. Keep the most recent date and the strongest prevention rule.
+
+**Active entry cap:** Target ~30 active entries. When the file grows past this, review for graduation and consolidation candidates. If still over cap after lifecycle review, prioritize keeping high-severity and recent entries.
+
+**Never delete the file itself.** Even if all entries graduate, keep the file with the template structure intact.
+
+---
+
 ## Entries
 
 ### 2025-01-15 — Modified file without reading it first
