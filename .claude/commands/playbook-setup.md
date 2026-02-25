@@ -6,7 +6,10 @@ You are setting up the RPI playbook for this codebase. CLAUDE.md contains 7 sect
 
 ## Step 1: Read CLAUDE.md and identify unfilled sections
 
-Read `CLAUDE.md` in the project root. Identify which sections still contain the marker text `[TEAM FILLS IN`. If a section has already been filled in (no marker), skip it entirely. If all sections are filled, tell the developer and stop.
+Read `CLAUDE.md` in the project root. Identify which sections still contain the marker text `[TEAM FILLS IN`.
+
+- **Markers found** → skip any already-filled sections, proceed to Step 2 with the unfilled ones.
+- **No markers found** → check whether the file contains the playbook section headers: `## Codebase Overview`, `## Architecture`, `## Conventions`, `## Testing`, `## Build & Run`, `## Critical Paths`, `## Dependencies`, and `# RPI Workflow Rules`. If all are present, the playbook is fully configured — tell the developer and stop. If these headers are missing, the CLAUDE.md is not from the playbook template — **stop and explain to the developer:** "Your CLAUDE.md doesn't have the playbook template structure. I'll need to add the playbook sections (Codebase Overview, Architecture, Conventions, Testing, Build & Run, Critical Paths, Dependencies, and the RPI Workflow Rules) to your file. Your existing content will be preserved — playbook sections will be added alongside it." **Wait for the developer to confirm before proceeding.** Only after confirmation, proceed to Step 2 to configure it as a first-time setup.
 
 ---
 
@@ -154,3 +157,4 @@ After all sections are filled:
 - **Minimal/empty repo:** If very few files exist, tell the developer. Fill what you can detect, and for sections with insufficient signal, write a short placeholder like `<!-- TODO: Fill in after project structure is established -->` and explain why.
 - **Monorepo:** If monorepo markers are found, note this in the Architecture section and ask the developer which package/app is the primary focus for this CLAUDE.md instance.
 - **Non-standard structure:** If the project doesn't follow common conventions, rely more heavily on developer input. Present what you found and ask them to describe what's different.
+- **CLAUDE.md exists but isn't from the playbook:** If CLAUDE.md has no `[TEAM FILLS IN` markers AND is missing the expected playbook section headers (`## Codebase Overview`, `## Architecture`, etc.), the file was not created from the playbook template. **Stop and explain to the developer** what you found and that you'll add playbook sections alongside their existing content (not replace it). **Wait for confirmation before proceeding.** Only after confirmation, proceed with normal first-time setup (Steps 2–4) to configure all sections, preserving the existing CLAUDE.md content.
