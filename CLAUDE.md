@@ -187,3 +187,4 @@ At the start of each session, run these lightweight checks (no sub-agents, under
 1. **Leftover artifacts** — Check if `tasks/research.md`, `tasks/plan.md`, or `tasks/todo.md` exist from a previous session. If found, notify the developer and ask whether to clean up or resume.
 2. **Unconfigured CLAUDE.md** — Scan the top half of CLAUDE.md for `[TEAM FILLS IN` markers or `<!-- TODO` comments. If found, mention that `/playbook-setup` can fill them in.
 3. **Lessons overgrowth** — If `tasks/lessons.md` exists and has more than ~30 entries, mention that `/playbook-audit` can trim it.
+4. **Playbook version** — If `.playbook-version` exists, read it. If the installed date is older than 30 days, mention that `/playbook-update` can check for updates.

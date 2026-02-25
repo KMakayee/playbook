@@ -112,6 +112,8 @@ Track these to know if the workflow is actually helping:
 
 ## Maintenance
 
+Run `/playbook-update` to fetch the latest playbook version and apply updates interactively. Your team-specific CLAUDE.md sections are never touched.
+
 Run `/playbook-audit` periodically to keep the playbook healthy.
 
 **What it does:**

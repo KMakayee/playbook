@@ -51,6 +51,16 @@ Context is compacted between phases to keep the agent in the Smart Zone (under ~
 
 See `quickref.md` for the full checklist.
 
+## Updating the playbook
+
+When the playbook is updated with new rules, templates, or slash commands:
+
+```
+/playbook-update
+```
+
+The update command fetches the latest playbook, shows what changed, and lets you approve each file update individually. Your team-specific CLAUDE.md sections are never touched.
+
 ## File overview
 
 | File | Purpose | Loaded by Claude Code? |
@@ -64,3 +74,5 @@ See `quickref.md` for the full checklist.
 | `quickref.md` | Human-readable RPI cheat sheet | No — for your reference |
 | `.claude/commands/playbook-setup.md` | One-time setup slash command | Only when you run `/playbook-setup` |
 | `.claude/commands/playbook-audit.md` | Periodic maintenance slash command | Only when you run `/playbook-audit` |
+| `.claude/commands/playbook-update.md` | Update slash command | Only when you run `/playbook-update` |
+| `.playbook-version` | Tracks installed playbook version | No — used by `/playbook-update` |
