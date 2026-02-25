@@ -4,11 +4,16 @@
 
 ---
 
-## The Rule
+## Pre-Edit Gate
 
-RPI applies to any task that touches 2+ files or involves architectural decisions. When RPI runs, all three phases execute — no skipping.
+**Before calling Edit or Write, classify the task:**
 
-**Bug fix mode:** Bug reports, error logs, failing tests → diagnose and fix autonomously. Don't ask the user to diagnose.
+- **Trivial:** single file, under ~20 changed lines, no new abstractions, no changed interfaces → implement directly
+- **Non-trivial:** 2+ files, OR new/changed abstractions, OR modified interfaces/contracts → **full RPI required**
+
+If uncertain, it is non-trivial. Do not Edit/Write source files until the task is trivial OR `plan.md` is approved.
+
+**Bug fix mode:** Diagnose autonomously — don't ask the user to identify root cause. Non-trivial bug fixes still require full RPI.
 
 ---
 
@@ -72,6 +77,7 @@ RPI applies to any task that touches 2+ files or involves architectural decision
 
 ## Red Flags
 
+- Calling Edit/Write before classifying the task → pre-edit gate violation
 - Skipping Research ("I already know this codebase") → slop
 - Planning from memory instead of research.md → hallucinated structure
 - Approving a plan you didn't read or think through → outsourced judgment
@@ -100,7 +106,7 @@ Track these to know if the workflow is actually helping:
 ```
 1. Fresh context window (or compact fully)
 2. Define the task: input, output, success criteria
-3. If 2+ files or architectural decisions → begin RPI
+3. If non-trivial (see Pre-Edit Gate) → begin RPI
 ```
 
 ---

@@ -57,11 +57,18 @@
 
 **These rules are fixed. Do not modify them.**
 
-## When to Use RPI
+## Pre-Edit Gate
 
-RPI applies to any task that touches 2+ files or involves architectural decisions. When RPI runs, all three phases execute — no skipping.
+**Before calling Edit or Write on any source file, classify the task:**
 
-**Bug fix mode:** When given a bug report, error log, or failing test — resolve it autonomously. Trace from symptoms to root cause, fix it, verify the fix, and report what you did. Do not ask the user to diagnose the problem for you.
+| Classification | Criteria | Workflow |
+|---|---|---|
+| **Trivial** | Single file, under ~20 changed lines, no new abstractions, no changed interfaces | Implement directly — no RPI needed |
+| **Non-trivial** | 2+ files, OR new/changed abstractions, OR modified interfaces/contracts, OR changed control flow across modules | **Full RPI required** — all three phases, no skipping |
+
+If uncertain, it is non-trivial. Do not call Edit or Write on source files until either (a) the task is trivial, or (b) `research.md` exists and `plan.md` has been approved.
+
+**Bug fix mode:** When given a bug report, error log, or failing test — diagnose it autonomously. Do not ask the user to identify the root cause. The autonomy is about initiative and diagnosis, not about skipping process. A bug fix that meets the non-trivial criteria above still requires full RPI. Arrive at the plan on your own, then present it for approval as usual.
 
 ## Phase 1: Research
 
@@ -90,6 +97,8 @@ Generate a detailed plan from research.md — do NOT plan from memory or re-rese
 6. If the plan is rejected or revised, update `plan.md` before proceeding.
 
 ## Phase 3: Implement
+
+**Prerequisite check:** Confirm that `tasks/research.md` and `tasks/plan.md` exist and the plan has been approved. If either is missing, stop — you have skipped a phase.
 
 Execute the approved plan. Do not improvise.
 
