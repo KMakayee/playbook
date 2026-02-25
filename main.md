@@ -127,7 +127,7 @@ Before any code is touched, the agent investigates the codebase to understand th
 
 **What happens in Research:**
 - A single `codebase-explorer` sub-agent locates relevant files, reads and analyzes each area, and identifies codebase patterns — all in one pass.
-- Only split into multiple agents for genuinely large tasks (15+ files across multiple unrelated domains).
+- Only split into multiple agents when the task spans multiple unrelated domains.
 - All findings are written to `research.md` (do not exceed 1000 lines).
 
 **What research.md should contain:**

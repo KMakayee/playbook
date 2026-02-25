@@ -14,7 +14,7 @@ RPI applies to any task that touches 2+ files or involves architectural decision
 
 ## Research Phase (Full RPI)
 
-1. **Explore** — single Explore sub-agent locates, reads, analyzes, and identifies patterns in one pass
+1. **Explore** — single Explore sub-agent locates, reads, analyzes, and identifies patterns in one pass. Only split into multiple agents when the task spans multiple unrelated domains.
 2. **Write `research.md`** — aggregate findings (do not exceed 1000 lines)
 3. **Check context** — if above 30%, compact now
 4. **Compact** — summarize and drop raw content before moving on

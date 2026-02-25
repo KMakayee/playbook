@@ -73,7 +73,7 @@ RPI applies to any task that touches 2+ files or involves architectural decision
 
 Before writing any code, investigate the codebase to gather ground truth.
 
-1. **Explore** — Spawn a **single** Explore sub-agent to locate all relevant files, read and analyze them, and identify codebase patterns — all in one pass. Only split into multiple agents for genuinely large tasks (15+ files across multiple unrelated domains).
+1. **Explore** — Spawn a **single** Explore sub-agent to locate all relevant files, read and analyze them, and identify codebase patterns — all in one pass. Only split into multiple agents when the task spans multiple unrelated domains.
 2. **Write research.md** — Aggregate findings into `research.md` (do not exceed 1000 lines). Use the structure in `templates/research.md`. Focus on file paths, key findings, risks, and open questions — skip exhaustive line-by-line analysis.
 3. **Verify context budget** — After writing research.md, check context utilization. If above 30%, compact before proceeding.
 
