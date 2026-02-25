@@ -1,6 +1,6 @@
 # Research: [Task Title]
 
-> **Target length:** 300–1,000 lines. Be specific — file paths, line numbers, actual behavior.
+> **Target length:** 100–300 lines. Be specific — file paths, line numbers, actual behavior. Prefer tables and brief findings over exhaustive analysis.
 > **Purpose:** This artifact persists context outside the window so the Plan phase can proceed without re-researching.
 
 ---
@@ -13,7 +13,7 @@
 
 ## Located Paths
 
-> Output of the codebase-locator sub-agent.
+> Files identified during exploration.
 
 | Path | Relevance |
 |---|---|
@@ -25,7 +25,7 @@
 
 ## Current Behavior Analysis
 
-> Output of codebase-analyzer sub-agent(s). One section per module or area.
+> One section per module or area.
 
 ### Module: [module/area name]
 
@@ -53,7 +53,7 @@
 
 ## Codebase Patterns & Conventions
 
-> Output of codebase-pattern-finder sub-agent.
+> Patterns observed in the codebase.
 
 **Naming:**
 - Files: [e.g., kebab-case, PascalCase]

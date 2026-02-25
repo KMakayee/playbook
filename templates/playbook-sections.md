@@ -59,19 +59,21 @@
 
 ## When to Use RPI
 
-Any task that touches **more than 2 files** or involves **architectural decisions** MUST follow the Research → Plan → Implement workflow. Single-file fixes and trivial changes can skip directly to implementation.
+| Task size | Workflow |
+|---|---|
+| **1–2 files**, no architectural decisions | Skip RPI — implement directly |
+| **3–5 files**, straightforward changes | **Lightweight research** — read files directly (no sub-agents) or use a single Explore sub-agent with `max_turns: 15`. Write a brief research summary (50–100 lines) instead of full research.md. Then plan and implement. |
+| **6+ files** or **architectural decisions** | **Full RPI** with sub-agents (see Phase 1 below) |
 
-**Bug fix mode:** When given a bug report, error log, or failing test — resolve it autonomously. Trace from symptoms to root cause, fix it, verify the fix, and report what you did. Do not ask the user to diagnose the problem for you. RPI still applies if the fix spans more than 2 files.
+**Bug fix mode:** When given a bug report, error log, or failing test — resolve it autonomously. Trace from symptoms to root cause, fix it, verify the fix, and report what you did. Do not ask the user to diagnose the problem for you. RPI still applies at the tier matching the fix's scope.
 
 ## Phase 1: Research
 
 Before writing any code, investigate the codebase to gather ground truth.
 
-1. **Locate** — Spawn a sub-agent to identify all files, directories, and modules relevant to the task. Do NOT read file contents in this step — return a structured list of paths with one-sentence explanations of relevance.
-2. **Analyze** — Spawn sub-agent(s) to read each relevant area and summarize: current behavior, key functions/classes, dependencies, and gotchas. Be specific with line numbers. Parallelize across independent areas.
-3. **Find patterns** — Spawn a sub-agent to identify naming conventions, testing patterns, error handling patterns, and architectural decisions in the relevant code. These guide implementation.
-4. **Write research.md** — Aggregate all findings into `research.md` (target: 300–1,000 lines). Use the structure in `templates/research.md`.
-5. **Verify context budget** — After writing research.md, check context utilization. If above 30%, compact before proceeding.
+1. **Explore** — Spawn a **single** Explore sub-agent (`max_turns: 15`) to locate all relevant files, read and analyze them, and identify codebase patterns — all in one pass. Only split into multiple agents for genuinely large tasks (15+ files across multiple unrelated domains).
+2. **Write research.md** — Aggregate findings into `research.md` (target: 100–300 lines). Use the structure in `templates/research.md`. Focus on file paths, key findings, risks, and open questions — skip exhaustive line-by-line analysis.
+3. **Verify context budget** — After writing research.md, check context utilization. If above 30%, compact before proceeding.
 
 ### Research output requirements
 - Specific file paths and line numbers, not vague references
@@ -123,16 +125,14 @@ When compacting:
 
 # Sub-Agent Behaviors
 
-When spawning sub-agents for the Research phase, use these behaviors:
+**Recursion guard:** Sub-agents MUST NOT spawn further sub-agents or follow RPI. They are leaf tasks: read, search, and report.
 
-### codebase-locator
-> Given this task: [TASK], identify all files, directories, and modules that are relevant. Do NOT read file contents. Return a structured list of paths with one-sentence explanations of why each is relevant.
-
-### codebase-analyzer
-> Read [FILE_LIST] and produce a summary of: current behavior, key functions/classes, dependencies, and any constraints or gotchas. Be specific with line numbers.
-
-### codebase-pattern-finder
-> Analyze [FILE_LIST] and identify: naming conventions, testing patterns, error handling patterns, and any architectural decisions. These will guide implementation.
+### codebase-explorer (default for Research phase)
+> Given this task: [TASK], do the following in a single pass:
+> 1. Identify all relevant files, directories, and modules.
+> 2. Read each relevant file and summarize: current behavior, key functions/classes, dependencies, and gotchas. Be specific with line numbers.
+> 3. Identify naming conventions, testing patterns, error handling patterns, and architectural decisions in the relevant code.
+> Return a structured report covering all three areas. Do NOT spawn sub-agents.
 
 ---
 

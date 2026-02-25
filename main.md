@@ -87,13 +87,8 @@ When the agent receives a task like `/research_codebase ...`, instead of dumping
 │              User Message                │
 │        /research_codebase ...            │
 ├─────────────────────────────────────────┤
-│       subagent: codebase-locator         │
-├─────────────────────────────────────────┤
-│       subagent: codebase-analyzer        │
-├─────────────────────────────────────────┤
-│       subagent: codebase-analyzer        │
-├─────────────────────────────────────────┤
-│     subagent: codebase-pattern-finder    │
+│     subagent: codebase-explorer          │
+│  (locate + analyze + patterns in 1 pass) │
 ├─────────────────────────────────────────┤
 │                 Write()                  │
 └──────────────────────┬──────────────────┘
@@ -101,9 +96,9 @@ When the agent receives a task like `/research_codebase ...`, instead of dumping
                        ▼
              ┌─────────────────┐
              │   research.md   │
-             │  300–1000 lines │
+             │  100–300 lines  │
              └─────────────────┘
-                  40% context used
+                  ~20% context used
 ```
 
 ### Layer-by-Layer Breakdown
@@ -112,13 +107,11 @@ When the agent receives a task like `/research_codebase ...`, instead of dumping
 |---|---|
 | **System Instructions** | `CLAUDE.md`, built-in tools, MCP tools — the persistent harness that defines how the agent operates in your codebase. |
 | **User Message** | The task prompt, e.g. `/research_codebase` — kicks off the workflow with minimal context used. |
-| **codebase-locator** | Identifies which modules, directories, and files are relevant to the task. Writes a short list of targets. |
-| **codebase-analyzer (×2)** | Analyzes each identified area in depth. Multiple instances can run in parallel for speed. Each writes its findings. |
-| **codebase-pattern-finder** | Identifies patterns, conventions, and anti-patterns relevant to the change being planned. |
-| **Write()** | Main agent writes all findings to `research.md` — a 300–1,000 line artifact that lives outside the context window. |
+| **codebase-explorer** | A single sub-agent that locates relevant files, analyzes each area, and identifies codebase patterns — all in one pass. Cannot spawn further sub-agents (recursion guard). |
+| **Write()** | Main agent writes all findings to `research.md` — a 100–300 line artifact that lives outside the context window. |
 | **research.md output** | The final deliverable of the Research phase. Consumed in the Plan phase without re-doing all the work. |
 
-> **Key Efficiency Insight:** The diagram shows "40% context used" at the bottom. By offloading research to sub-agents and writing findings to `research.md`, the main agent's context window stays in the Smart Zone for the most important part of the job: planning and implementing changes.
+> **Key Efficiency Insight:** The diagram shows "~20% context used" at the bottom. By consolidating research into a single sub-agent and writing concise findings to `research.md`, the main agent's context window stays well within the Smart Zone for the most important part of the job: planning and implementing changes.
 
 ---
 
@@ -133,10 +126,9 @@ The RPI workflow is the top-level process that governs how your team (and your a
 Before any code is touched, the agent investigates the codebase to understand the system. The goal is to gather ground truth — not to make changes.
 
 **What happens in Research:**
-- The `codebase-locator` sub-agent identifies relevant files, directories, and modules.
-- `codebase-analyzer` sub-agents read and analyze each relevant area.
-- The `codebase-pattern-finder` identifies conventions, testing patterns, and architectural decisions.
-- All findings are written to `research.md` (300–1,000 lines).
+- A single `codebase-explorer` sub-agent (`max_turns: 15`) locates relevant files, reads and analyzes each area, and identifies codebase patterns — all in one pass.
+- Only split into multiple agents for genuinely large tasks (15+ files across multiple unrelated domains).
+- All findings are written to `research.md` (100–300 lines).
 
 **What research.md should contain:**
 - Specific file paths and line numbers relevant to the task.
@@ -205,9 +197,9 @@ Create reusable prompt templates for each sub-agent role. These should be tuned 
 
 | Sub-Agent | Core Prompt Instruction |
 |---|---|
-| **codebase-locator** | *Given this task: [TASK], identify all files, directories, and modules that are relevant. Do NOT read file contents. Return a structured list of paths with one-sentence explanations of why each is relevant.* |
-| **codebase-analyzer** | *Read [FILE_LIST] and produce a summary of: current behavior, key functions/classes, dependencies, and any constraints or gotchas. Be specific with line numbers.* |
-| **codebase-pattern-finder** | *Analyze [FILE_LIST] and identify: naming conventions, testing patterns, error handling patterns, and any architectural decisions. These will guide implementation.* |
+| **codebase-explorer** | *Given this task: [TASK], do the following in a single pass: (1) Identify all relevant files, directories, and modules. (2) Read each relevant file and summarize: current behavior, key functions/classes, dependencies, and gotchas. Be specific with line numbers. (3) Identify naming conventions, testing patterns, error handling patterns, and architectural decisions. Return a structured report covering all three areas. Do NOT spawn sub-agents.* |
+
+**Recursion guard:** Sub-agents MUST NOT spawn further sub-agents or follow RPI. They are leaf tasks: read, search, and report.
 
 ### Step 3: Establish Compaction Triggers
 
@@ -244,13 +236,11 @@ The classic failure mode is optimizing for PRs merged instead of features shippe
 - [ ] Ensure `CLAUDE.md` / system instructions are up to date with recent codebase changes.
 - [ ] Start a fresh context window — do not continue from a previous long conversation.
 - [ ] Define the task clearly: what is the expected input, output, and success criteria?
-- [ ] Identify which sub-agents are needed for the Research phase.
+- [ ] Determine task tier (1–2 files / 3–5 files / 6+ files) to select the appropriate workflow.
 
 ### Research Phase
-- [ ] Run `codebase-locator` to identify relevant files.
-- [ ] Run `codebase-analyzer` on each relevant area (parallelize where possible).
-- [ ] Run `codebase-pattern-finder` to capture conventions.
-- [ ] Write all findings to `research.md`.
+- [ ] Run a single `codebase-explorer` sub-agent to locate, analyze, and identify patterns in one pass.
+- [ ] Write all findings to `research.md` (target: 100–300 lines).
 - [ ] Check: is context still under ~35%? If not, compact before proceeding.
 
 ### Plan Phase
@@ -272,7 +262,7 @@ The classic failure mode is optimizing for PRs merged instead of features shippe
 
 ### ❌ Pitfall: Vibe Coding
 **Problem:** Skipping Research and Plan, going straight to "just ask Claude to fix it."
-**Fix:** Always run the RPI flow for any change touching more than 2 files or any architectural concern.
+**Fix:** Use the tiered workflow: lightweight research for 3–5 file changes, full RPI for 6+ files or architectural concerns.
 
 ---
 
@@ -371,7 +361,7 @@ To implement this successfully, keep these principles front and center:
 
 3. **40% is the cliff.** Keep context utilization under 35–40% to stay in the Smart Zone. Compact proactively.
 
-4. **Sub-agents keep the main context lean.** Use `codebase-locator`, analyzers, and `pattern-finder` to distribute the work, then aggregate into `research.md`.
+4. **Sub-agents keep the main context lean.** Use a single `codebase-explorer` to do all research in one pass, then aggregate into `research.md`.
 
 5. **Plans are for humans, not just agents.** The Plan phase exists to give you mental alignment and oversight without deep code review.
 
