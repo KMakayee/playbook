@@ -1,6 +1,29 @@
 # Setup Assistant
 
-You are setting up the RPI playbook for this codebase. CLAUDE.md contains 7 sections marked with `[TEAM FILLS IN]`. Your job is to explore the codebase, draft content for each unfilled section, and confirm with the developer before writing.
+You are setting up the RPI playbook for this codebase. Start by asking the developer whether this is a new project (playbook template already in CLAUDE.md) or an existing project (their own CLAUDE.md that needs playbook sections added). Then follow the appropriate path.
+
+---
+
+## Step 0: Ask new or existing project
+
+Ask the developer:
+
+> "Is this a **new project** (you followed the playbook README setup instructions and CLAUDE.md already has the `[TEAM FILLS IN]` sections) or an **existing project** (you have your own CLAUDE.md that you'd like the playbook sections added to)?"
+
+- **New project** → proceed to Step 1
+- **Existing project** → proceed to Step 0B
+
+---
+
+## Step 0B: Append playbook structure to existing CLAUDE.md
+
+For existing projects only:
+
+1. Read their existing CLAUDE.md and summarize what's there (1-2 sentences) so the developer can confirm it's the right file.
+2. Explain: "I'll append 7 new sections (Codebase Overview, Architecture, Conventions, Testing, Build & Run, Critical Paths, Dependencies) and the RPI Workflow Rules to your file. Your existing content will not be touched."
+3. Wait for developer confirmation.
+4. Read `templates/playbook-sections.md` and append its full contents to the end of CLAUDE.md using the Edit tool.
+5. After appending, proceed to Step 1 — CLAUDE.md now has markers.
 
 ---
 
@@ -9,57 +32,18 @@ You are setting up the RPI playbook for this codebase. CLAUDE.md contains 7 sect
 Read `CLAUDE.md` in the project root. Identify which sections still contain the marker text `[TEAM FILLS IN`.
 
 - **Markers found** → skip any already-filled sections, proceed to Step 2 with the unfilled ones.
-- **No markers found** → check whether the file contains the playbook section headers: `## Codebase Overview`, `## Architecture`, `## Conventions`, `## Testing`, `## Build & Run`, `## Critical Paths`, `## Dependencies`, and `# RPI Workflow Rules`. If all are present, the playbook is fully configured — tell the developer and stop. If these headers are missing, the CLAUDE.md is not from the playbook template — **stop and explain to the developer:** "Your CLAUDE.md doesn't have the playbook template structure. I'll need to add the playbook sections (Codebase Overview, Architecture, Conventions, Testing, Build & Run, Critical Paths, Dependencies, and the RPI Workflow Rules) to your file. Your existing content will be preserved — playbook sections will be added alongside it." **Wait for the developer to confirm before proceeding.** Only after confirmation, proceed to Step 2 to configure it as a first-time setup.
+- **No markers found, all headers present** → the playbook is fully configured. Tell the developer and stop.
+- **No markers found, missing headers** → this shouldn't happen after Step 0. Tell the developer something is unexpected and suggest re-running `/playbook-setup`.
 
 ---
 
-## Step 2: Detect the ecosystem
+## Step 2: Explore the codebase via subagent
 
-Before interviewing, silently explore the project to determine the tech stack. Check for these files (do NOT ask the developer — just look):
+Spawn a single Explore subagent (`Task` tool, `subagent_type: "Explore"`, thoroughness: "very thorough") to detect the ecosystem and gather findings for all unfilled sections at once. **Do not read any source or config files yourself** — the subagent handles all file I/O.
 
-**Package/dependency files:**
-- `package.json`, `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `bun.lockb` (Node.js)
-- `pyproject.toml`, `setup.py`, `requirements.txt`, `Pipfile`, `poetry.lock` (Python)
-- `Cargo.toml`, `Cargo.lock` (Rust)
-- `go.mod`, `go.sum` (Go)
-- `Gemfile`, `Gemfile.lock` (Ruby)
-- `build.gradle`, `pom.xml` (Java/Kotlin)
-- `composer.json` (PHP)
-- `Package.swift` (Swift)
-- `mix.exs` (Elixir)
-- `*.csproj`, `*.sln` (C#/.NET)
+Read `templates/explore-prompt.md`, replace `[UNFILLED_SECTIONS]` with the comma-separated list of unfilled section names from Step 1, and use the result as the subagent prompt.
 
-**Monorepo markers:**
-- `turbo.json`, `nx.json`, `pnpm-workspace.yaml`, `lerna.json`
-
-**Framework configs:**
-- `next.config.*`, `nuxt.config.*`, `vite.config.*`, `webpack.config.*`, `tsconfig.json`
-- `django`, `flask`, `fastapi` in Python deps
-- `.rails-version`, `config/routes.rb`
-
-**Infrastructure/tooling:**
-- `Dockerfile`, `docker-compose.yml`
-- `Makefile`
-- `.env.example`, `.env.local`
-- CI configs: `.github/workflows/`, `.gitlab-ci.yml`, `.circleci/`
-
-**Linter/formatter configs:**
-- `.eslintrc*`, `eslint.config.*`, `.prettierrc*`, `biome.json`
-- `ruff.toml`, `pyproject.toml` `[tool.ruff]`
-- `.rubocop.yml`
-- `rustfmt.toml`, `clippy.toml`
-
-**Database/ORM:**
-- `prisma/schema.prisma`, `drizzle.config.*`
-- `alembic/`, `migrations/`
-- `knexfile.*`, `ormconfig.*`
-
-**Test configs:**
-- `jest.config.*`, `vitest.config.*`, `pytest.ini`, `conftest.py`, `.rspec`
-
-Also run a 2-level directory listing (`ls` at root and one level deep) to understand project structure.
-
-Store your findings internally — you'll use them to draft each section.
+Store the subagent's full response — you will use it in Step 3. **Do not read any additional source or config files yourself.**
 
 ---
 
@@ -67,9 +51,9 @@ Store your findings internally — you'll use them to draft each section.
 
 For each unfilled section (in the order they appear in CLAUDE.md), follow this loop:
 
-### A. Explore silently
+### A. Extract findings
 
-Use the exploration strategy for that section (see table below). Read the relevant files. Do not output raw file contents to the developer.
+Extract the findings and proposed draft for this section from the exploration subagent's output. Do not read any additional source files.
 
 ### B. Draft a proposal
 
@@ -92,54 +76,6 @@ Then move to the next unfilled section.
 
 ---
 
-## Exploration strategy per section
-
-### Codebase Overview
-- Read: `README.md`, package metadata (name/description fields in `package.json`, `pyproject.toml`, `Cargo.toml`, etc.)
-- Check: git log `--oneline -20` for recent activity and maturity signals
-- Count: rough number of source files to gauge project size
-- Draft: 2-3 sentences covering what the project does, who uses it, and maturity stage
-
-### Architecture
-- Read: main config files (framework config, tsconfig, etc.)
-- Explore: 2-level directory listing, entry points (`src/index.*`, `app.*`, `main.*`)
-- Check: database configs (Prisma schema, ORM config, migration dirs)
-- Check: `.env.example` or `.env.local` for external service hints
-- Draft: primary language/framework, directory layout, key abstractions, DB layer, external services
-
-### Conventions
-- Read: linter/formatter configs for enforced rules
-- Sample: 5-10 source files across different directories
-- Look for: naming patterns (files, functions, variables), import ordering, error handling style, logging approach
-- Draft: observed conventions with examples
-
-### Testing
-- Read: test config files (`jest.config.*`, `vitest.config.*`, `pytest.ini`, etc.)
-- Find: test file locations (glob for `*.test.*`, `*.spec.*`, `test_*`, `*_test.*`)
-- Read: `package.json` scripts or `Makefile` targets for test commands
-- Check: coverage config if present
-- Draft: framework, file location convention, run commands, coverage expectations
-
-### Build & Run
-- Read: `package.json` scripts, `Makefile`, `Dockerfile`, CI configs
-- Detect: package manager from lock files
-- Look for: dev server, build, lint/format commands
-- Draft: install, dev, build, lint commands
-
-### Critical Paths
-- Grep for: directories/files containing `auth`, `login`, `session`, `token`, `payment`, `billing`, `stripe`, `migration`, `schema`, `api/v`
-- Present these as **candidates** — this section needs the most human input
-- Ask the developer explicitly: *"Which of these are critical? Are there others I missed?"*
-- Draft: confirmed critical paths with brief explanations
-
-### Dependencies
-- Read: dependency files for pinned versions, unusual packages, or version constraints
-- Check: for monorepo tooling, workspace configs
-- Look for: anything version-sensitive or easily breakable
-- Draft: only noteworthy dependencies — skip obvious ones
-
----
-
 ## Step 4: Wrap up
 
 After all sections are filled:
@@ -157,4 +93,3 @@ After all sections are filled:
 - **Minimal/empty repo:** If very few files exist, tell the developer. Fill what you can detect, and for sections with insufficient signal, write a short placeholder like `<!-- TODO: Fill in after project structure is established -->` and explain why.
 - **Monorepo:** If monorepo markers are found, note this in the Architecture section and ask the developer which package/app is the primary focus for this CLAUDE.md instance.
 - **Non-standard structure:** If the project doesn't follow common conventions, rely more heavily on developer input. Present what you found and ask them to describe what's different.
-- **CLAUDE.md exists but isn't from the playbook:** If CLAUDE.md has no `[TEAM FILLS IN` markers AND is missing the expected playbook section headers (`## Codebase Overview`, `## Architecture`, etc.), the file was not created from the playbook template. **Stop and explain to the developer** what you found and that you'll add playbook sections alongside their existing content (not replace it). **Wait for confirmation before proceeding.** Only after confirmation, proceed with normal first-time setup (Steps 2–4) to configure all sections, preserving the existing CLAUDE.md content.
