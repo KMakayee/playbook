@@ -19,10 +19,11 @@ templates/lessons.md
 templates/audit-report.md
 templates/playbook-sections.md
 templates/explore-prompt.md
-scripts/check-wide-tables.sh
+.claude/commands/fix-tables.md
 .claude/commands/playbook-setup.md
 .claude/commands/playbook-audit.md
 .claude/commands/playbook-update.md
+templates/commands/commit-push-pr.md
 ```
 
 ---
@@ -108,34 +109,6 @@ CLAUDE.md requires special handling because the top half is team-owned and the b
      - **show diff** → Show the diff of the bottom halves only, then ask yes/skip again.
 
 **Important:** After updating, verify the resulting CLAUDE.md by reading it back. Confirm the top half is completely untouched and the bottom half matches the latest.
-
-### Category C — Hook configuration
-
-The playbook ships a PostToolUse hook (`scripts/check-wide-tables.sh`) that detects wide markdown tables after Edit/Write. This step ensures the hook is wired into the project's settings.
-
-1. Read the project's `.claude/settings.local.json`. If the file does not exist, create it with `{}`.
-2. Check if `hooks.PostToolUse` already contains an entry whose `command` includes `check-wide-tables.sh`.
-   - **Missing** → Merge the following into the existing JSON, preserving all existing keys (permissions, etc.):
-     ```json
-     "hooks": {
-       "PostToolUse": [
-         {
-           "matcher": "Edit|Write",
-           "hooks": [
-             {
-               "type": "command",
-               "command": "bash \"$CLAUDE_PROJECT_DIR/scripts/check-wide-tables.sh\""
-             }
-           ]
-         }
-       ]
-     }
-     ```
-     If `hooks.PostToolUse` already exists with other entries, append to the array rather than replacing it.
-     Report: "Added wide-tables hook to `.claude/settings.local.json`."
-   - **Present and identical** → Skip silently.
-   - **Present but different** → Show the diff between the current and expected hook entry and ask:
-     > "The wide-tables hook config differs from the latest. Update? (yes / skip)"
 
 ---
 
