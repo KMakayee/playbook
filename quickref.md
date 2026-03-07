@@ -4,6 +4,38 @@
 
 ---
 
+## Commands
+
+**Playbook**
+
+| Command | What it does |
+|---|---|
+| `/playbook-setup` | Configure CLAUDE.md for your codebase |
+| `/playbook-update` | Fetch and apply latest playbook version |
+| `/playbook-audit` | Health check — stale config, lessons cleanup, leftover artifacts |
+| `/fix-tables` | Wrap bare markdown tables in fenced code blocks |
+
+**Issue Board**
+
+| Command | What it does |
+|---|---|
+| `/issue-research #N` | Research issue #N → produce `tasks/research.md` |
+| `/issue-plan #N` | Generate `tasks/plan.md` from research findings |
+| `/issue-audit #N` | Audit plan against research and acceptance criteria |
+| `/issue-implement #N` | Execute the approved plan |
+| `/issue-update #N` | After completion, check impact on other open issues |
+
+**Built-in**
+
+| Command | What it does |
+|---|---|
+| `/simplify` | Review changed code for reuse, quality, and efficiency |
+| `/code-review` | Code review a pull request |
+| `/commit` | Stage and commit changes with a generated message |
+| `/pr` | Create a pull request from the current branch |
+
+---
+
 ## Pre-Edit Gate
 
 **Before calling Edit or Write, classify the task:**

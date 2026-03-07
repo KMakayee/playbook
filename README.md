@@ -1,6 +1,6 @@
 # RPI Playbook
 
-A ready-to-use toolkit for disciplined AI-assisted engineering with Claude Code. Built from two sources: the **Research → Plan → Implement** workflow from Dex Horthy's [No Vibes Allowed](https://www.youtube.com/watch?v=rmvDxxNubIg) talk, and the workflow orchestration principles from Boris Cherny (creator of Claude Code) — covering plan-first defaults, demand elegance, autonomous bug fixing, verification before done, and the self-improvement loop.
+A ready-to-use toolkit for disciplined AI-assisted engineering with Claude Code. Built from two sources: the **Research → Plan → Implement** workflow from Dex Horthy's [No Vibes Allowed](https://www.humanlayer.dev/nva) talk, and the workflow orchestration principles from Boris Cherny (creator of Claude Code) — covering plan-first defaults, demand elegance, autonomous bug fixing, verification before done, and the self-improvement loop.
 
 The core idea: AI coding agents fail in complex codebases not because of model quality, but because of poor context management. This playbook enforces structured research, explicit planning, and minimal implementation — keeping the agent in the Smart Zone.
 
@@ -34,6 +34,7 @@ The assistant will:
 2. Walk through each `[TEAM FILLS IN]` section in CLAUDE.md
 3. Draft proposed content based on what it finds in your codebase
 4. Ask you to confirm or edit each section before writing it
+5. Offer to install global utility commands (like `/commit-push-pr`) to `~/.claude/commands/`
 
 After setup, your CLAUDE.md will be fully configured for your project.
 
@@ -75,4 +76,5 @@ The update command fetches the latest playbook, shows what changed, and lets you
 | `.claude/commands/playbook-setup.md` | One-time setup slash command | Only when you run `/playbook-setup` |
 | `.claude/commands/playbook-audit.md` | Periodic maintenance slash command | Only when you run `/playbook-audit` |
 | `.claude/commands/playbook-update.md` | Update slash command | Only when you run `/playbook-update` |
+| `templates/commands/commit-push-pr.md` | Global command: commit, push, open PR | Installed to `~/.claude/commands/` via `/playbook-setup` |
 | `.playbook-version` | Tracks installed playbook version | No — used by `/playbook-update` |
