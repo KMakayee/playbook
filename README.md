@@ -1,6 +1,6 @@
 # RPI Playbook
 
-A ready-to-use toolkit for disciplined AI-assisted engineering with Claude Code. Based on the **Research → Plan → Implement** workflow from Dex Horthy's [No Vibes Allowed](https://www.youtube.com/watch?v=rmvDxxNubIg) talk.
+A ready-to-use toolkit for disciplined AI-assisted engineering with Claude Code. Built from two sources: the **Research → Plan → Implement** workflow from Dex Horthy's [No Vibes Allowed](https://www.youtube.com/watch?v=rmvDxxNubIg) talk, and the workflow orchestration principles from Boris Cherny (creator of Claude Code) — covering plan-first defaults, demand elegance, autonomous bug fixing, verification before done, and the self-improvement loop.
 
 The core idea: AI coding agents fail in complex codebases not because of model quality, but because of poor context management. This playbook enforces structured research, explicit planning, and minimal implementation — keeping the agent in the Smart Zone.
 

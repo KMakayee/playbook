@@ -76,6 +76,33 @@ Then move to the next unfilled section.
 
 ---
 
+## Step 3B: Configure hooks
+
+After all CLAUDE.md sections are filled, set up the PostToolUse hook for wide markdown table detection.
+
+1. Read `.claude/settings.local.json`. If the file does not exist, create it with `{}`.
+2. Check if `hooks.PostToolUse` already contains an entry whose `command` includes `check-wide-tables.sh`.
+   - **Missing** → Merge the following into the existing JSON, preserving all existing keys:
+     ```json
+     "hooks": {
+       "PostToolUse": [
+         {
+           "matcher": "Edit|Write",
+           "hooks": [
+             {
+               "type": "command",
+               "command": "bash \"$CLAUDE_PROJECT_DIR/scripts/check-wide-tables.sh\""
+             }
+           ]
+         }
+       ]
+     }
+     ```
+   - **Already present** → Skip silently.
+3. Tell the developer: "Added a hook to detect wide markdown tables after file edits."
+
+---
+
 ## Step 4: Wrap up
 
 After all sections are filled:
