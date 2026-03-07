@@ -76,9 +76,15 @@ Then move to the next unfilled section.
 
 ---
 
-## Step 3B: Configure hooks
+## Step 3B: Configure hooks (opt-in)
 
-After all CLAUDE.md sections are filled, set up the PostToolUse hook for wide markdown table detection.
+After all CLAUDE.md sections are filled, offer the wide markdown table hook.
+
+Ask the developer:
+
+> "Would you like to enable the **wide markdown table hook**? This adds a PostToolUse hook that detects bare markdown tables in `.md` files and tells Claude to wrap them in fenced code blocks. Useful if your terminal (e.g. Warp) doesn't render markdown tables well. (yes / skip)"
+
+### If **yes**:
 
 1. Read `.claude/settings.local.json`. If the file does not exist, create it with `{}`.
 2. Check if `hooks.PostToolUse` already contains an entry whose `command` includes `check-wide-tables.sh`.
@@ -99,7 +105,35 @@ After all CLAUDE.md sections are filled, set up the PostToolUse hook for wide ma
      }
      ```
    - **Already present** → Skip silently.
-3. Tell the developer: "Added a hook to detect wide markdown tables after file edits."
+3. Append the following paragraph to the end of the **Conventions** section in CLAUDE.md (after whatever content was filled in by Step 3):
+
+   ```
+   **Markdown tables** — All markdown tables in `.md` files must be wrapped in fenced code blocks (triple backticks) with columns padded so pipes align. The `check-wide-tables.sh` PostToolUse hook enforces this. If the hook fires after an Edit or Write, immediately re-edit the file to wrap the flagged tables in ``` blocks with aligned columns.
+   ```
+
+4. Tell the developer: "Added the wide table hook and convention to CLAUDE.md."
+
+### If **skip**:
+
+Skip silently. No hook is installed and no convention paragraph is added.
+
+---
+
+## Step 3C: Install global utility commands
+
+Offer to install reusable workflow commands to `~/.claude/commands/` (global, available in all workspaces).
+
+1. Check if `~/.claude/commands/` exists. If not, create it.
+2. For each file in `templates/commands/`:
+   a. Check if the file already exists at `~/.claude/commands/[filename]`.
+   b. If it doesn't exist: ask the developer:
+      > "Install `/[name]` globally? This adds it to `~/.claude/commands/` so it's available in every workspace."
+      - yes → copy the file
+      - skip → leave it
+   c. If it already exists: check whether the contents differ.
+      - Same → skip silently.
+      - Different → show a brief summary of the changes and ask: "Update global `/[name]`? (yes / skip)"
+3. Tell the developer which commands were installed (or mention that this step was skipped).
 
 ---
 
