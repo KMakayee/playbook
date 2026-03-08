@@ -30,6 +30,8 @@ templates/explore-prompt.md
 .claude/commands/issue-update.md
 templates/new-issues.md
 templates/deferred.md
+.claude/commands/commit.md
+.claude/commands/commit-push-pr.md
 templates/commands/commit-push-pr.md
 ```
 

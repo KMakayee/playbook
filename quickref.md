@@ -25,14 +25,14 @@
 | `/issue-implement #N` | Execute the approved plan |
 | `/issue-update #N` | After completion, check impact on other open issues |
 
-**Built-in**
+**Code Quality**
 
 | Command | What it does |
 |---|---|
-| `/simplify` | Review changed code for reuse, quality, and efficiency |
-| `/code-review` | Code review a pull request |
-| `/commit` | Stage and commit changes with a generated message |
-| `/pr` | Create a pull request from the current branch |
+| `/commit` | Stage and commit to current branch |
+| `/commit-push-pr` | Stage, commit, push, and open a PR in one flow |
+| `/simplify` | Review changed code for reuse, quality, and efficiency (built-in) |
+| `/code-review` | Code review a pull request (built-in) |
 
 ---
 
