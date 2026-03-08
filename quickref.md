@@ -29,10 +29,12 @@
 
 | Command | What it does |
 |---|---|
-| `/commit` | Stage and commit to current branch |
-| `/push-pr` | Push current branch and open a PR |
+| `/commit` | Stage, commit, and push to current branch |
+| `/push-pr` | Open a PR from current branch to main |
 | `/simplify` | Review changed code for reuse, quality, and efficiency (built-in) |
 | `/code-review` | Code review a pull request (built-in) |
+| `/batch` | Decompose large changes into parallel sub-agents in isolated worktrees (built-in) |
+| `/loop` | Run a prompt on a recurring interval, e.g. `/loop 5m check deploy` (built-in) |
 
 ---
 

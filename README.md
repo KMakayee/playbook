@@ -76,6 +76,6 @@ The update command fetches the latest playbook, shows what changed, and lets you
 | `.claude/commands/playbook-setup.md` | One-time setup slash command | Only when you run `/playbook-setup` |
 | `.claude/commands/playbook-audit.md` | Periodic maintenance slash command | Only when you run `/playbook-audit` |
 | `.claude/commands/playbook-update.md` | Update slash command | Only when you run `/playbook-update` |
-| `.claude/commands/commit.md` | Stage and commit to current branch | Only when you run `/commit` |
-| `.claude/commands/push-pr.md` | Push current branch and open a PR | Only when you run `/push-pr` |
+| `.claude/commands/commit.md` | Stage, commit, and push to current branch | Only when you run `/commit` |
+| `.claude/commands/push-pr.md` | Open a PR from current branch to main | Only when you run `/push-pr` |
 | `.playbook-version` | Tracks installed playbook version | No — used by `/playbook-update` |
