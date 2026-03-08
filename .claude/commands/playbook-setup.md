@@ -81,7 +81,10 @@ Then move to the next unfilled section.
 Offer to install reusable workflow commands to `~/.claude/commands/` (global, available in all workspaces).
 
 1. Check if `~/.claude/commands/` exists. If not, create it.
-2. For each file in `templates/commands/`:
+2. For each of the following command files:
+   - `.claude/commands/commit.md`
+   - `.claude/commands/push-pr.md`
+
    a. Check if the file already exists at `~/.claude/commands/[filename]`.
    b. If it doesn't exist: ask the developer:
       > "Install `/[name]` globally? This adds it to `~/.claude/commands/` so it's available in every workspace."

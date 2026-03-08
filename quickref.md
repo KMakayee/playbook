@@ -30,7 +30,7 @@
 | Command | What it does |
 |---|---|
 | `/commit` | Stage and commit to current branch |
-| `/commit-push-pr` | Stage, commit, push, and open a PR in one flow |
+| `/push-pr` | Push current branch and open a PR |
 | `/simplify` | Review changed code for reuse, quality, and efficiency (built-in) |
 | `/code-review` | Code review a pull request (built-in) |
 

@@ -31,8 +31,7 @@ templates/explore-prompt.md
 templates/new-issues.md
 templates/deferred.md
 .claude/commands/commit.md
-.claude/commands/commit-push-pr.md
-templates/commands/commit-push-pr.md
+.claude/commands/push-pr.md
 ```
 
 ---
