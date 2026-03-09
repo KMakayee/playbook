@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash",
+      "WebSearch",
+      "WebFetch",
+      "Read(//Users/chief/.claude/**)",
+      "Skill(code-review:code-review)"
+    ]
+  }
+}
