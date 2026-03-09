@@ -110,6 +110,14 @@ Execute the approved plan. Do not improvise.
 6. Track progress in `tasks/todo.md` — write checkable items from the plan, mark them as you go, and add a brief result summary for each completed step. Use the structure in `templates/todo.md`.
 7. **Clean up artifacts** — After all todo.md steps are complete and verified, remove `tasks/research.md`, `tasks/plan.md`, and `tasks/todo.md`.
 
+## Multi-Batch Plans
+
+When a plan contains multiple independent batches (e.g., a code review with 6 fix batches), do NOT implement them all in one pass. Each batch is a separate unit of work in its own prompt.
+
+1. During Phase 2, identify and list independent batches in the plan.
+2. Execute one batch per prompt. The pre-edit gate applies per-batch — trivial batches can skip RPI, non-trivial batches get full RPI.
+3. Compact between batches to keep context low.
+
 ---
 
 # Compaction Rules
