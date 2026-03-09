@@ -13,7 +13,7 @@
 |---------------------|------------------------------------------------------------------|
 | `/playbook-setup`   | Configure CLAUDE.md for your codebase                            |
 | `/playbook-update`  | Fetch and apply latest playbook version                          |
-| `/playbook-audit`   | Health check — stale config, lessons cleanup, leftover artifacts |
+| `/playbook-audit`   | Health check — stale config, leftover artifacts                  |
 | `/fix-tables`       | Wrap bare markdown tables in fenced code blocks                  |
 ```
 
@@ -143,14 +143,6 @@ If uncertain, it is non-trivial. Do not Edit/Write source files until the task i
 
 ---
 
-## Self-Improvement
-
-- User correction or failed verification → add entry to `tasks/lessons.md`
-- Start of session → read `tasks/lessons.md` before working
-- Same mistake twice → rewrite the lesson with a stronger rule
-
----
-
 ## Red Flags
 
 - Calling Edit/Write before classifying the task → pre-edit gate violation
@@ -160,7 +152,6 @@ If uncertain, it is non-trivial. Do not Edit/Write source files until the task i
 - Context window growing unchecked → entering the Dumb Zone
 - Measuring PRs merged instead of rework rate → false productivity
 - Completing a step without verifying it works → false progress
-- Same correction from the user twice → lesson not captured or too weak
 - Asking the user to diagnose a bug for you → wasted human attention
 
 ---
@@ -195,12 +186,10 @@ Run `/playbook-audit` periodically to keep the playbook healthy.
 
 **What it does:**
 1. Compares each CLAUDE.md section against the actual codebase — flags stale or unconfigured sections
-2. Reviews `tasks/lessons.md` — graduates old entries, consolidates duplicates, flags high-severity for manual review
-3. Cleans up leftover task artifacts (`research.md`, `plan.md`, `todo.md`)
-4. Generates a health report in `tasks/audit-report.md`
+2. Cleans up leftover task artifacts (`research.md`, `plan.md`, `todo.md`)
+3. Generates a health report in `tasks/audit-report.md`
 
 **When to run it:**
 - Every 2–4 weeks as routine maintenance
 - After major refactors that change tech stack, directory structure, or conventions
-- When `tasks/lessons.md` grows past ~25 entries
 - When Claude makes outdated assumptions about your codebase

@@ -36,7 +36,7 @@ Implement the approved plan for issue **#$ARGUMENTS**.
 
 8. **Clean up.** After verification:
    - Remove `tasks/research.md`, `tasks/plan.md`, `tasks/todo.md`
-   - Do NOT remove `tasks/lessons.md` or `tasks/deferred.md`
+   - Do NOT remove `tasks/deferred.md`
 
 9. **Update issue status.** In `tasks/new-issues.md`, change issue #$ARGUMENTS status to `Done`.
 

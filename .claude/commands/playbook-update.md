@@ -15,7 +15,6 @@ quickref.md
 templates/research.md
 templates/plan.md
 templates/todo.md
-templates/lessons.md
 templates/audit-report.md
 templates/playbook-sections.md
 templates/explore-prompt.md
