@@ -111,7 +111,11 @@ CLAUDE.md requires special handling because the top half is team-owned and the b
    - If identical → skip silently, report "RPI rules section is up to date."
    - If different → summarize the changes and ask:
      > "The RPI rules section of CLAUDE.md has changed. Update? (yes / skip / show diff)"
-     - **yes** → Replace only the bottom half (from `# RPI Workflow Rules` onward) with the latest version. Preserve the top half and the `---` separator exactly as they are.
+     - **yes** → Merge the latest version into the bottom half. Do NOT wholesale-replace. Instead:
+       1. Identify which differences are **upstream playbook updates** (new rules, formatting changes, restructured sections, removed content that was in the old upstream) vs **project-specific customizations** the user added (extra rules, extended bullets, custom checks not present in any upstream version).
+       2. Apply the upstream changes while preserving project-specific customizations in their logical locations.
+       3. Show the proposed merged result to the developer for confirmation before writing.
+       4. If an upstream change directly modifies the same text the user customized, present both versions for that specific conflict and let the user decide.
      - **skip** → Leave unchanged. Note it in the summary.
      - **show diff** → Show the diff of the bottom halves only, then ask yes/skip again.
 
