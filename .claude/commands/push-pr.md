@@ -12,3 +12,7 @@ Review the status above. Then:
    - If no open PR and `gh` is installed: run `gh pr create --fill` to open one.
    - If no open PR and `gh` is not installed: tell the developer and skip PR creation.
    - If a PR already exists: show the PR URL and skip creation.
+4. **Code review** — Run `/code-review` on the PR (use the PR number from step 3). Wait for the review to complete.
+5. **Conditional merge** — Evaluate the code review result:
+   - **If the review found no issues** ("No issues found"): merge the PR via `gh pr merge --merge` and confirm the merge to the developer.
+   - **If the review found issues**: list each issue clearly, do NOT merge, and suggest fixing via the RPI workflow (research → plan → implement).
