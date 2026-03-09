@@ -76,6 +76,27 @@ Then move to the next unfilled section.
 
 ---
 
+## Step 3B: Install global utility commands
+
+Offer to install reusable workflow commands to `~/.claude/commands/` (global, available in all workspaces).
+
+1. Check if `~/.claude/commands/` exists. If not, create it.
+2. For each of the following command files:
+   - `.claude/commands/commit.md`
+   - `.claude/commands/push-pr.md`
+
+   a. Check if the file already exists at `~/.claude/commands/[filename]`.
+   b. If it doesn't exist: ask the developer:
+      > "Install `/[name]` globally? This adds it to `~/.claude/commands/` so it's available in every workspace."
+      - yes → copy the file
+      - skip → leave it
+   c. If it already exists: check whether the contents differ.
+      - Same → skip silently.
+      - Different → show a brief summary of the changes and ask: "Update global `/[name]`? (yes / skip)"
+3. Tell the developer which commands were installed (or mention that this step was skipped).
+
+---
+
 ## Step 4: Wrap up
 
 After all sections are filled:
