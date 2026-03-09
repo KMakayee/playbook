@@ -1,6 +1,6 @@
 # RPI Playbook
 
-A ready-to-use toolkit for disciplined AI-assisted engineering with Claude Code. Built from two sources: the **Research → Plan → Implement** workflow from Dex Horthy's [No Vibes Allowed](https://www.humanlayer.dev/nva) talk, and the workflow orchestration principles from Boris Cherny (creator of Claude Code) — covering plan-first defaults, demand elegance, autonomous bug fixing, verification before done, and the self-improvement loop.
+A ready-to-use toolkit for disciplined AI-assisted engineering with Claude Code. Built from two sources: the **Research → Plan → Implement** workflow from Dex Horthy's [No Vibes Allowed](https://www.humanlayer.dev/nva) talk, and the workflow orchestration principles from Boris Cherny (creator of Claude Code) — covering plan-first defaults, demand elegance, autonomous bug fixing, and verification before done.
 
 The core idea: AI coding agents fail in complex codebases not because of model quality, but because of poor context management. This playbook enforces structured research, explicit planning, and minimal implementation — keeping the agent in the Smart Zone.
 
@@ -19,7 +19,7 @@ rmdir playbook
 
 > **Warning:** The `mv` command will overwrite existing files without prompting. If your project already has a `CLAUDE.md`, `.claude/` directory, `quickref.md`, or `templates/` directory, back them up before running the setup commands.
 
-> **Note:** A `tasks/` directory is created at runtime to hold `research.md`, `plan.md`, `todo.md`, and `lessons.md` for the current task. It is not included in this distribution.
+> **Note:** A `tasks/` directory is created at runtime to hold `research.md`, `plan.md`, and `todo.md` for the current task. It is not included in this distribution.
 
 ### 2. Run the setup assistant
 
@@ -69,7 +69,6 @@ The update command fetches the latest playbook, shows what changed, and lets you
 | `CLAUDE.md` | Project-specific context + RPI rules | Yes — every session |
 | `templates/research.md` | Structure for research output | Referenced when writing research |
 | `templates/plan.md` | Structure for plan output | Referenced when writing plans |
-| `templates/lessons.md` | Structure for self-improvement entries | Referenced when capturing corrections |
 | `templates/todo.md` | Structure for task progress tracking | Referenced when tracking implementation |
 | `templates/audit-report.md` | Structure for audit command output | Referenced when generating audit reports |
 | `quickref.md` | Human-readable RPI cheat sheet | No — for your reference |

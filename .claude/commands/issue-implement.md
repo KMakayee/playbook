@@ -20,6 +20,7 @@ Implement the approved plan for issue **#$ARGUMENTS**.
 5. **Initialize progress tracking.** If `tasks/todo.md` doesn't exist (or starting fresh), create it from `templates/todo.md` with steps derived from the plan. Include the issue number in the title.
 
 6. **Execute the plan.** Follow the plan step by step:
+   - If the plan identifies multiple independent batches, execute only the first batch. Present remaining batches to the developer and suggest starting a new prompt for each.
    - Update `tasks/todo.md` as each step completes
    - Run tests after each logical unit of change
    - If something doesn't match expectations: **STOP** and present the mismatch clearly:
@@ -35,7 +36,7 @@ Implement the approved plan for issue **#$ARGUMENTS**.
 
 8. **Clean up.** After verification:
    - Remove `tasks/research.md`, `tasks/plan.md`, `tasks/todo.md`
-   - Do NOT remove `tasks/lessons.md` or `tasks/deferred.md`
+   - Do NOT remove `tasks/deferred.md`
 
 9. **Update issue status.** In `tasks/new-issues.md`, change issue #$ARGUMENTS status to `Done`.
 
