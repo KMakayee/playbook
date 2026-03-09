@@ -8,33 +8,39 @@
 
 **Playbook**
 
-| Command | What it does |
-|---|---|
-| `/playbook-setup` | Configure CLAUDE.md for your codebase |
-| `/playbook-update` | Fetch and apply latest playbook version |
-| `/playbook-audit` | Health check — stale config, lessons cleanup, leftover artifacts |
-| `/fix-tables` | Wrap bare markdown tables in fenced code blocks |
+```
+| Command             | What it does                                                     |
+|---------------------|------------------------------------------------------------------|
+| `/playbook-setup`   | Configure CLAUDE.md for your codebase                            |
+| `/playbook-update`  | Fetch and apply latest playbook version                          |
+| `/playbook-audit`   | Health check — stale config, lessons cleanup, leftover artifacts |
+| `/fix-tables`       | Wrap bare markdown tables in fenced code blocks                  |
+```
 
 **Issue Board**
 
-| Command | What it does |
-|---|---|
-| `/issue-research #N` | Research issue #N → produce `tasks/research.md` |
-| `/issue-plan #N` | Generate `tasks/plan.md` from research findings |
-| `/issue-audit #N` | Audit plan against research and acceptance criteria |
-| `/issue-implement #N` | Execute the approved plan |
-| `/issue-update #N` | After completion, check impact on other open issues |
+```
+| Command              | What it does                                              |
+|----------------------|-----------------------------------------------------------|
+| `/issue-research #N` | Research issue #N → produce `tasks/research.md`           |
+| `/issue-plan #N`     | Generate `tasks/plan.md` from research findings           |
+| `/issue-audit #N`    | Audit plan against research and acceptance criteria       |
+| `/issue-implement #N`| Execute the approved plan                                 |
+| `/issue-update #N`   | After completion, check impact on other open issues       |
+```
 
 **Code Quality**
 
-| Command | What it does |
-|---|---|
-| `/commit` | Stage, commit, and push to current branch |
-| `/push-pr` | Open a PR from current branch to main |
-| `/simplify` | Review changed code for reuse, quality, and efficiency (built-in) |
-| `/code-review` | Code review a pull request (built-in) |
-| `/batch` | Decompose large changes into parallel sub-agents in isolated worktrees (built-in) |
-| `/loop` | Run a prompt on a recurring interval, e.g. `/loop 5m check deploy` (built-in) |
+```
+| Command        | What it does                                                                     |
+|----------------|----------------------------------------------------------------------------------|
+| `/commit`      | Stage, commit, and push to current branch                                        |
+| `/push-pr`     | Open a PR from current branch to main                                            |
+| `/simplify`    | Review changed code for reuse, quality, and efficiency (built-in)                |
+| `/code-review` | Code review a pull request (built-in)                                            |
+| `/batch`       | Decompose large changes into parallel sub-agents in isolated worktrees (built-in)|
+| `/loop`        | Run a prompt on a recurring interval, e.g. `/loop 5m check deploy` (built-in)   |
+```
 
 ---
 
@@ -82,12 +88,14 @@ If uncertain, it is non-trivial. Do not Edit/Write source files until the task i
 
 ## Compaction Triggers
 
-| When | Action |
-|---|---|
-| Context hits 30–35% | Compact immediately |
-| Research phase done | Compact before Plan |
-| Switching sub-problems | Compact before pivoting |
-| New conversation | Start clean — never carry full prior context |
+```
+| When                     | Action                                          |
+|--------------------------|-------------------------------------------------|
+| Context hits 30–35%      | Compact immediately                             |
+| Research phase done      | Compact before Plan                             |
+| Switching sub-problems   | Compact before pivoting                         |
+| New conversation         | Start clean — never carry full prior context    |
+```
 
 ---
 
