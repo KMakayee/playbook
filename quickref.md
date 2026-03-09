@@ -43,6 +43,40 @@
 
 ---
 
+## LSP Setup (Code Navigation)
+
+LSP gives Claude instant, accurate code navigation — definitions, references, type info, and diagnostics after edits.
+
+**Setup (pick the language(s) your codebase uses):**
+
+1. Install the language server binary (see table below)
+2. Install the plugin: `/plugin install <name>@claude-plugins-official`
+3. Restart Claude Code
+
+**Supported languages:**
+
+```
+| Language   | Plugin                 | Binary to install                                  |
+|------------|------------------------|----------------------------------------------------|
+| Python     | `pyright-lsp`          | `pip install pyright`                               |
+| TypeScript | `typescript-lsp`       | `npm install -g typescript-language-server`         |
+| Go         | `gopls-lsp`            | `go install golang.org/x/tools/gopls@latest`       |
+| Rust       | `rust-analyzer-lsp`    | `rustup component add rust-analyzer`               |
+| Java       | `jdtls-lsp`            | `jdtls`                                            |
+| C/C++      | `clangd-lsp`           | `clangd` (via LLVM)                                |
+| C#         | `csharp-lsp`           | `dotnet tool install csharp-ls`                    |
+| PHP        | `php-lsp`              | `npm install -g intelephense`                      |
+| Kotlin     | `kotlin-lsp`           | `kotlin-language-server`                            |
+| Swift      | `swift-lsp`            | `sourcekit-lsp` (included with Xcode)              |
+| Lua        | `lua-lsp`              | `lua-language-server`                              |
+```
+
+**When to use what:**
+- **LSP:** definitions, references, type info, diagnostics after edits
+- **Grep/Glob:** discovery, finding files, searching patterns
+
+---
+
 ## Pre-Edit Gate
 
 **Before calling Edit or Write, classify the task:**
