@@ -108,7 +108,15 @@ Execute the approved plan. Do not improvise.
 4. If something unexpected is encountered, **stop** and return to Research for that sub-problem.
 5. Commit frequently with messages that reference plan steps.
 6. Track progress in `tasks/todo.md` — write checkable items from the plan, mark them as you go, and add a brief result summary for each completed step. Use the structure in `templates/todo.md`.
-7. **Clean up artifacts** — After all todo.md steps are complete and verified, remove `tasks/research.md`, `tasks/plan.md`, and `tasks/todo.md`. Never remove `tasks/lessons.md`.
+7. **Clean up artifacts** — After all todo.md steps are complete and verified, remove `tasks/research.md`, `tasks/plan.md`, and `tasks/todo.md`.
+
+## Multi-Batch Plans
+
+When a plan contains multiple independent batches (e.g., a code review with 6 fix batches), do NOT implement them all in one pass. Each batch is a separate unit of work in its own prompt.
+
+1. During Phase 2, identify and list independent batches in the plan.
+2. Execute one batch per prompt. The pre-edit gate applies per-batch — trivial batches can skip RPI, non-trivial batches get full RPI.
+3. Compact between batches to keep context low.
 
 ---
 
@@ -162,27 +170,10 @@ When compacting:
 
 ---
 
-# Self-Improvement
-
-- After any user correction or failed verification, add an entry to `tasks/lessons.md` using the structure in `templates/lessons.md`.
-- At the start of each session, read `tasks/lessons.md` (if it exists) before beginning work.
-- If the same mistake occurs twice, the existing lesson is too weak — rewrite it with a stronger prevention rule.
-
-### Lessons Lifecycle
-
-Keep `tasks/lessons.md` focused and actionable:
-
-- **Active cap:** Target ~30 entries. Review when the file grows past this.
-- **Consolidation:** Merge entries that share the same root cause or prevention rule. Keep the most recent date and the strongest rule.
-- **Graduation:** Remove entries older than 90 days with low/medium severity and no recurrence. Never auto-graduate high-severity entries — those require manual review.
-- **Never delete the file itself.** Even if all entries graduate, keep the file with its template structure.
-
----
-
 # Session-Start Validation
 
 At the start of each session, run these lightweight checks (no sub-agents, under 30 seconds total):
 
 1. **Leftover artifacts** — Check if `tasks/research.md`, `tasks/plan.md`, or `tasks/todo.md` exist from a previous session. If found, notify the developer and ask whether to clean up or resume.
 2. **Unconfigured CLAUDE.md** — Scan the top half of CLAUDE.md for `[TEAM FILLS IN` markers or `<!-- TODO` comments. If found, mention that `/playbook-setup` can fill them in.
-3. **Lessons overgrowth** — If `tasks/lessons.md` exists and has more than ~30 entries, mention that `/playbook-audit` can trim it.
+3. **Playbook version** — If `.playbook-version` exists, read it. If the installed date is older than 30 days, mention that `/playbook-update` can check for updates.

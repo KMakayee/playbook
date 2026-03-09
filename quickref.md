@@ -13,7 +13,7 @@
 |---------------------|------------------------------------------------------------------|
 | `/playbook-setup`   | Configure CLAUDE.md for your codebase                            |
 | `/playbook-update`  | Fetch and apply latest playbook version                          |
-| `/playbook-audit`   | Health check — stale config, lessons cleanup, leftover artifacts |
+| `/playbook-audit`   | Health check — stale config, leftover artifacts                  |
 | `/fix-tables`       | Wrap bare markdown tables in fenced code blocks                  |
 ```
 
@@ -116,6 +116,7 @@ If uncertain, it is non-trivial. Do not Edit/Write source files until the task i
 4. **Stop if surprised** — unexpected behavior → return to Research
 5. **Commit per step** — reference plan steps in commit messages
 6. **Track progress** — update `tasks/todo.md` with checkable items and result summaries
+7. **One batch per prompt** — if the plan has independent batches, execute each in its own prompt (pre-edit gate applies per-batch)
 
 ---
 
@@ -142,14 +143,6 @@ If uncertain, it is non-trivial. Do not Edit/Write source files until the task i
 
 ---
 
-## Self-Improvement
-
-- User correction or failed verification → add entry to `tasks/lessons.md`
-- Start of session → read `tasks/lessons.md` before working
-- Same mistake twice → rewrite the lesson with a stronger rule
-
----
-
 ## Red Flags
 
 - Calling Edit/Write before classifying the task → pre-edit gate violation
@@ -159,7 +152,6 @@ If uncertain, it is non-trivial. Do not Edit/Write source files until the task i
 - Context window growing unchecked → entering the Dumb Zone
 - Measuring PRs merged instead of rework rate → false productivity
 - Completing a step without verifying it works → false progress
-- Same correction from the user twice → lesson not captured or too weak
 - Asking the user to diagnose a bug for you → wasted human attention
 
 ---
@@ -188,18 +180,16 @@ Track these to know if the workflow is actually helping:
 
 ## Maintenance
 
-Run `/playbook-update` to fetch the latest playbook version and apply updates interactively. Your team-specific CLAUDE.md sections are never touched.
+Run `/playbook-update` to fetch the latest playbook version and apply updates interactively. Your project-specific CLAUDE.md customizations are preserved during updates.
 
 Run `/playbook-audit` periodically to keep the playbook healthy.
 
 **What it does:**
 1. Compares each CLAUDE.md section against the actual codebase — flags stale or unconfigured sections
-2. Reviews `tasks/lessons.md` — graduates old entries, consolidates duplicates, flags high-severity for manual review
-3. Cleans up leftover task artifacts (`research.md`, `plan.md`, `todo.md`)
-4. Generates a health report in `tasks/audit-report.md`
+2. Cleans up leftover task artifacts (`research.md`, `plan.md`, `todo.md`)
+3. Generates a health report in `tasks/audit-report.md`
 
 **When to run it:**
 - Every 2–4 weeks as routine maintenance
 - After major refactors that change tech stack, directory structure, or conventions
-- When `tasks/lessons.md` grows past ~25 entries
 - When Claude makes outdated assumptions about your codebase

@@ -27,9 +27,11 @@ Generate a plan for issue **#$ARGUMENTS** from research findings.
 
 5. **Structure-first for large plans.** If the plan has more than 5 steps, present a numbered outline first and ask the developer to confirm the approach before writing the detailed plan.
 
-6. **Update issue status.** In `tasks/new-issues.md`, change issue #$ARGUMENTS status to `In Planning`.
+6. **Identify batches.** If the plan contains multiple independent batches, list them explicitly. Each batch will be executed in its own prompt during implementation.
 
-7. **Present for review.** Show the plan to the developer. Do NOT implement until the plan is approved.
+7. **Update issue status.** In `tasks/new-issues.md`, change issue #$ARGUMENTS status to `In Planning`.
+
+8. **Present for review.** Show the plan to the developer. Do NOT implement until the plan is approved.
 
 ---
 
