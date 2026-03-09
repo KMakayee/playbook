@@ -116,6 +116,7 @@ If uncertain, it is non-trivial. Do not Edit/Write source files until the task i
 4. **Stop if surprised** — unexpected behavior → return to Research
 5. **Commit per step** — reference plan steps in commit messages
 6. **Track progress** — update `tasks/todo.md` with checkable items and result summaries
+7. **One batch per prompt** — if the plan has independent batches, execute each in its own prompt (pre-edit gate applies per-batch)
 
 ---
 
