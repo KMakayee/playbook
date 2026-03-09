@@ -67,10 +67,19 @@
 
 **Before calling Edit or Write on any source file, classify the task:**
 
-| Classification | Criteria | Workflow |
-|---|---|---|
-| **Trivial** | Single file, under ~20 changed lines, no new abstractions, no changed interfaces | Implement directly — no RPI needed |
-| **Non-trivial** | 2+ files, OR new/changed abstractions, OR modified interfaces/contracts, OR changed control flow across modules | **Full RPI required** — all three phases, no skipping |
+```
+TRIVIAL
+  Criteria: Single file, under ~20 changed lines,
+            no new abstractions, no changed interfaces
+  Workflow: Implement directly — no RPI needed
+
+NON-TRIVIAL
+  Criteria: 2+ files, OR new/changed abstractions,
+            OR modified interfaces/contracts,
+            OR changed control flow across modules
+  Workflow: Full RPI required — all three phases,
+            no skipping
+```
 
 If uncertain, it is non-trivial. Do not call Edit or Write on source files until either (a) the task is trivial, or (b) `research.md` exists and `plan.md` has been approved.
 
@@ -122,12 +131,20 @@ Execute the approved plan. Do not improvise.
 
 Context is a scarce resource. Compact proactively, not reactively. LLM reasoning quality degrades significantly above ~40% context utilization (the "Dumb Zone") — the 30-35% trigger below keeps a safety margin.
 
-| Trigger | Action |
-|---|---|
-| Context utilization reaches **30–35%** | Compact immediately — summarize conversation, drop raw file contents |
-| Research phase completes | Compact before starting the Plan phase |
-| Switching between sub-problems | Compact before pivoting to the new sub-problem |
-| New conversation starts | Never carry forward a previous session's full context |
+```
+Context utilization reaches 30-35%
+  → Compact immediately — summarize conversation,
+    drop raw file contents
+
+Research phase completes
+  → Compact before starting the Plan phase
+
+Switching between sub-problems
+  → Compact before pivoting to the new sub-problem
+
+New conversation starts
+  → Never carry forward a previous session's full context
+```
 
 When compacting:
 - Preserve: task description, file paths, key decisions, current phase, and artifact locations

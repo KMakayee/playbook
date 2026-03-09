@@ -19,9 +19,19 @@ templates/lessons.md
 templates/audit-report.md
 templates/playbook-sections.md
 templates/explore-prompt.md
+.claude/commands/fix-tables.md
 .claude/commands/playbook-setup.md
 .claude/commands/playbook-audit.md
 .claude/commands/playbook-update.md
+.claude/commands/issue-research.md
+.claude/commands/issue-plan.md
+.claude/commands/issue-audit.md
+.claude/commands/issue-implement.md
+.claude/commands/issue-update.md
+templates/new-issues.md
+templates/deferred.md
+.claude/commands/commit.md
+.claude/commands/push-pr.md
 ```
 
 ---
