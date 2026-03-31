@@ -21,3 +21,6 @@ Review the status above. Then:
 5. **Conditional merge** — Evaluate the light review result:
    - **If the review found no issues** ("No issues found"): merge the PR via `gh pr merge --merge` and confirm the merge to the developer.
    - **If the review found issues**: list each issue clearly, do NOT merge, and suggest fixing via the RPI workflow (research → plan → implement).
+6. **Post-merge sync** — If the PR was merged into `main`, sync main back into the current branch to keep them aligned:
+   `git fetch origin main && git merge origin/main && git push`
+   Skip this step if the PR targeted any branch other than `main`.
