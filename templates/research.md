@@ -3,6 +3,13 @@
 > **Do not exceed 1000 lines.** Be specific — file paths, line numbers, actual behavior. Prefer tables and brief findings over exhaustive analysis.
 > **Purpose:** This artifact persists context outside the window so the Plan phase can proceed without re-researching.
 
+```yaml
+issue: "#N"
+branch: [current branch]
+commit: [HEAD short hash at time of research]
+created: [YYYY-MM-DD]
+```
+
 ---
 
 ## Task Description
@@ -96,6 +103,16 @@
 
 - **Risk:** [Description of a risk discovered during research]
 - **Open question:** [Something that needs human input or further investigation]
+
+---
+
+## Excluded / Deprioritized
+
+> Files or areas examined during research but deemed irrelevant. Helps catch blind spots during plan review.
+
+| Path / Area | Reason excluded |
+|---|---|
+| `[path or area]` | [Why it was looked at but dismissed] |
 
 ---
 

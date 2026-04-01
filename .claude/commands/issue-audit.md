@@ -17,19 +17,21 @@ Audit the plan for issue **#$ARGUMENTS** against research findings and acceptanc
    - Explicitly listed as out of scope (acceptable)
    - Still unresolved (flag as a blocker)
 
-4. **Check plan-research alignment.** Flag any mismatches:
+4. **Check excluded areas.** Review the "Excluded / Deprioritized" section of `tasks/research.md`. Verify that no excluded area is actually relevant to the plan — flag if the plan touches files or modules that research dismissed.
+
+5. **Check plan-research alignment.** Flag any mismatches:
    - Plan references files or functions not mentioned in research
    - Plan assumes behavior that contradicts research findings
    - Plan modifies code that research identified as fragile or high-risk without acknowledging the risk
 
-5. **Handle deferred items.** If the plan or research mentions items explicitly deferred or out of scope:
+6. **Handle deferred items.** If the plan or research mentions items explicitly deferred or out of scope:
    - Create or append to `tasks/deferred.md` using the structure from `templates/deferred.md`
    - Group entries under the current issue number
    - Include: what was deferred, why, and suggested future action
 
-6. **Update issue status.** In `tasks/new-issues.md`, change issue #$ARGUMENTS status to `In Review`.
+7. **Update issue status.** In `tasks/new-issues.md`, change issue #$ARGUMENTS status to `In Review`.
 
-7. **Present findings.** Report in three sections:
+8. **Present findings.** Report in three sections:
    - **Solid:** What's well-covered and ready
    - **Needs revision:** Gaps, mismatches, or unresolved questions (with specific recommendations)
    - **Blockers:** Anything that must be resolved before implementation can start
