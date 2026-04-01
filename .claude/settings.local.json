@@ -7,5 +7,19 @@
       "Read(//Users/chief/.claude/**)",
       "Skill(code-review:code-review)"
     ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/stop-verify.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
   }
 }
