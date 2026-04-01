@@ -20,13 +20,15 @@
 **Issue Board**
 
 ```
-| Command              | What it does                                              |
-|----------------------|-----------------------------------------------------------|
-| `/issue-research #N` | Research issue #N → produce `tasks/research.md`           |
-| `/issue-plan #N`     | Generate `tasks/plan.md` from research findings           |
-| `/issue-audit #N`    | Audit plan against research and acceptance criteria       |
-| `/issue-implement #N`| Execute the approved plan                                 |
-| `/issue-update #N`   | After completion, check impact on other open issues       |
+| Command                    | What it does                                              |
+|----------------------------|-----------------------------------------------------------|
+| `/issue-research #N`       | Research issue #N → produce `tasks/research.md`           |
+| `/issue-research-codex #N` | Same as above, using Codex for codebase exploration       |
+| `/issue-plan #N`           | Generate `tasks/plan.md` from research findings           |
+| `/issue-audit #N`          | Audit plan against research and acceptance criteria       |
+| `/issue-audit-codex #N`    | Same as above, using Codex for audit analysis             |
+| `/issue-implement #N`      | Execute the approved plan                                 |
+| `/issue-update #N`         | After completion, check impact on other open issues       |
 ```
 
 **Code Quality**
@@ -37,6 +39,7 @@
 | `/commit`      | Stage, commit, and push to current branch                                        |
 | `/push-pr`     | Push, open PR, code review, and merge if passing                                 |
 | `/push-pr-light`| Push, open PR, light diff review, and merge if passing                           |
+| `/checkpoint`  | Save current work state to `tasks/checkpoint.md`                                 |
 | `/simplify`    | Review changed code for reuse, quality, and efficiency (built-in)                |
 | `/batch`       | Decompose large changes into parallel sub-agents in isolated worktrees (built-in)|
 | `/loop`        | Run a prompt on a recurring interval, e.g. `/loop 5m check deploy` (built-in)   |
@@ -94,9 +97,10 @@ If uncertain, it is non-trivial. Do not Edit/Write source files until the task i
 ## Research Phase (Full RPI)
 
 1. **Explore** — single Explore sub-agent locates, reads, analyzes, and identifies patterns in one pass. Only split into multiple agents when the task spans multiple unrelated domains.
-2. **Write `research.md`** — aggregate findings (do not exceed 1000 lines)
-3. **Check context** — if above 30%, compact now
-4. **Compact** — summarize and drop raw content before moving on
+2. **Search best practices** — for non-trivial design decisions, web-search for established patterns and current best practices before planning
+3. **Write `research.md`** — aggregate findings (do not exceed 1000 lines)
+4. **Check context** — if above 30%, compact now
+5. **Compact** — summarize and drop raw content before moving on
 
 ## Plan Phase
 
@@ -118,6 +122,7 @@ If uncertain, it is non-trivial. Do not Edit/Write source files until the task i
 5. **Commit per step** — reference plan steps in commit messages
 6. **Track progress** — update `tasks/todo.md` with checkable items and result summaries
 7. **One batch per prompt** — if the plan has independent batches, execute each in its own prompt (pre-edit gate applies per-batch)
+8. **Reflect** — after committing, check if anything surprising or reusable was discovered; log to `tasks/errors.md` using the learning entry format in `templates/error-report.md`
 
 ---
 
