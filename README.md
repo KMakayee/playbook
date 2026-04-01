@@ -102,6 +102,15 @@ Fetches the latest playbook, shows what changed, and lets you approve each file 
 | `.claude/hooks/stop-verify.sh` | Verification nudge hook | On agent stop events |
 | `.claude/settings.local.json` | Permissions and hook config | Yes — every session |
 
+## LSP
+
+Enabling LSP (Language Server Protocol) in Claude Code gives **~25% faster and cheaper** results on multi-file tasks. Benchmarked across Python, TypeScript, and Go with find-references and refactoring tasks:
+
+- **LSP helps most** when references span many files, type relationships matter, or interface implementations need discovery (30-60% improvement).
+- **LSP doesn't help** when the answer is in 1-2 files or the codebase is simple enough for grep.
+
+`/playbook-setup` will offer to enable LSP during configuration.
+
 ---
 
 Built on the Research-Plan-Implement workflow from [No Vibes Allowed](https://www.humanlayer.dev/nva) and workflow orchestration principles from Boris Cherny.
