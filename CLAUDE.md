@@ -90,8 +90,9 @@ If uncertain, it is non-trivial. Do not call Edit or Write on source files until
 Before writing any code, investigate the codebase to gather ground truth.
 
 1. **Explore** — Spawn a **single** Explore sub-agent to locate all relevant files, read and analyze them, and identify codebase patterns — all in one pass. Only split into multiple agents when the task spans multiple unrelated domains.
-2. **Write research.md** — Aggregate findings into `research.md` (do not exceed 1000 lines). Use the structure in `templates/research.md`. Focus on file paths, key findings, risks, and open questions — skip exhaustive line-by-line analysis.
-3. **Verify context budget** — After writing research.md, check context utilization. If above 30%, compact before proceeding.
+2. **Search best practices** — For non-trivial design decisions, web-search for established patterns and current best practices before planning. Skip for purely internal or mechanical changes.
+3. **Write research.md** — Aggregate findings into `research.md` (do not exceed 1000 lines). Use the structure in `templates/research.md`. Focus on file paths, key findings, risks, and open questions — skip exhaustive line-by-line analysis.
+4. **Verify context budget** — After writing research.md, check context utilization. If above 30%, compact before proceeding.
 
 ### Research output requirements
 - Specific file paths and line numbers, not vague references
@@ -99,6 +100,7 @@ Before writing any code, investigate the codebase to gather ground truth.
 - Dependencies and integration points that will be affected
 - Known constraints or gotchas discovered during research
 - Summary of current behavior in the relevant area
+- External best practices searched (when the task involves non-trivial design decisions)
 
 ## Phase 2: Plan
 

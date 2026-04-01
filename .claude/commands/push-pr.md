@@ -23,3 +23,4 @@ Review the status above. Then:
 6. **Post-merge sync** — Check the PR's base branch: `gh pr view <PR_NUMBER> --json baseRefName --jq '.baseRefName'`. If it was merged into `main`, sync main back into the current branch to keep them aligned:
    `git fetch origin main && git merge origin/main && git push`
    Skip this step if the PR targeted any branch other than `main`.
+7. **Reflect** — Scan the reflection prompt in `templates/error-report.md`. If anything from this session is worth logging, append a learning entry to `tasks/errors.md`.
