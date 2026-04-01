@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash .claude/hooks/stop-verify.sh",
+            "command": "bash \"$(git rev-parse --show-toplevel)/.claude/hooks/stop-verify.sh\"",
             "timeout": 5
           }
         ]
