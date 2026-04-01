@@ -80,4 +80,6 @@ The update command fetches the latest playbook, shows what changed, and lets you
 | `.claude/commands/push-pr.md` | Push, open PR, code review, and merge | Only when you run `/push-pr` |
 | `.claude/commands/push-pr-light.md` | Push, open PR, light diff review, and merge | Only when you run `/push-pr-light` |
 | `.claude/commands/checkpoint.md` | Save current work state to `tasks/checkpoint.md` | Only when you run `/checkpoint` |
+| `.claude/commands/issue-research-codex.md` | Research using Codex for exploration | Only when you run `/issue-research-codex` |
+| `.claude/commands/issue-audit-codex.md` | Audit using Codex for analysis | Only when you run `/issue-audit-codex` |
 | `.playbook-version` | Tracks installed playbook version | No — used by `/playbook-update` |
