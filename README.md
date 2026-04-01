@@ -71,10 +71,12 @@ The update command fetches the latest playbook, shows what changed, and lets you
 | `templates/plan.md` | Structure for plan output | Referenced when writing plans |
 | `templates/todo.md` | Structure for task progress tracking | Referenced when tracking implementation |
 | `templates/audit-report.md` | Structure for audit command output | Referenced when generating audit reports |
+| `templates/error-report.md` | Structure for error log entries | Referenced when logging errors to `tasks/errors.md` |
 | `quickref.md` | Human-readable RPI cheat sheet | No — for your reference |
 | `.claude/commands/playbook-setup.md` | One-time setup slash command | Only when you run `/playbook-setup` |
 | `.claude/commands/playbook-audit.md` | Periodic maintenance slash command | Only when you run `/playbook-audit` |
 | `.claude/commands/playbook-update.md` | Update slash command | Only when you run `/playbook-update` |
 | `.claude/commands/commit.md` | Stage, commit, and push to current branch | Only when you run `/commit` |
-| `.claude/commands/push-pr.md` | Open a PR from current branch to main | Only when you run `/push-pr` |
+| `.claude/commands/push-pr.md` | Push, open PR, code review, and merge | Only when you run `/push-pr` |
+| `.claude/commands/push-pr-light.md` | Push, open PR, light diff review, and merge | Only when you run `/push-pr-light` |
 | `.playbook-version` | Tracks installed playbook version | No — used by `/playbook-update` |
