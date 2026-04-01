@@ -94,28 +94,17 @@ If uncertain, it is non-trivial. Do not call Edit or Write on source files until
 Before writing any code, investigate the codebase to gather ground truth.
 
 1. **Explore** — Spawn a **single** Explore sub-agent to locate all relevant files, read and analyze them, and identify codebase patterns — all in one pass. Only split into multiple agents when the task spans multiple unrelated domains.
-2. **Search best practices** — For non-trivial design decisions, web-search for established patterns and current best practices before planning. Skip for purely internal or mechanical changes.
-3. **Write research.md** — Aggregate findings into `research.md` (do not exceed 1000 lines). Use the structure in `templates/research.md`. Focus on file paths, key findings, risks, and open questions — skip exhaustive line-by-line analysis.
-4. **Verify context budget** — After writing research.md, check context utilization. If above 30%, compact before proceeding.
-
-### Research output requirements
-- Specific file paths and line numbers, not vague references
-- Existing patterns and conventions observed (not assumed)
-- Dependencies and integration points that will be affected
-- Known constraints or gotchas discovered during research
-- Summary of current behavior in the relevant area
-- External best practices searched (when the task involves non-trivial design decisions)
+2. **Search best practices** — For non-trivial design decisions, web-search for established patterns before planning. Skip for purely internal or mechanical changes.
+3. **Write research.md** — Aggregate findings into `research.md` (max 1000 lines). Follow the structure in `templates/research.md` — it defines all required sections (paths, current behavior, patterns, risks, etc.).
+4. **Verify context budget** — If above 30% context utilization after writing research.md, compact before proceeding.
 
 ## Phase 2: Plan
 
 Generate a detailed plan from research.md — do NOT plan from memory or re-research.
 
 1. Read `research.md` into context.
-2. Produce `plan.md` using the structure in `templates/plan.md`.
-3. Every change must specify: exact file paths, line number ranges, what changes and why.
-4. Include testing strategy, rollback strategy, and dependencies (what must be done before this change, what depends on it).
-5. Present the plan to the human for review. **Do not implement until the plan is approved.**
-6. If the plan is rejected or revised, update `plan.md` before proceeding.
+2. Produce `plan.md` following `templates/plan.md` — every change must specify exact file paths, line ranges, what changes and why.
+3. **Do not implement until the plan is approved.** If rejected or revised, update `plan.md` before proceeding.
 
 ## Phase 3: Implement
 
@@ -127,9 +116,8 @@ Execute the approved plan. Do not improvise.
 2. Keep changes minimal — only modify what the plan specifies.
 3. Run tests after each logical unit of change, not just at the end.
 4. If something unexpected is encountered, **stop** and return to Research for that sub-problem.
-5. Commit frequently with messages that reference plan steps.
-6. Track progress in `tasks/todo.md` — write checkable items from the plan, mark them as you go, and add a brief result summary for each completed step. Use the structure in `templates/todo.md`.
-7. **Clean up artifacts** — After all todo.md steps are complete and verified, remove `tasks/research.md`, `tasks/plan.md`, and `tasks/todo.md`.
+5. Track progress in `tasks/todo.md` using `templates/todo.md`. Commit frequently with messages that reference plan steps.
+6. **Clean up artifacts** — After all steps are complete and verified, remove `tasks/research.md`, `tasks/plan.md`, and `tasks/todo.md`.
 
 ## Multi-Batch Plans
 
@@ -151,9 +139,6 @@ Context is a scarce resource. Compact proactively, not reactively. LLM reasoning
 Context utilization reaches 30-35%
   → Compact immediately — summarize conversation,
     drop raw file contents
-
-Research phase completes
-  → Compact before starting the Plan phase
 
 Switching between sub-problems
   → Compact before pivoting to the new sub-problem
@@ -183,25 +168,17 @@ When compacting:
 
 ---
 
-# General Rules
-
-- Read code before modifying it. Do not propose changes to files you haven't read.
-- Prefer editing existing files over creating new ones.
-- Do not add features, refactoring, or "improvements" beyond what the plan specifies.
-- Run the linter and test suite before considering any step complete.
-- If a task seems too large, break it into sub-tasks that each follow RPI independently.
-
----
-
 <important if="completing a task">
 
 # Quality Standards
 
-- **Verify before completing** — prove it works: run tests, check logs, diff against the target branch. "I think it works" is not verification.
-- **Find root causes** — no band-aids or temporary fixes. Trace symptoms to their source and fix the actual problem. Apply senior-engineer judgment.
-- **Surgical changes** — every changed line needs a reason traceable to the plan. If you can't explain why a line changed, revert it.
-- **Demand elegance for non-trivial changes** — before implementing, pause and ask "is there a simpler way?" Skip this for mechanical or single-line fixes.
-- **Self-assess** — before marking any step complete, ask: "Would a staff engineer approve this?" If the answer is no, revise before proceeding.
+- **Read before modifying** — Do not propose changes to files you haven't read. Prefer editing existing files over creating new ones.
+- **Verify before completing** — prove it works: run tests, run the linter, check logs, diff against the target branch. "I think it works" is not verification.
+- **Find root causes** — no band-aids or temporary fixes. Trace symptoms to their source and fix the actual problem.
+- **Surgical changes** — every changed line needs a reason traceable to the plan. No features, refactoring, or "improvements" beyond what the plan specifies. If you can't explain why a line changed, revert it.
+- **Demand elegance for non-trivial changes** — before implementing, ask "is there a simpler way?" Skip for mechanical or single-line fixes.
+- **Self-assess** — before marking any step complete, ask: "Would a staff engineer approve this?" If the answer is no, revise.
+- If a task seems too large, break it into sub-tasks that each follow RPI independently.
 
 </important>
 
