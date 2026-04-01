@@ -51,6 +51,17 @@
 
 ---
 
+## External Best Practices
+
+> Before planning, search for established patterns and current best practices relevant to the task. Skip for purely internal/mechanical changes.
+
+- **Search query:** [What was searched]
+- **Established pattern:** [Known solution from docs, libraries, or community]
+- **Current best practice:** [What the ecosystem recommends today]
+- **Applicability:** [How this applies — or doesn't — to this codebase]
+
+---
+
 ## Codebase Patterns & Conventions
 
 > Patterns observed in the codebase.
