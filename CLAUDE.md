@@ -63,6 +63,8 @@
 
 **These rules are fixed. Do not modify them.**
 
+<important if="editing source files">
+
 ## Pre-Edit Gate
 
 **Before calling Edit or Write on any source file, classify the task:**
@@ -84,6 +86,8 @@ NON-TRIVIAL
 If uncertain, it is non-trivial. Do not call Edit or Write on source files until either (a) the task is trivial, or (b) `research.md` exists and `plan.md` has been approved.
 
 **Bug fix mode:** When given a bug report, error log, or failing test — diagnose it autonomously. Do not ask the user to identify the root cause. The autonomy is about initiative and diagnosis, not about skipping process. A bug fix that meets the non-trivial criteria above still requires full RPI. Arrive at the plan on your own, then present it for approval as usual.
+
+</important>
 
 ## Phase 1: Research
 
@@ -137,6 +141,8 @@ When a plan contains multiple independent batches (e.g., a code review with 6 fi
 
 ---
 
+<important if="context utilization above 25%">
+
 # Compaction Rules
 
 Context is a scarce resource. Compact proactively, not reactively. LLM reasoning quality degrades significantly above ~40% context utilization (the "Dumb Zone") — the 30-35% trigger below keeps a safety margin.
@@ -159,6 +165,8 @@ New conversation starts
 When compacting:
 - Preserve: task description, file paths, key decisions, current phase, and artifact locations
 - Drop: raw file contents already written to artifacts, verbose tool output, superseded analysis
+
+</important>
 
 ---
 
@@ -185,6 +193,8 @@ When compacting:
 
 ---
 
+<important if="completing a task">
+
 # Quality Standards
 
 - **Verify before completing** — prove it works: run tests, check logs, diff against the target branch. "I think it works" is not verification.
@@ -192,6 +202,8 @@ When compacting:
 - **Surgical changes** — every changed line needs a reason traceable to the plan. If you can't explain why a line changed, revert it.
 - **Demand elegance for non-trivial changes** — before implementing, pause and ask "is there a simpler way?" Skip this for mechanical or single-line fixes.
 - **Self-assess** — before marking any step complete, ask: "Would a staff engineer approve this?" If the answer is no, revise before proceeding.
+
+</important>
 
 ---
 
