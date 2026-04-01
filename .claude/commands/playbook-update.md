@@ -31,6 +31,7 @@ templates/new-issues.md
 templates/deferred.md
 .claude/commands/commit.md
 .claude/commands/push-pr.md
+.claude/commands/push-pr-light.md
 ```
 
 ---
