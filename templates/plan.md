@@ -3,6 +3,13 @@
 > **Prerequisites:** `research.md` exists and has been read. Context has been compacted after the Research phase.
 > **Rule:** Do not implement until this plan is reviewed and approved by a human.
 
+```yaml
+issue: "#N"
+branch: [current branch]
+commit: [HEAD short hash at time of planning]
+created: [YYYY-MM-DD]
+```
+
 ---
 
 ## Objective
