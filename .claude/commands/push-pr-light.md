@@ -21,6 +21,10 @@ Review the status above. Then:
 5. **Conditional merge** — Evaluate the light review result:
    - **If the review found no issues** ("No issues found"): merge the PR via `gh pr merge --merge` and confirm the merge to the developer.
    - **If the review found issues**: list each issue clearly, do NOT merge, and suggest fixing via the RPI workflow (research → plan → implement).
+   - **Merge error handling** — If `gh pr merge` fails:
+     1. Wait 15 seconds and retry once.
+     2. If retry fails with "merge already in progress": close the PR (`gh pr close <PR_NUMBER>`), create a fresh PR with the same base, and attempt to merge again.
+     3. If the fresh PR also fails: stop, log the error to `tasks/errors.md` (use the format in `templates/error-report.md`), and report the issue to the developer.
 6. **Post-merge sync** — Check the PR's base branch: `gh pr view <PR_NUMBER> --json baseRefName --jq '.baseRefName'`. If it was merged into `main`, sync main back into the current branch to keep them aligned:
    `git fetch origin main && git merge origin/main && git push`
    Skip this step if the PR targeted any branch other than `main`.

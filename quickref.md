@@ -36,6 +36,7 @@
 |----------------|----------------------------------------------------------------------------------|
 | `/commit`      | Stage, commit, and push to current branch                                        |
 | `/push-pr`     | Push, open PR, code review, and merge if passing                                 |
+| `/push-pr-light`| Push, open PR, light diff review, and merge if passing                           |
 | `/simplify`    | Review changed code for reuse, quality, and efficiency (built-in)                |
 | `/batch`       | Decompose large changes into parallel sub-agents in isolated worktrees (built-in)|
 | `/loop`        | Run a prompt on a recurring interval, e.g. `/loop 5m check deploy` (built-in)   |
