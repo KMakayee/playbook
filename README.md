@@ -12,7 +12,6 @@ From your project root:
 
 ```bash
 git clone https://github.com/KMakayee/playbook.git
-rm -rf playbook/main.md playbook/ref_docs playbook/README.md playbook/.git
 mv playbook/* playbook/.claude .
 rmdir playbook
 ```
