@@ -98,6 +98,29 @@ Offer to install reusable workflow commands to `~/.claude/commands/` (global, av
 
 ---
 
+## Step 3C: Recommend LSP
+
+Ask the developer:
+
+> "Would you like to **enable LSP** (Language Server Protocol) for Claude Code? Our benchmarks show it makes Claude **~25% faster and cheaper** on multi-file tasks — especially in repos with complex type hierarchies, cross-file references, or interface implementations.
+>
+> It doesn't help (and can add overhead) for small codebases where grep is sufficient.
+>
+> Want me to enable it? (yes / skip)"
+
+- **yes** → Add the LSP configuration to the project's `.claude/settings.json`:
+  ```json
+  {
+    "permissions": {
+      "allow": ["mcp__lsp__*"]
+    }
+  }
+  ```
+  Tell the developer they also need to add the LSP MCP server to their Claude Code config if they haven't already. Point them to the [Claude Code docs on MCP servers](https://docs.anthropic.com/en/docs/claude-code/mcp) for setup instructions.
+- **skip** → move on silently.
+
+---
+
 ## Step 4: Wrap up
 
 After all sections are filled:
