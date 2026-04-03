@@ -10,18 +10,7 @@ Generate a plan for issue **#$ARGUMENTS** from research findings.
 
 2. **Read inputs.** Read `tasks/research.md` and locate issue `#$ARGUMENTS` in `tasks/new-issues.md`. Confirm the research covers this issue.
 
-3. **Generate the plan.** Produce `tasks/plan.md` using the structure from `templates/plan.md`. Include the issue number in the title (e.g., "Plan: Issue #$ARGUMENTS — [Title]").
-
-   For every change:
-   - Specify exact file paths and line number ranges
-   - Describe what changes and why
-   - Include per-step verification
-
-   Include:
-   - Testing strategy (new tests, modified tests, manual verification)
-   - Rollback strategy
-   - Dependencies (what must happen before/after)
-   - Out of scope (explicitly list what this plan does NOT address)
+3. **Generate the plan.** Produce `tasks/plan.md`. Include the issue number in the title (e.g., "Plan: Issue #$ARGUMENTS — [Title]").
 
 4. **Be skeptical.** Verify assumptions through code, not memory. If research.md references a function or pattern, confirm it still exists before building the plan around it. Plan from research.md, never from scratch.
 
