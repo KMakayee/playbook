@@ -13,7 +13,6 @@ These are the files owned by the playbook that can be updated wholesale:
 ```
 quickref.md
 templates/research.md
-templates/plan.md
 templates/todo.md
 templates/audit-report.md
 templates/playbook-sections.md

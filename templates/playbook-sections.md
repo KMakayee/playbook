@@ -83,7 +83,7 @@ Before writing any code, investigate the codebase to gather ground truth.
 Generate a detailed plan from research.md — do NOT plan from memory or re-research.
 
 1. Read `research.md` into context.
-2. Produce `plan.md` following `templates/plan.md` — every change must specify exact file paths, line ranges, what changes and why.
+2. Produce `plan.md`.
 3. **Do not implement until the plan is approved.** If rejected or revised, update `plan.md` before proceeding.
 
 ## Phase 3: Implement
