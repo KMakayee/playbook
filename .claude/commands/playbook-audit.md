@@ -1,6 +1,6 @@
 # Playbook Audit
 
-You are running a periodic health check on the RPI playbook configuration. Walk through each step below, interacting with the developer at each decision point.
+You are running a periodic health check on the QRSPI playbook configuration. Walk through each step below, interacting with the developer at each decision point.
 
 ---
 
@@ -16,7 +16,7 @@ If `tasks/` does not exist, note it — there are no artifacts to clean up. Skip
 
 ## Step 2: Explore codebase for CLAUDE.md accuracy
 
-Spawn a single Explore subagent (`Task` tool, `subagent_type: "Explore"`, thoroughness: "very thorough") with this prompt:
+Spawn a single Explore subagent (`Agent` tool, `subagent_type: "Explore"`, thoroughness: "very thorough") with this prompt:
 
 > Compare the top-half sections of CLAUDE.md (Codebase Overview, Architecture, Conventions, Testing, Build & Run, Critical Paths, Dependencies) against the actual codebase state. For each section:
 > 1. If the section contains `[TEAM FILLS IN` markers, report it as "unconfigured".
@@ -52,9 +52,10 @@ If all sections are ok, say so and move on.
 ## Step 4: Clean up task artifacts
 
 Check for these files in `tasks/`:
-- `tasks/research.md`
+- `tasks/research-codebase.md`
+- `tasks/design-decision.md`
+- `tasks/research-patterns.md`
 - `tasks/plan.md`
-- `tasks/todo.md`
 
 For each file found, ask the developer:
 > "`tasks/[filename]` exists from a previous session. Delete it, or keep it?"

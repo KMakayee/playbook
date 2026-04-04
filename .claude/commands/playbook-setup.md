@@ -1,6 +1,6 @@
 # Setup Assistant
 
-You are setting up the RPI playbook for this codebase. Start by asking the developer whether this is a new project (playbook template already in CLAUDE.md) or an existing project (their own CLAUDE.md that needs playbook sections added). Then follow the appropriate path.
+You are setting up the QRSPI playbook for this codebase. Start by asking the developer whether this is a new project (playbook template already in CLAUDE.md) or an existing project (their own CLAUDE.md that needs playbook sections added). Then follow the appropriate path.
 
 ---
 
@@ -20,7 +20,7 @@ Ask the developer:
 For existing projects only:
 
 1. Read their existing CLAUDE.md and summarize what's there (1-2 sentences) so the developer can confirm it's the right file.
-2. Explain: "I'll append 7 new sections (Codebase Overview, Architecture, Conventions, Testing, Build & Run, Critical Paths, Dependencies) and the RPI Workflow Rules to your file. Your existing content will not be touched."
+2. Explain: "I'll append 7 new sections (Codebase Overview, Architecture, Conventions, Testing, Build & Run, Critical Paths, Dependencies) and the QRSPI Workflow Rules to your file. Your existing content will not be touched."
 3. Wait for developer confirmation.
 4. Read `templates/playbook-sections.md` and append its full contents to the end of CLAUDE.md using the Edit tool.
 5. After appending, proceed to Step 1 — CLAUDE.md now has markers.
@@ -39,7 +39,7 @@ Read `CLAUDE.md` in the project root. Identify which sections still contain the 
 
 ## Step 2: Explore the codebase via subagent
 
-Spawn a single Explore subagent (`Task` tool, `subagent_type: "Explore"`, thoroughness: "very thorough") to detect the ecosystem and gather findings for all unfilled sections at once. **Do not read any source or config files yourself** — the subagent handles all file I/O.
+Spawn a single Explore subagent (`Agent` tool, `subagent_type: "Explore"`, thoroughness: "very thorough") to detect the ecosystem and gather findings for all unfilled sections at once. **Do not read any source or config files yourself** — the subagent handles all file I/O.
 
 Read `templates/explore-prompt.md`, replace `[UNFILLED_SECTIONS]` with the comma-separated list of unfilled section names from Step 1, and use the result as the subagent prompt.
 
@@ -128,7 +128,7 @@ After all sections are filled:
 1. Print a summary of what was filled
 2. Remind the developer: *"Review the full CLAUDE.md to make sure everything reads well together. You can always edit it manually later."*
 3. If the project doesn't have the `templates/` directory or `quickref.md`, mention that they should copy those from the playbook repo as well
-4. Mention that the `tasks/` directory will be created at runtime to hold `research.md`, `plan.md`, and `todo.md` — it does not need to be created manually
+4. Mention that the `tasks/` directory will be created at runtime to hold QRSPI artifacts (`research-codebase.md`, `design-decision.md`, `research-patterns.md`, `plan.md`) — it does not need to be created manually
 
 ---
 

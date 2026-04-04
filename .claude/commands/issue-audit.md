@@ -6,18 +6,18 @@ Audit the plan for issue **#$ARGUMENTS** against research findings and acceptanc
 
 ## Steps
 
-1. **Read all inputs.** Read `tasks/plan.md`, `tasks/research.md`, and issue `#$ARGUMENTS` from `tasks/new-issues.md`. If any are missing, stop and tell the developer what's needed.
+1. **Read all inputs.** Read `tasks/plan.md`, `tasks/research-issue-$ARGUMENTS.md`, and issue `#$ARGUMENTS` from `tasks/issues.md`. If any are missing, stop and tell the developer what's needed.
 
 2. **Check acceptance criteria coverage.** For each acceptance criterion in the issue, verify the plan includes steps that address it. Report:
    - Covered: criterion is addressed by specific plan step(s)
    - Missing: criterion is not addressed — flag as a gap
 
-3. **Check open questions.** Review the "Risks & Open Questions" section of `tasks/research.md`. For each item, verify it is either:
+3. **Check open questions.** Review the "Risks & Open Questions" section of `tasks/research-issue-$ARGUMENTS.md`. For each item, verify it is either:
    - Resolved in the plan (state how)
    - Explicitly listed as out of scope (acceptable)
    - Still unresolved (flag as a blocker)
 
-4. **Check excluded areas.** Review the "Excluded / Deprioritized" section of `tasks/research.md`. Verify that no excluded area is actually relevant to the plan — flag if the plan touches files or modules that research dismissed.
+4. **Check excluded areas.** Review the "Excluded / Deprioritized" section of `tasks/research-issue-$ARGUMENTS.md`. Verify that no excluded area is actually relevant to the plan — flag if the plan touches files or modules that research dismissed.
 
 5. **Check plan-research alignment.** Flag any mismatches:
    - Plan references files or functions not mentioned in research
@@ -29,7 +29,7 @@ Audit the plan for issue **#$ARGUMENTS** against research findings and acceptanc
    - Group entries under the current issue number
    - Include: what was deferred, why, and suggested future action
 
-7. **Update issue status.** In `tasks/new-issues.md`, change issue #$ARGUMENTS status to `In Review`.
+7. **Update issue status.** In `tasks/issues.md`, change issue #$ARGUMENTS status to `In Review`.
 
 8. **Present findings.** Report in three sections:
    - **Solid:** What's well-covered and ready
