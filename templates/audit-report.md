@@ -25,9 +25,10 @@
 
 | File | Status | Action |
 |---|---|---|
-| `tasks/research.md` | _present / absent_ | _deleted / archived / N/A_ |
+| `tasks/research-codebase.md` | _present / absent_ | _deleted / archived / N/A_ |
+| `tasks/design-decision.md` | _present / absent_ | _deleted / archived / N/A_ |
+| `tasks/research-patterns.md` | _present / absent_ | _deleted / archived / N/A_ |
 | `tasks/plan.md` | _present / absent_ | _deleted / archived / N/A_ |
-| `tasks/todo.md` | _present / absent_ | _deleted / archived / N/A_ |
 
 ---
 

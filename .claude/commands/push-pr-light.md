@@ -20,7 +20,7 @@ Review the status above. Then:
    Keep the review brief — a short bullet list of findings, or "No issues found". Do NOT run `/code-review`.
 5. **Conditional merge** — Evaluate the light review result:
    - **If the review found no issues** ("No issues found"): merge the PR via `gh pr merge --merge` and confirm the merge to the developer.
-   - **If the review found issues**: list each issue clearly, do NOT merge, and suggest fixing via the RPI workflow (research → plan → implement).
+   - **If the review found issues**: list each issue clearly, do NOT merge, and suggest fixing via the QRSPI workflow (research → design → plan → implement).
    - **Merge error handling** — If `gh pr merge` fails:
      1. Wait 15 seconds and retry once.
      2. If retry fails with "merge already in progress": close the PR (`gh pr close <PR_NUMBER>`), create a fresh PR with the same base, and attempt to merge again.
