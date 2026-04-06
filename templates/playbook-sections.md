@@ -107,7 +107,7 @@ Execute the approved plan. Do not improvise.
 4. Run tests after each logical unit of change, not just at the end.
 5. If something unexpected is encountered, **stop** and return to Research for that sub-problem.
 6. Track progress via checkboxes in `tasks/plan.md`. Commit after each phase with conventional commit messages.
-7. **Clean up artifacts** — After all steps are complete and verified, remove `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, and `tasks/plan.md`.
+7. **Do not delete artifacts** — `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, and `tasks/plan.md` stay until the next task begins. Session-start validation handles cleanup at that point.
 
 ## Multi-Batch Plans
 
