@@ -14,10 +14,13 @@ Review the research in `tasks/research-codebase.md` using OpenAI Codex, then upd
    codex exec \
      --sandbox read-only \
      -o tasks/codex-research-review.tmp \
-     "Review the research in tasks/research-codebase.md against the actual codebase. For each finding:
-   - Does the referenced file/function/line still exist and match what the research describes?
-   - Are there relevant files, patterns, or connections the research missed?
-   - Are there inaccuracies or stale references?
+     "Review the research in tasks/research-codebase.md against the actual codebase.
+
+   PART 1 — Verify findings:
+   For each finding, does the referenced file/function/line still exist and match what the research describes? Are there relevant files, patterns, or connections the research missed? Are there inaccuracies or stale references?
+
+   PART 2 — Resolve open questions:
+   The research may contain an Open Questions section. For each question, search the codebase — config files, dependency manifests, existing code, docs — for evidence that answers or constrains it. Provide your answer for each question.
 
    Be specific with file paths and line numbers."
    ```
@@ -28,6 +31,7 @@ Review the research in `tasks/research-codebase.md` using OpenAI Codex, then upd
    - Confirmed findings (what Codex verified as accurate)
    - Corrections (inaccuracies or stale references found)
    - Additions (relevant files, patterns, or connections the research missed)
+   - Open question answers (Codex's answer for each open question)
 
 4. **Clean up.** Delete `tasks/codex-research-review.tmp`.
 
