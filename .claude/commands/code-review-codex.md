@@ -15,12 +15,17 @@ Review the implementation against the plan in `tasks/plan.md` using OpenAI Codex
      --sandbox read-only \
      -o tasks/codex-code-review.tmp \
      "Review the recent implementation against the plan in tasks/plan.md.
+
+   PART 1 — Plan adherence:
    - Does the implementation match what the plan specified? Flag any deviations.
-   - Are there bugs, edge cases, or missing error handling?
    - Were any files changed that the plan didn't call for?
    - Are tests present and do they cover the acceptance criteria?
+
+   PART 2 — Independent code quality (evaluate on merit, regardless of what the plan says):
+   - Are there bugs, edge cases, or missing error handling?
    - Can any of the code be simplified? Look for unnecessary abstractions, over-engineering, redundant logic, or verbose patterns that could be cleaner.
-   - Are established patterns and best practices being followed? Flag any anti-patterns, misused idioms, or places where a well-known pattern would be a better fit."
+   - Are established patterns and best practices being followed? Flag any anti-patterns, misused idioms, or places where a well-known pattern would be a better fit.
+   - Is the chosen approach the simplest one that solves the problem? If a simpler tool, pattern, or technique would work better than what the plan prescribed, flag it — the plan is not infallible."
    ```
 
    After Codex finishes, read `tasks/codex-code-review.tmp`.
