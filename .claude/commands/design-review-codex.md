@@ -14,20 +14,25 @@ Review the design in `tasks/design-decision.md` using OpenAI Codex, then update 
    codex exec \
      --sandbox read-only \
      -o tasks/codex-design-review.tmp \
-     "Review the design in tasks/design-decision.md. For each option:
-   - Does it hold up against the actual codebase? Check that referenced patterns, files, and integration points exist.
-   - Are there trade-offs or risks the design missed?
-   - Are there open issues, edge cases, or discussions that should be addressed?
+     "Review the design in tasks/design-decision.md.
 
-   Then recommend which option to proceed with and why, based on the decision heuristics in the document."
+   PART 1 — Evaluate options:
+   For each option, does it hold up against the actual codebase? Check that referenced patterns, files, and integration points exist. Are there trade-offs or risks the design missed?
+
+   PART 2 — Resolve open questions:
+   The design may contain an Open Questions section. For each question, search the codebase — config files, dependency manifests, existing code, docs — for evidence that answers or constrains it. Provide your answer for each question.
+
+   PART 3 — Recommend:
+   Recommend which option to proceed with and why, based on the decision heuristics in the document."
    ```
 
    After Codex finishes, read `tasks/codex-design-review.tmp`.
 
 3. **Update the design.** Append a `## Review` section to `tasks/design-decision.md` with:
    - Codex's findings per option
+   - Open question answers (Codex's answer for each open question)
    - The recommended option and rationale
-   - Any new risks or open questions surfaced
+   - Any new risks surfaced
 
    Change the footer status from `Awaiting decision` to `Reviewed — recommended: [Option name]`.
 
