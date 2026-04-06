@@ -118,12 +118,13 @@ Evaluate implementation options and present them with trade-offs.
 3. **Optional:** Run `/research-patterns` — finds production repos implementing the chosen approach, produces `tasks/research-patterns.md`.
 4. **Do not plan until the design is finalized.** If the design review raises concerns, address them first.
 
-## Phase 3: Plan (`/create-plan`)
+## Phase 3: Plan (`/create-plan` → `/plan-review-codex`)
 
 Generate a detailed implementation plan from the finalized design — do NOT plan from memory.
 
 1. Run `/create-plan` — reads research, design, and patterns artifacts; produces `tasks/plan.md`.
-2. **Do not implement until the plan is approved.** If rejected or revised, update `tasks/plan.md` before proceeding.
+2. **Optional:** Run `/plan-review-codex` — Codex reviews judgment calls, feasibility, completeness, and risks in the plan.
+3. **Do not implement until the plan is approved.** If rejected or revised, update `tasks/plan.md` before proceeding.
 
 ## Phase 4: Implement (`/implement`)
 

@@ -26,6 +26,7 @@ templates/explore-prompt.md
 .claude/commands/design-review-codex.md
 .claude/commands/code-review-codex.md
 .claude/commands/create-plan.md
+.claude/commands/plan-review-codex.md
 .claude/commands/implement.md
 .claude/commands/create-todo.md
 .claude/commands/issue-research.md

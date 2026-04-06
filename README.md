@@ -24,7 +24,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 ## What's included
 
-### Commands (24)
+### Commands (25)
 
 **QRSPI workflow**
 
@@ -36,6 +36,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 | `/design-review-codex` | Codex reviews and finalizes the design |
 | `/research-patterns` | Find production repos with chosen pattern (optional); writes `tasks/research-patterns.md` |
 | `/create-plan` | Generate implementation plan; writes `tasks/plan.md` |
+| `/plan-review-codex` | Codex reviews plan judgment calls, feasibility, and risks |
 | `/implement` | Execute approved plan phase-by-phase |
 | `/code-review-codex` | Codex reviews implementation against plan |
 | `/create-todo` | Create standalone `tasks/todo.md` for ad-hoc tracking |
@@ -104,7 +105,7 @@ Fetches the latest playbook, shows what changed, and lets you approve each file 
 | `CLAUDE.md` | Project context + workflow rules | Yes — every session |
 | `quickref.md` | Human-readable QRSPI cheat sheet | No — for your reference |
 | `templates/*` | Structures for research, plans, audits, etc. | Referenced when writing artifacts |
-| `.claude/commands/*` | 24 slash commands | Only when invoked |
+| `.claude/commands/*` | 25 slash commands | Only when invoked |
 | `.claude/hooks/stop-verify.sh` | Verification nudge hook | On agent stop events |
 | `.claude/settings.local.json` | Permissions and hook config | Yes — every session |
 

@@ -14,7 +14,6 @@
 | `/playbook-setup`   | Configure CLAUDE.md for your codebase                            |
 | `/playbook-update`  | Fetch and apply latest playbook version                          |
 | `/playbook-audit`   | Health check — stale config, leftover artifacts                  |
-| `/fix-tables`       | Wrap bare markdown tables in fenced code blocks                  |
 ```
 
 **QRSPI Workflow**
@@ -22,15 +21,16 @@
 ```
 | Command                    | What it does                                              |
 |----------------------------|-----------------------------------------------------------|
+| `/create-todo`             | Create standalone `tasks/todo.md` for ad-hoc tracking     |
 | `/research-codebase`       | Investigate codebase → `tasks/research-codebase.md`       |
 | `/research-codebase-codex` | Codex reviews and verifies existing research              |
 | `/design`                  | Evaluate options → `tasks/design-decision.md`             |
 | `/design-review-codex`     | Codex reviews and finalizes the design                    |
 | `/research-patterns`       | Find production repos with pattern (optional)             |
 | `/create-plan`             | Generate implementation plan → `tasks/plan.md`            |
+| `/plan-review-codex`       | Codex reviews plan judgment calls, feasibility, and risks |
 | `/implement`               | Execute approved plan phase-by-phase                      |
 | `/code-review-codex`       | Codex reviews implementation against plan                 |
-| `/create-todo`             | Create standalone `tasks/todo.md` for ad-hoc tracking     |
 ```
 
 **Issue Board**
@@ -56,6 +56,7 @@
 | `/push-pr`     | Push, open PR, code review, and merge if passing                                 |
 | `/push-pr-light`| Push, open PR, light diff review, and merge if passing                           |
 | `/checkpoint`  | Save current work state to `tasks/checkpoint.md`                                 |
+| `/fix-tables`  | Wrap bare markdown tables in fenced code blocks                                  |
 | `/simplify`    | Review changed code for reuse, quality, and efficiency (built-in)                |
 | `/batch`       | Decompose large changes into parallel sub-agents in isolated worktrees (built-in)|
 | `/loop`        | Run a prompt on a recurring interval, e.g. `/loop 5m check deploy` (built-in)   |
@@ -126,7 +127,8 @@ If uncertain, it is non-trivial. Do not Edit/Write source files until the task i
 ## Phase 3: Plan
 
 1. Run `/create-plan` — reads research, design, and patterns artifacts; produces `tasks/plan.md`
-2. **Get human approval** — do NOT implement until plan is reviewed
+2. **Optional:** Run `/plan-review-codex` — Codex reviews judgment calls, feasibility, completeness, and risks
+3. **Get human approval** — do NOT implement until plan is reviewed
 
 > The plan creates **mental alignment** between you and the agent. Review the *intent*, not every line of generated code.
 
