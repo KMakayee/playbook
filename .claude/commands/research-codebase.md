@@ -19,7 +19,6 @@ Research the codebase for the task described by the user: **$ARGUMENTS**
 3. **Explore the codebase:**
    - Spawn sub-agents to research the codebase however you see fit — parallelize across domains, go deep on a single module, whatever the task requires.
    - All agents are documentarians: describe what exists, don't evaluate or suggest improvements.
-   - If web research would help, include it — return links with findings.
 
    **Tactical guidance:**
    - Start broad — find WHERE relevant files and components live
@@ -29,7 +28,13 @@ Research the codebase for the task described by the user: **$ARGUMENTS**
    - Don't over-prompt agents on HOW to search — they already know
    - Have agents document examples and usage patterns as they exist
 
-4. **Wait for all sub-agents to complete and synthesize findings:**
+4. **Research beyond the codebase (when needed):**
+   - If the task involves external libraries, APIs, protocols, migrations, or unfamiliar error messages, spawn web research agents **in parallel with** codebase agents.
+   - Prefer official docs and release notes over blog posts and tutorials.
+   - Return source URLs with all external findings so they can be verified.
+   - If external research contradicts what the codebase does, document **both** — don't silently prefer one over the other.
+
+5. **Wait for all sub-agents to complete and synthesize findings:**
    - IMPORTANT: Wait for ALL sub-agent tasks to complete before proceeding
    - Compile all sub-agent results
    - Prioritize live codebase findings as primary source of truth
@@ -38,7 +43,7 @@ Research the codebase for the task described by the user: **$ARGUMENTS**
    - Highlight patterns, connections, and architectural decisions
    - Answer the user's specific questions with concrete evidence
 
-5. **Write research artifact** to `tasks/research-codebase.md`:
+6. **Write research artifact** to `tasks/research-codebase.md`:
 
      ```markdown
      # Research: [Task/Question]
@@ -63,6 +68,13 @@ Research the codebase for the task described by the user: **$ARGUMENTS**
      - `path/to/file.py:123` - Description of what's there
      - `another/file.ts:45-67` - Description of the code block
 
+     ## External Research
+     [Only if external research was conducted]
+     ### [Topic]
+     - Key findings with source URLs
+     - How external findings relate to the current codebase
+     - Any divergences between external best practices and current implementation
+
      ## Architecture Documentation
      [Current patterns, conventions, and design implementations found in the codebase]
 
@@ -70,12 +82,12 @@ Research the codebase for the task described by the user: **$ARGUMENTS**
      [Any areas that need further investigation]
      ```
 
-6. **Present findings:**
+7. **Present findings:**
    - Present a concise summary of findings to the user
    - Include key file references for easy navigation
    - Ask if they have follow-up questions or need clarification
 
-7. **Handle follow-up questions:**
+8. **Handle follow-up questions:**
    - If the user has follow-up questions, append to the same research document
    - Add a new section: `## Follow-up Research [timestamp]`
    - Spawn new sub-agents as needed for additional investigation
