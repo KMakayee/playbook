@@ -6,16 +6,16 @@ Audit the plan for issue **#$ARGUMENTS** against research findings and acceptanc
 
 ## Steps
 
-1. **Read all inputs.** Read `tasks/plan.md`, `tasks/research.md`, and issue `#$ARGUMENTS` from `tasks/new-issues.md`. If any are missing, stop and tell the developer what's needed.
+1. **Read all inputs.** Read `tasks/plan.md`, `tasks/research-issue-$ARGUMENTS.md`, and issue `#$ARGUMENTS` from `tasks/issues.md`. If any are missing, stop and tell the developer what's needed.
 
-2. **Prepare audit input.** Write the contents of `tasks/plan.md`, `tasks/research.md`, and the issue's Description + Acceptance Criteria into `tasks/audit-input.tmp`, clearly delimited:
+2. **Prepare audit input.** Write the contents of `tasks/plan.md`, `tasks/research-issue-$ARGUMENTS.md`, and the issue's Description + Acceptance Criteria into `tasks/audit-input.tmp`, clearly delimited:
 
    ```
    === PLAN ===
    [contents of tasks/plan.md]
 
    === RESEARCH ===
-   [contents of tasks/research.md]
+   [contents of tasks/research-issue-$ARGUMENTS.md]
 
    === ISSUE #$ARGUMENTS ===
    [issue Description, Acceptance Criteria, and Notes]
@@ -52,7 +52,7 @@ Audit the plan for issue **#$ARGUMENTS** against research findings and acceptanc
 
 6. **Clean up.** Delete `tasks/audit-input.tmp` and `tasks/audit-output.tmp`.
 
-7. **Update issue status.** In `tasks/new-issues.md`, change issue #$ARGUMENTS status to `In Review`.
+7. **Update issue status.** In `tasks/issues.md`, change issue #$ARGUMENTS status to `In Review`.
 
 8. **Present findings.** Report in three sections:
    - **Solid:** What's well-covered and ready

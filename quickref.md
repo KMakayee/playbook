@@ -1,4 +1,4 @@
-# RPI Quick Reference
+# QRSPI Quick Reference
 
 > Scan in 60 seconds. Keep this open while working.
 
@@ -17,12 +17,28 @@
 | `/fix-tables`       | Wrap bare markdown tables in fenced code blocks                  |
 ```
 
+**QRSPI Workflow**
+
+```
+| Command                    | What it does                                              |
+|----------------------------|-----------------------------------------------------------|
+| `/research-codebase`       | Investigate codebase → `tasks/research-codebase.md`       |
+| `/research-codebase-codex` | Codex reviews and verifies existing research              |
+| `/design`                  | Evaluate options → `tasks/design-decision.md`             |
+| `/design-review-codex`     | Codex reviews and finalizes the design                    |
+| `/research-patterns`       | Find production repos with pattern (optional)             |
+| `/create-plan`             | Generate implementation plan → `tasks/plan.md`            |
+| `/implement`               | Execute approved plan phase-by-phase                      |
+| `/code-review-codex`       | Codex reviews implementation against plan                 |
+| `/create-todo`             | Create standalone `tasks/todo.md` for ad-hoc tracking     |
+```
+
 **Issue Board**
 
 ```
 | Command                    | What it does                                              |
 |----------------------------|-----------------------------------------------------------|
-| `/issue-research #N`       | Research issue #N → produce `tasks/research.md`           |
+| `/issue-research #N`       | Research issue #N → produce `tasks/research-issue.md`     |
 | `/issue-research-codex #N` | Same as above, using Codex for codebase exploration       |
 | `/issue-plan #N`           | Generate `tasks/plan.md` from research findings           |
 | `/issue-audit #N`          | Audit plan against research and acceptance criteria       |
@@ -86,43 +102,50 @@ LSP gives Claude instant, accurate code navigation — definitions, references, 
 **Before calling Edit or Write, classify the task:**
 
 - **Trivial:** single file, under ~20 changed lines, no new abstractions, no changed interfaces → implement directly
-- **Non-trivial:** 2+ files, OR new/changed abstractions, OR modified interfaces/contracts → **full RPI required**
+- **Non-trivial:** 2+ files, OR new/changed abstractions, OR modified interfaces/contracts → **full QRSPI required**
 
-If uncertain, it is non-trivial. Do not Edit/Write source files until the task is trivial OR `plan.md` is approved.
+If uncertain, it is non-trivial. Do not Edit/Write source files until the task is trivial OR the design is finalized and `plan.md` is approved.
 
-**Bug fix mode:** Diagnose autonomously — don't ask the user to identify root cause. Non-trivial bug fixes still require full RPI.
+**Bug fix mode:** Diagnose autonomously — don't ask the user to identify root cause. Non-trivial bug fixes still require full QRSPI.
 
 ---
 
-## Research Phase (Full RPI)
+## Phase 1: Research
 
-1. **Explore** — single Explore sub-agent locates, reads, analyzes, and identifies patterns in one pass. Only split into multiple agents when the task spans multiple unrelated domains.
-2. **Search best practices** — for non-trivial design decisions, web-search for established patterns and current best practices before planning
-3. **Write `research.md`** — aggregate findings (do not exceed 1000 lines)
-4. **Check context** — if above 30%, compact now
-5. **Compact** — summarize and drop raw content before moving on
+1. Run `/research-codebase` (or `/research-codebase-codex`) with the task description
+2. Produces `tasks/research-codebase.md` — located paths, current behavior, codebase patterns, risks
+3. **Check context** — if above 30%, compact now
 
-## Plan Phase
+## Phase 2: Design
 
-1. **Read `research.md`** — plan from the artifact, not from memory
-2. **Write `plan.md`** — every change gets: file path, line numbers, reason
-3. **Include tests** — what tests to add/modify, where they live
-4. **Include rollback** — how to undo if things go wrong
-5. **Include out-of-scope** — prevent scope creep explicitly
-6. **Get human approval** — do NOT implement until plan is reviewed
+1. Run `/design` — reads research, produces `tasks/design-decision.md` with 2-3 options and trade-offs
+2. Run `/design-review-codex` — Codex reviews design, recommends an option, finalizes
+3. **Optional:** Run `/research-patterns` — finds production repos with chosen pattern → `tasks/research-patterns.md`
+4. **Do not plan until design is finalized**
+
+## Phase 3: Plan
+
+1. Run `/create-plan` — reads research, design, and patterns artifacts; produces `tasks/plan.md`
+2. **Get human approval** — do NOT implement until plan is reviewed
 
 > The plan creates **mental alignment** between you and the agent. Review the *intent*, not every line of generated code.
 
-## Implement Phase
+## Phase 4: Implement
 
-1. **Follow the plan exactly** — deviations require a plan update first
-2. **Change only what's specified** — no drive-by refactors or "improvements"
-3. **Test after each step** — not just at the end
-4. **Stop if surprised** — unexpected behavior → return to Research
-5. **Commit per step** — reference plan steps in commit messages
-6. **Track progress** — update `tasks/todo.md` with checkable items and result summaries
-7. **One batch per prompt** — if the plan has independent batches, execute each in its own prompt (pre-edit gate applies per-batch)
-8. **Reflect** — after committing, check if anything surprising or reusable was discovered; log to `tasks/errors.md` using the learning entry format in `templates/error-report.md`
+1. Run `/implement` — executes the plan phase-by-phase
+2. **Follow the plan exactly** — deviations require a plan update first
+3. **Change only what's specified** — no drive-by refactors or "improvements"
+4. **Test after each step** — not just at the end
+5. **Stop if surprised** — unexpected behavior → return to Research
+6. **Commit per phase** — conventional commit messages
+7. **Track progress** — checkboxes in `tasks/plan.md`
+8. **One batch per prompt** — if the plan has independent batches, execute each in its own prompt (pre-edit gate applies per-batch)
+
+## Phase 5: Code Review
+
+1. Run `/code-review-codex` — Codex reviews implementation against the plan
+2. Reports: Solid, Needs revision, Missing
+3. Developer decides what to address
 
 ---
 
@@ -153,7 +176,7 @@ If uncertain, it is non-trivial. Do not Edit/Write source files until the task i
 
 - Calling Edit/Write before classifying the task → pre-edit gate violation
 - Skipping Research ("I already know this codebase") → slop
-- Planning from memory instead of research.md → hallucinated structure
+- Planning from memory instead of research-codebase.md → hallucinated structure
 - Approving a plan you didn't read or think through → outsourced judgment
 - Context window growing unchecked → entering the Dumb Zone
 - Measuring PRs merged instead of rework rate → false productivity
@@ -179,7 +202,7 @@ Track these to know if the workflow is actually helping:
 ```
 1. Fresh context window (or compact fully)
 2. Define the task: input, output, success criteria
-3. If non-trivial (see Pre-Edit Gate) → begin RPI
+3. If non-trivial (see Pre-Edit Gate) → begin QRSPI
 ```
 
 ---
@@ -192,7 +215,7 @@ Run `/playbook-audit` periodically to keep the playbook healthy.
 
 **What it does:**
 1. Compares each CLAUDE.md section against the actual codebase — flags stale or unconfigured sections
-2. Cleans up leftover task artifacts (`research.md`, `plan.md`, `todo.md`)
+2. Cleans up leftover task artifacts (`research-codebase.md`, `design-decision.md`, `research-patterns.md`, `plan.md`)
 3. Generates a health report in `tasks/audit-report.md`
 
 **When to run it:**

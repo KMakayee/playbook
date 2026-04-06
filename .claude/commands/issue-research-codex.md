@@ -1,12 +1,12 @@
 # Issue Research (Codex)
 
-Research issue **#$ARGUMENTS** from the issue board and produce `tasks/research.md`, using OpenAI Codex for codebase exploration.
+Research issue **#$ARGUMENTS** from the issue board and produce `tasks/research-issue-$ARGUMENTS.md`, using OpenAI Codex for codebase exploration.
 
 ---
 
 ## Steps
 
-1. **Read the issue board.** Read `tasks/new-issues.md` and locate issue `#$ARGUMENTS`. If the issue doesn't exist, stop and tell the developer.
+1. **Read the issue board.** Read `tasks/issues.md` and locate issue `#$ARGUMENTS`. If the issue doesn't exist, stop and tell the developer.
 
 2. **Check for prior research.** Check if `tasks/research-issue-$ARGUMENTS.md` exists. If so, read it as background context — but flag that it may be outdated and should be verified, not trusted blindly.
 
@@ -31,19 +31,19 @@ Research issue **#$ARGUMENTS** from the issue board and produce `tasks/research.
 
    After Codex finishes, read `tasks/codex-exploration.tmp` to get the exploration results. Document what IS — do not critique or suggest improvements. Use specific file paths and line numbers, not vague references.
 
-5. **Write research.md.** Aggregate findings into `tasks/research.md` using the structure from `templates/research.md`. Include the issue number in the title (e.g., "Research: Issue #$ARGUMENTS — [Title]"). Do not exceed 1000 lines.
+5. **Write research.** Aggregate findings into `tasks/research-issue-$ARGUMENTS.md` (max 1000 lines). Title it "Research: Issue #$ARGUMENTS — [Title]". Structure the document however best fits the findings — include file paths with line numbers, current behavior, patterns, and open questions. Document what IS, not what should be.
 
 6. **Clean up.** Delete `tasks/codex-exploration.tmp`.
 
-7. **Update issue status.** In `tasks/new-issues.md`, change issue #$ARGUMENTS status from its current value to `In Research`.
+7. **Update issue status.** In `tasks/issues.md`, change issue #$ARGUMENTS status from its current value to `In Research`.
 
-8. **Report.** Tell the developer: `tasks/research.md` is ready for review. Summarize the key findings in 3-5 sentences. Note that Codex was used for exploration.
+8. **Report.** Tell the developer: `tasks/research-issue-$ARGUMENTS.md` is ready for review. Summarize the key findings in 3-5 sentences. Note that Codex was used for exploration.
 
 ---
 
 ## Rules
 
 - Do not plan or propose solutions — research only.
-- If `tasks/research.md` already exists from a different issue, warn the developer and ask whether to overwrite or abort.
-- If context utilization is above 30% after writing research.md, compact before finishing.
+- If `tasks/research-issue-$ARGUMENTS.md` already exists from a different issue, warn the developer and ask whether to overwrite or abort.
+- If context utilization is above 30% after writing research-issue.md, compact before finishing.
 - If the `codex` command is not found or fails, tell the developer and suggest using `/issue-research` (the Claude Explore variant) instead.
