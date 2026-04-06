@@ -2,6 +2,18 @@
 
 Research the codebase for the task described by the user: **$ARGUMENTS**
 
+## Auto-pick next task (when no arguments provided)
+
+If `$ARGUMENTS` is empty or blank:
+
+1. Read `tasks/todo.md`
+2. Find the first unchecked task (`- [ ]`)
+3. Use that task's title and description as the research target
+4. Tell the user which task you picked (e.g., "No task specified — picking up **Task 3: Add pagination support**")
+5. Proceed with the steps below using that task as the research target
+
+If `tasks/todo.md` doesn't exist or all tasks are checked, tell the user there's nothing to pick up and stop.
+
 ## Steps:
 
 1. **Read any directly mentioned files first:**
