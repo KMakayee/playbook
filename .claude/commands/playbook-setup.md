@@ -108,15 +108,11 @@ Ask the developer:
 >
 > Want me to enable it? (yes / skip)"
 
-- **yes** → Add the LSP configuration to the project's `.claude/settings.json`:
-  ```json
-  {
-    "permissions": {
-      "allow": ["mcp__lsp__*"]
-    }
-  }
+- **yes** → Tell the developer to run the following command in their terminal to install the LSP plugin:
   ```
-  Tell the developer they also need to add the LSP MCP server to their Claude Code config if they haven't already. Point them to the [Claude Code docs on MCP servers](https://docs.anthropic.com/en/docs/claude-code/mcp) for setup instructions.
+  /plugin install lsp
+  ```
+  This installs the LSP plugin directly into Claude Code — no MCP server configuration needed.
 - **skip** → move on silently.
 
 ---
