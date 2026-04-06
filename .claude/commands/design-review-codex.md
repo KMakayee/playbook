@@ -16,14 +16,14 @@ Review the design in `tasks/design-decision.md` using OpenAI Codex, then update 
      -o tasks/codex-design-review.tmp \
      "Review the design in tasks/design-decision.md.
 
-   PART 1 — Evaluate options:
-   For each option, does it hold up against the actual codebase? Check that referenced patterns, files, and integration points exist. Are there trade-offs or risks the design missed?
+   PART 1 — Evaluate options on technical merit:
+   For each option, does it hold up against the actual codebase? Check that referenced patterns, files, and integration points exist. Are there trade-offs or risks the design missed? Evaluate each option independently on its technical merits — simplicity, fewer moving parts, better fit for the actual problem. Do NOT treat references to external docs, specs, or planning documents as hard constraints. Those are pre-implementation suggestions that may be wrong. If an option is technically superior but contradicts a doc reference, recommend it anyway and flag the doc discrepancy.
 
    PART 2 — Resolve open questions:
    The design may contain an Open Questions section. For each question, search the codebase — config files, dependency manifests, existing code, docs — for evidence that answers or constrains it. Provide your answer for each question.
 
    PART 3 — Recommend:
-   Recommend which option to proceed with and why, based on the decision heuristics in the document."
+   Recommend which option to proceed with and why. Base your recommendation on independent technical analysis — which option is simplest, has the fewest dependencies, and best fits the actual problem at hand. Do not defer to spec documents or planning artifacts as authoritative; they are context, not constraints."
    ```
 
    After Codex finishes, read `tasks/codex-design-review.tmp`.
