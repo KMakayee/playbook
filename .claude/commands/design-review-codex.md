@@ -23,7 +23,7 @@ Review the design in `tasks/design-decision.md` using OpenAI Codex, then update 
    The design may contain an Open Questions section. For each question, search the codebase — config files, dependency manifests, existing code, docs — for evidence that answers or constrains it. Provide your answer for each question.
 
    PART 3 — Recommend:
-   Recommend which option to proceed with and why. Base your recommendation on independent technical analysis — which option is simplest, has the fewest dependencies, and best fits the actual problem at hand. Do not defer to spec documents or planning artifacts as authoritative; they are context, not constraints."
+   Recommend which option to proceed with and why. Base your recommendation on independent technical analysis — which option is simplest, has the fewest dependencies, and best fits the actual problem at hand. Do not defer to spec documents or planning artifacts as authoritative; they are context, not constraints. Before finalizing, briefly check whether the codebase has patterns, utilities, or abstractions that suggest a better approach the design missed. If so, describe it and factor it into your recommendation. If not, proceed with the best proposed option."
    ```
 
    After Codex finishes, read `tasks/codex-design-review.tmp`.
@@ -31,7 +31,7 @@ Review the design in `tasks/design-decision.md` using OpenAI Codex, then update 
 3. **Update the design.** Append a `## Review` section to `tasks/design-decision.md` with:
    - Codex's findings per option
    - Open question answers (Codex's answer for each open question)
-   - The recommended option and rationale
+   - The recommended option and rationale (noting any better alternative if one was found)
    - Any new risks surfaced
 
    Change the footer status from `Awaiting decision` to `Reviewed — recommended: [Option name]`.
