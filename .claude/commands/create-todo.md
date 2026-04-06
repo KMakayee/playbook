@@ -1,26 +1,32 @@
 # Create Todo
 
-Break down the finalized design in `tasks/design-decision.md` into a numbered task list. Each task becomes a unit of work that goes through its own research-codebase → plan → implement cycle.
+Break down a design document into a numbered task list. Each task becomes a unit of work that goes through its own QRSPI cycle (research-codebase → design → plan → implement).
+
+**Usage:** `/create-todo <path-to-design-doc>`
+
+If no path is provided, ask the developer which design document to use.
 
 ## Steps:
 
-1. **Check prerequisites:**
-   - Verify `tasks/design-decision.md` exists. If not, stop and tell the developer to run `/design` first.
-   - Check that the design is finalized — it should NOT say "Status: Awaiting decision". If it does, stop and tell the developer the design needs to be reviewed and finalized first.
-   - Read `tasks/design-decision.md` FULLY — use the Read tool WITHOUT limit/offset parameters.
+1. **Read the design document:**
+   - Read the provided file FULLY — use the Read tool WITHOUT limit/offset parameters.
+   - If the file doesn't exist, stop and tell the developer.
 
-2. **Decompose the design into tasks:**
-   - Identify the distinct pieces of work needed to implement the chosen approach
-   - Order them so later tasks can build on earlier ones
-   - Each task should be small enough for a single research → plan → implement cycle
-   - Group related changes into the same task — don't split a logical unit across tasks
+2. **Assess granularity and decompose into tasks:**
+   - Understand how broad or specific the design is — this determines task size.
+   - **Broad design** (high-level goals, minimal implementation detail): Create coarser tasks that each cover a logical area. These tasks will need heavier research and design phases in QRSPI.
+   - **Detailed design** (specific components, interfaces, data flows): Create finer tasks that map closely to the design's own structure. These tasks may have lighter research phases.
+   - Order tasks so later ones can build on earlier ones.
+   - Each task should be a meaningful unit of change.
+   - Group related changes into the same task.
 
 3. **Write the todo artifact** to `tasks/todo.md`:
-   - Title references the design
-   - Source line pointing to `tasks/design-decision.md`
-   - Numbered list — each task gets a number, bold title, brief description, and status (`pending` / `in progress` / `done`)
-   - The description should be enough context for `/research-codebase` to know what to investigate
-   - Structure it however makes sense for the task — no rigid format beyond the numbered ordering
+   - Title references the design document
+   - Source line pointing to the design document path
+   - Numbered list — each task gets a number, bold title, brief description, and a checkbox to mark done
+   - The description should include which files to reference for more details
+   - For broad designs, note what each task needs to figure out during research
+   - For detailed designs, reference specific sections of the design doc
 
 4. **Present to the developer:**
    - List the tasks with one-line summaries
@@ -28,6 +34,7 @@ Break down the finalized design in `tasks/design-decision.md` into a numbered ta
    - The developer can reorder, merge, split, or remove tasks before starting
 
 ## Important notes:
-- Tasks are work items, not steps in a recipe. Each task produces a meaningful change.
+- This is the **entry point** for implementation work. Each task produced here goes through the full QRSPI workflow starting with `/research-codebase`.
+- Tasks are work items, not steps in a recipe. Each task produces a meaningful, commitable change.
 - If `tasks/todo.md` already exists, warn the developer and ask whether to overwrite or abort.
 - The first task to work on goes through `/research-codebase` next.
