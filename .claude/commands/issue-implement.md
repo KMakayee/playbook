@@ -7,21 +7,19 @@ Implement the approved plan for issue **#$ARGUMENTS**.
 ## Steps
 
 1. **Prerequisite check.** Confirm that:
-   - `tasks/research.md` exists
+   - `tasks/research-issue-$ARGUMENTS.md` exists
    - `tasks/plan.md` exists and has been approved
    - If either is missing, stop and tell the developer what's needed
 
-2. **Check for resume.** If `tasks/todo.md` exists and contains checkmarks for this issue, ask the developer: "Found existing progress in todo.md. Resume from where it left off, or start fresh?"
+2. **Check for resume.** Look for existing checkmarks (`- [x]`) in `tasks/plan.md`. If found, ask the developer: "Found existing progress in plan.md. Resume from where it left off, or start fresh?"
 
-3. **Read issue context.** Read issue `#$ARGUMENTS` from `tasks/new-issues.md`. Read `tasks/plan.md`.
+3. **Read issue context.** Read issue `#$ARGUMENTS` from `tasks/issues.md`. Read `tasks/plan.md`.
 
-4. **Update issue status.** In `tasks/new-issues.md`, change issue #$ARGUMENTS status to `In Progress`.
+4. **Update issue status.** In `tasks/issues.md`, change issue #$ARGUMENTS status to `In Progress`.
 
-5. **Initialize progress tracking.** If `tasks/todo.md` doesn't exist (or starting fresh), create it from `templates/todo.md` with steps derived from the plan. Include the issue number in the title.
-
-6. **Execute the plan.** Follow the plan step by step:
+5. **Execute the plan.** Follow the plan step by step:
    - If the plan identifies multiple independent batches, execute only the first batch. Present remaining batches to the developer and suggest starting a new prompt for each.
-   - Update `tasks/todo.md` as each step completes
+   - Check off completed items in `tasks/plan.md` as each step completes
    - Run tests after each logical unit of change
    - If something doesn't match expectations: **STOP** and present the mismatch clearly:
      > **Expected:** [what the plan said]
@@ -35,10 +33,10 @@ Implement the approved plan for issue **#$ARGUMENTS**.
    - Ask the developer to review the changes
 
 8. **Clean up.** After verification:
-   - Remove `tasks/research.md`, `tasks/plan.md`, `tasks/todo.md`
+   - Remove `tasks/research-issue-$ARGUMENTS.md`, `tasks/plan.md`
    - Do NOT remove `tasks/deferred.md`
 
-9. **Update issue status.** In `tasks/new-issues.md`, change issue #$ARGUMENTS status to `Done`.
+9. **Update issue status.** In `tasks/issues.md`, change issue #$ARGUMENTS status to `Done`.
 
 10. **Suggest next step.** Tell the developer: "Run `/issue-update $ARGUMENTS` to check if this affects other open issues."
 

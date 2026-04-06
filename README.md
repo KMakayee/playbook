@@ -24,7 +24,33 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 ## What's included
 
-### Commands (15)
+### Commands (24)
+
+**QRSPI workflow**
+
+| Command | Purpose |
+|---|---|
+| `/research-codebase` | Investigate codebase; writes `tasks/research-codebase.md` |
+| `/research-codebase-codex` | Codex reviews and verifies existing research |
+| `/design` | Evaluate options and trade-offs; writes `tasks/design-decision.md` |
+| `/design-review-codex` | Codex reviews and finalizes the design |
+| `/research-patterns` | Find production repos with chosen pattern (optional); writes `tasks/research-patterns.md` |
+| `/create-plan` | Generate implementation plan; writes `tasks/plan.md` |
+| `/implement` | Execute approved plan phase-by-phase |
+| `/code-review-codex` | Codex reviews implementation against plan |
+| `/create-todo` | Create standalone `tasks/todo.md` for ad-hoc tracking |
+
+**Issue workflow**
+
+| Command | Purpose |
+|---|---|
+| `/issue-research` | Research an issue; writes `tasks/research-issue.md` |
+| `/issue-research-codex` | Same as above, using Codex for exploration |
+| `/issue-plan` | Generate `tasks/plan.md` from research |
+| `/issue-audit` | Audit plan against research and acceptance criteria |
+| `/issue-audit-codex` | Same as above, using Codex |
+| `/issue-implement` | Execute approved plan step-by-step |
+| `/issue-update` | Check impact of completed issue on other open issues |
 
 **Setup & maintenance**
 
@@ -33,33 +59,16 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 | `/playbook-setup` | One-time project configuration |
 | `/playbook-audit` | Health check and artifact cleanup |
 | `/playbook-update` | Fetch and apply latest playbook version |
-| `/fix-tables` | Wrap bare markdown tables in fenced code blocks |
 
-**Issue workflow**
-
-| Command | Purpose |
-|---|---|
-| `/issue-research` | Research an issue; writes `tasks/research.md` |
-| `/issue-research-codex` | Same as above, using Codex for exploration |
-| `/issue-plan` | Generate `tasks/plan.md` from research |
-| `/issue-audit` | Audit plan against research and acceptance criteria |
-| `/issue-audit-codex` | Same as above, using Codex |
-| `/issue-implement` | Execute approved plan step-by-step |
-| `/issue-update` | Check impact of completed issue on other open issues |
-
-**Code quality & pushing**
+**Utility**
 
 | Command | Purpose |
 |---|---|
 | `/commit` | Stage, commit, and push to current branch |
 | `/push-pr` | Push, open PR, full code review, conditional merge |
 | `/push-pr-light` | Push, open PR, light diff review, conditional merge |
-
-**Checkpointing**
-
-| Command | Purpose |
-|---|---|
 | `/checkpoint` | Save current work state to `tasks/checkpoint.md` |
+| `/fix-tables` | Wrap bare markdown tables in fenced code blocks |
 
 ### Hooks
 
@@ -69,9 +78,6 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 | Template | Purpose |
 |---|---|
-| `research.md` | Research output structure (Phase 1) |
-| `plan.md` | Plan output structure (Phase 2) |
-| `todo.md` | Implementation progress tracker (Phase 3) |
 | `audit-report.md` | Output for `/playbook-audit` |
 | `error-report.md` | Error and learning log entries |
 | `deferred.md` | Out-of-scope items tracker |
@@ -81,7 +87,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 ### Workflow rules
 
-`CLAUDE.md` includes the RPI (Research, Plan, Implement) workflow rules. Any task touching 2+ files or changing interfaces requires structured research, an approved plan, and step-by-step implementation with verification. Trivial changes (single file, <20 lines) skip the process. See `quickref.md` for the full checklist.
+`CLAUDE.md` includes the QRSPI (Questions, Research, Structure, Plan, Implement) workflow rules. Any task touching 2+ files or changing interfaces requires structured research, a reviewed design, an approved plan, and step-by-step implementation with verification. Codex review gates validate design and implementation independently. Trivial changes (single file, <20 lines) skip the process. See `quickref.md` for the full checklist.
 
 ## Updating
 
@@ -96,9 +102,9 @@ Fetches the latest playbook, shows what changed, and lets you approve each file 
 | File | Purpose | Loaded by Claude Code? |
 |---|---|---|
 | `CLAUDE.md` | Project context + workflow rules | Yes — every session |
-| `quickref.md` | Human-readable RPI cheat sheet | No — for your reference |
+| `quickref.md` | Human-readable QRSPI cheat sheet | No — for your reference |
 | `templates/*` | Structures for research, plans, audits, etc. | Referenced when writing artifacts |
-| `.claude/commands/*` | 15 slash commands | Only when invoked |
+| `.claude/commands/*` | 24 slash commands | Only when invoked |
 | `.claude/hooks/stop-verify.sh` | Verification nudge hook | On agent stop events |
 | `.claude/settings.local.json` | Permissions and hook config | Yes — every session |
 
@@ -113,4 +119,4 @@ Enabling LSP (Language Server Protocol) in Claude Code gives **~25% faster and c
 
 ---
 
-Built on the Research-Plan-Implement workflow from [No Vibes Allowed](https://www.humanlayer.dev/nva) and workflow orchestration principles from Boris Cherny.
+Built on the QRSPI workflow, evolved from the Research-Plan-Implement approach in [No Vibes Allowed](https://www.humanlayer.dev/nva), with workflow orchestration principles from Boris Cherny.

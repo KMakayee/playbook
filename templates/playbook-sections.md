@@ -53,7 +53,7 @@
 
 ---
 
-# RPI Workflow Rules
+# QRSPI Workflow Rules
 
 **These rules are fixed. Do not modify them.**
 
@@ -63,48 +63,57 @@
 
 | Classification | Criteria | Workflow |
 |---|---|---|
-| **Trivial** | Single file, under ~20 changed lines, no new abstractions, no changed interfaces | Implement directly — no RPI needed |
-| **Non-trivial** | 2+ files, OR new/changed abstractions, OR modified interfaces/contracts, OR changed control flow across modules | **Full RPI required** — all three phases, no skipping |
+| **Trivial** | Single file, under ~20 changed lines, no new abstractions, no changed interfaces | Implement directly — no QRSPI needed |
+| **Non-trivial** | 2+ files, OR new/changed abstractions, OR modified interfaces/contracts, OR changed control flow across modules | **Full QRSPI required** — all phases, no skipping |
 
-If uncertain, it is non-trivial. Do not call Edit or Write on source files until either (a) the task is trivial, or (b) `research.md` exists and `plan.md` has been approved.
+If uncertain, it is non-trivial. Do not call Edit or Write on source files until either (a) the task is trivial, or (b) `tasks/research-codebase.md` exists, the design in `tasks/design-decision.md` is finalized, and `tasks/plan.md` is approved.
 
-**Bug fix mode:** When given a bug report, error log, or failing test — diagnose it autonomously. Do not ask the user to identify the root cause. The autonomy is about initiative and diagnosis, not about skipping process. A bug fix that meets the non-trivial criteria above still requires full RPI. Arrive at the plan on your own, then present it for approval as usual.
+**Bug fix mode:** When given a bug report, error log, or failing test — diagnose it autonomously. Do not ask the user to identify the root cause. The autonomy is about initiative and diagnosis, not about skipping process. A bug fix that meets the non-trivial criteria above still requires full QRSPI. Arrive at the plan on your own, then present it for approval as usual.
 
-## Phase 1: Research
+## Phase 1: Research (`/research-codebase`)
 
-Before writing any code, investigate the codebase to gather ground truth.
+Before writing any code, investigate the codebase to gather ground truth. Document what IS, not what should be.
 
-1. **Explore** — Spawn a **single** Explore sub-agent to locate all relevant files, read and analyze them, and identify codebase patterns — all in one pass. Only split into multiple agents when the task spans multiple unrelated domains.
-2. **Write research.md** — Aggregate findings into `research.md` (max 1000 lines). Follow the structure in `templates/research.md` — it defines all required sections (paths, current behavior, patterns, risks, etc.).
-3. **Verify context budget** — If above 30% context utilization after writing research.md, compact before proceeding.
+1. Run `/research-codebase` with the task description. It produces `tasks/research-codebase.md` (max 1000 lines) — located paths, current behavior analysis, codebase patterns, risks, and open questions.
+2. **Optional:** Run `/research-codebase-codex` to have Codex verify and enhance the research.
+3. **Verify context budget** — If above 30% context utilization after writing research, compact before proceeding.
 
-## Phase 2: Plan
+## Phase 2: Design (`/design` → `/design-review-codex`)
 
-Generate a detailed plan from research.md — do NOT plan from memory or re-research.
+Evaluate implementation options and present them with trade-offs.
 
-1. Read `research.md` into context.
-2. Produce `plan.md`.
-3. **Do not implement until the plan is approved.** If rejected or revised, update `plan.md` before proceeding.
+1. Run `/design` — reads `tasks/research-codebase.md`, produces `tasks/design-decision.md` with 2-3 options, trade-offs, and open questions.
+2. Run `/design-review-codex` — Codex reviews the design, appends findings, and recommends an option.
+3. **Optional:** Run `/research-patterns` — finds production repos implementing the chosen approach, produces `tasks/research-patterns.md`.
+4. **Do not plan until the design is finalized.** If the design review raises concerns, address them first.
 
-## Phase 3: Implement
+## Phase 3: Plan (`/create-plan`)
 
-**Prerequisite check:** Confirm that `tasks/research.md` and `tasks/plan.md` exist and the plan has been approved. If either is missing, stop — you have skipped a phase.
+Generate a detailed implementation plan from the finalized design — do NOT plan from memory.
+
+1. Run `/create-plan` — reads research, design, and patterns artifacts; produces `tasks/plan.md`.
+2. **Do not implement until the plan is approved.** If rejected or revised, update `tasks/plan.md` before proceeding.
+
+## Phase 4: Implement (`/implement`)
+
+**Prerequisite check:** Confirm that `tasks/plan.md` exists and the plan has been approved. If missing, stop — you have skipped a phase.
 
 Execute the approved plan. Do not improvise.
 
-1. Follow the plan step by step. Deviations require a plan update first.
-2. Keep changes minimal — only modify what the plan specifies.
-3. Run tests after each logical unit of change, not just at the end.
-4. If something unexpected is encountered, **stop** and return to Research for that sub-problem.
-5. Track progress in `tasks/todo.md` using `templates/todo.md`. Commit frequently with messages that reference plan steps.
-6. **Clean up artifacts** — After all steps are complete and verified, remove `tasks/research.md`, `tasks/plan.md`, and `tasks/todo.md`.
+1. Run `/implement` — executes the plan phase-by-phase.
+2. Follow the plan step by step. Deviations require a plan update first.
+3. Keep changes minimal — only modify what the plan specifies.
+4. Run tests after each logical unit of change, not just at the end.
+5. If something unexpected is encountered, **stop** and return to Research for that sub-problem.
+6. Track progress via checkboxes in `tasks/plan.md`. Commit after each phase with conventional commit messages.
+7. **Clean up artifacts** — After all steps are complete and verified, remove `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, and `tasks/plan.md`.
 
 ## Multi-Batch Plans
 
 When a plan contains multiple independent batches (e.g., a code review with 6 fix batches), do NOT implement them all in one pass. Each batch is a separate unit of work in its own prompt.
 
-1. During Phase 2, identify and list independent batches in the plan.
-2. Execute one batch per prompt. The pre-edit gate applies per-batch — trivial batches can skip RPI, non-trivial batches get full RPI.
+1. During Phase 3, identify and list independent batches in the plan.
+2. Execute one batch per prompt. The pre-edit gate applies per-batch — trivial batches can skip QRSPI, non-trivial batches get full QRSPI.
 3. Compact between batches to keep context low.
 
 ---
@@ -127,14 +136,7 @@ When compacting:
 
 # Sub-Agent Behaviors
 
-**Recursion guard:** Sub-agents MUST NOT spawn further sub-agents or follow RPI. They are leaf tasks: read, search, and report.
-
-### codebase-explorer (default for Research phase)
-> Given this task: [TASK], do the following in a single pass:
-> 1. Identify all relevant files, directories, and modules.
-> 2. Read each relevant file and summarize: current behavior, key functions/classes, dependencies, and gotchas. Be specific with line numbers.
-> 3. Identify naming conventions, testing patterns, error handling patterns, and architectural decisions in the relevant code.
-> Return a structured report covering all three areas. Do NOT spawn sub-agents.
+**Recursion guard:** Sub-agents MUST NOT spawn further sub-agents or follow QRSPI. They are leaf tasks: read, search, and report.
 
 ---
 
@@ -146,7 +148,7 @@ When compacting:
 - **Surgical changes** — every changed line needs a reason traceable to the plan. No features, refactoring, or "improvements" beyond what the plan specifies. If you can't explain why a line changed, revert it.
 - **Demand elegance for non-trivial changes** — before implementing, ask "is there a simpler way?" Skip for mechanical or single-line fixes.
 - **Self-assess** — before marking any step complete, ask: "Would a staff engineer approve this?" If the answer is no, revise.
-- If a task seems too large, break it into sub-tasks that each follow RPI independently.
+- If a task seems too large, break it into sub-tasks that each follow QRSPI independently.
 
 ---
 
@@ -154,6 +156,6 @@ When compacting:
 
 At the start of each session, run these lightweight checks (no sub-agents, under 30 seconds total):
 
-1. **Leftover artifacts** — Check if `tasks/research.md`, `tasks/plan.md`, or `tasks/todo.md` exist from a previous session. If found, notify the developer and ask whether to clean up or resume.
+1. **Leftover artifacts** — Check if `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, or `tasks/plan.md` exist from a previous session. If found, notify the developer and ask whether to clean up or resume.
 2. **Unconfigured CLAUDE.md** — Scan the top half of CLAUDE.md for `[TEAM FILLS IN` markers or `<!-- TODO` comments. If found, mention that `/playbook-setup` can fill them in.
 3. **Playbook version** — If `.playbook-version` exists, read it. If the installed date is older than 30 days, mention that `/playbook-update` can check for updates.
