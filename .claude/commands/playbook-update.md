@@ -14,7 +14,6 @@ These are the files owned by the playbook that can be updated wholesale:
 quickref.md
 templates/audit-report.md
 templates/playbook-sections.md
-templates/explore-prompt.md
 .claude/commands/fix-tables.md
 .claude/commands/playbook-setup.md
 .claude/commands/playbook-audit.md

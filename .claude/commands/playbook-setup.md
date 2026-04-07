@@ -41,7 +41,22 @@ Read `CLAUDE.md` in the project root. Identify which sections still contain the 
 
 Spawn a single Explore subagent (`Agent` tool, `subagent_type: "Explore"`, thoroughness: "very thorough") to detect the ecosystem and gather findings for all unfilled sections at once. **Do not read any source or config files yourself** — the subagent handles all file I/O.
 
-Read `templates/explore-prompt.md`, replace `[UNFILLED_SECTIONS]` with the comma-separated list of unfilled section names from Step 1, and use the result as the subagent prompt.
+Use this prompt, substituting the actual unfilled section names for `[UNFILLED_SECTIONS]`:
+
+> Explore this codebase thoroughly and gather findings for the following CLAUDE.md sections: [UNFILLED_SECTIONS].
+>
+> For each section, return:
+> **Summary:** what you found (specific file paths, commands, patterns)
+> **Proposed draft:** concise content ready to paste into CLAUDE.md
+>
+> Section definitions:
+> - **Codebase Overview** — what the project does, who uses it, maturity stage (2-3 sentences)
+> - **Architecture** — primary language/framework, directory layout, key abstractions, DB layer, external services
+> - **Conventions** — naming conventions, import ordering, error handling patterns, logging style
+> - **Testing** — framework, test file locations, run commands, coverage expectations
+> - **Build & Run** — install, dev server, build, lint/format commands
+> - **Critical Paths** — auth, payments, migrations, public API contracts, files requiring extra caution
+> - **Dependencies** — noteworthy version constraints or unusual packages (skip obvious ones)
 
 Store the subagent's full response — you will use it in Step 3. **Do not read any additional source or config files yourself.**
 
