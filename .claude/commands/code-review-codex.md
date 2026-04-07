@@ -8,7 +8,7 @@ Review the implementation against the plan in `tasks/plan.md` using OpenAI Codex
 
 1. **Check prerequisites.** Verify `tasks/plan.md` exists. If not, stop and tell the developer there's no plan to review against. Read it FULLY.
 
-2. **Run Codex review.** Run the following Bash command:
+2. **Run Codex review.** Run the following Bash command with a 10-minute timeout (600000ms) — Codex may take a while on large codebases:
 
    ```bash
    codex exec \

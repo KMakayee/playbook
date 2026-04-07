@@ -8,7 +8,7 @@ Review the plan in `tasks/plan.md` using OpenAI Codex, then update the plan with
 
 1. **Check prerequisites.** Verify `tasks/plan.md` exists. If not, stop and tell the developer to run `/create-plan` first. Also verify `tasks/research-codebase.md` and `tasks/design-decision.md` exist — the review needs them for cross-referencing. Read all three FULLY.
 
-2. **Run Codex review.** Run the following Bash command:
+2. **Run Codex review.** Run the following Bash command with a 10-minute timeout (600000ms) — Codex may take a while on large codebases:
 
    ```bash
    codex exec \

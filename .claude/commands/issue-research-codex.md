@@ -12,7 +12,7 @@ Research issue **#$ARGUMENTS** from the issue board and produce `tasks/research-
 
 3. **Gather issue context.** Read the issue's Description, Acceptance Criteria, and Notes sections. These scope the research.
 
-4. **Explore the codebase via Codex.** Run the following Bash command, substituting the issue's Description and Acceptance Criteria into the prompt:
+4. **Explore the codebase via Codex.** Run the following Bash command, substituting the issue's Description and Acceptance Criteria into the prompt. Use a 10-minute timeout (600000ms) — Codex may take a while on large codebases:
 
    ```bash
    codex exec \
