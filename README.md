@@ -84,7 +84,6 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 | `deferred.md` | Out-of-scope items tracker |
 | `new-issues.md` | Issue board template |
 | `playbook-sections.md` | Reusable CLAUDE.md fragment |
-| `explore-prompt.md` | Ecosystem detection prompt for setup |
 
 ### Workflow rules
 
