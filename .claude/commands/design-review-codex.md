@@ -10,7 +10,7 @@ Review the design in `tasks/design-decision.md` using OpenAI Codex, then update 
 
 2. **Extract the problem statement.** Read `tasks/design-decision.md` and pull out just the problem/goal and requirements (before the proposed options). You'll pass this to Codex — NOT the options themselves.
 
-3. **Run Codex review.** Run the following Bash command, substituting the problem statement:
+3. **Run Codex review.** Run the following Bash command, substituting the problem statement. Use a 10-minute timeout (600000ms) — Codex may take a while on large codebases:
 
    ```bash
    codex exec \

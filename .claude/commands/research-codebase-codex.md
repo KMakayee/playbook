@@ -10,7 +10,7 @@ Review the research in `tasks/research-codebase.md` using OpenAI Codex, then upd
 
 2. **Extract the task description.** Read `tasks/research-codebase.md` and pull out just the task/goal (the first section, before any findings). You'll pass this to Codex — NOT the findings themselves.
 
-3. **Run Codex research.** Run the following Bash command, substituting the task description:
+3. **Run Codex research.** Run the following Bash command, substituting the task description. Use a 10-minute timeout (600000ms) — Codex may take a while on large codebases:
 
    ```bash
    codex exec \

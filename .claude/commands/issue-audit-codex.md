@@ -21,7 +21,7 @@ Audit the plan for issue **#$ARGUMENTS** against research findings and acceptanc
    [issue Description, Acceptance Criteria, and Notes]
    ```
 
-3. **Run Codex audit.** Run the following Bash command:
+3. **Run Codex audit.** Run the following Bash command with a 10-minute timeout (600000ms) — Codex may take a while on large codebases:
 
    ```bash
    codex exec \
