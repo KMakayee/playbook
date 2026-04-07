@@ -37,4 +37,3 @@ If no path is provided, ask the developer which design document to use.
 - This is the **entry point** for implementation work. Each task produced here goes through the full QRSPI workflow starting with `/research-codebase`.
 - Tasks are work items, not steps in a recipe. Each task produces a meaningful, commitable change.
 - If `tasks/todo.md` already exists, warn the developer and ask whether to overwrite or abort.
-- The first task to work on goes through `/research-codebase` next.

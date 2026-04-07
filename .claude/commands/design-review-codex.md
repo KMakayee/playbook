@@ -8,37 +8,43 @@ Review the design in `tasks/design-decision.md` using OpenAI Codex, then update 
 
 1. **Check prerequisites.** Verify `tasks/design-decision.md` exists. If not, stop and tell the developer to run `/design` first. Read it FULLY.
 
-2. **Run Codex review.** Run the following Bash command, substituting the design content into the prompt:
+2. **Extract the problem statement.** Read `tasks/design-decision.md` and pull out just the problem/goal and requirements (before the proposed options). You'll pass this to Codex — NOT the options themselves.
+
+3. **Run Codex review.** Run the following Bash command, substituting the problem statement:
 
    ```bash
    codex exec \
      --sandbox read-only \
      -o tasks/codex-design-review.tmp \
-     "Review the design in tasks/design-decision.md.
+     "PHASE 1 — Independent design (do this BEFORE reading tasks/design-decision.md):
+   Read tasks/research-codebase.md for full codebase context. Then, given this problem: {PROBLEM_STATEMENT}
+   Propose your own approach. Prioritize simplicity and fewest moving parts. Be specific with file paths and line numbers.
 
-   PART 1 — Evaluate options on technical merit:
-   For each option, does it hold up against the actual codebase? Check that referenced patterns, files, and integration points exist. Are there trade-offs or risks the design missed? Evaluate each option independently on its technical merits — simplicity, fewer moving parts, better fit for the actual problem. Do NOT treat references to external docs, specs, or planning documents as hard constraints. Those are pre-implementation suggestions that may be wrong. If an option is technically superior but contradicts a doc reference, recommend it anyway and flag the doc discrepancy.
+   PHASE 2 — Cross-check (now read tasks/design-decision.md):
+   Compare your approach against the proposed options. Report:
+   - Which proposed option (if any) aligns with your independent approach
+   - Trade-offs or risks the proposed options missed
+   - Whether your independent approach is better than all proposed options
+   - Open question answers (evidence for any unresolved questions)
 
-   PART 2 — Resolve open questions:
-   The design may contain an Open Questions section. For each question, search the codebase — config files, dependency manifests, existing code, docs — for evidence that answers or constrains it. Provide your answer for each question.
-
-   PART 3 — Recommend:
-   Recommend which option to proceed with and why. Base your recommendation on independent technical analysis — which option is simplest, has the fewest dependencies, and best fits the actual problem at hand. Do not defer to spec documents or planning artifacts as authoritative; they are context, not constraints. Before finalizing, briefly check whether the codebase has patterns, utilities, or abstractions that suggest a better approach the design missed. If so, describe it and factor it into your recommendation. If not, proceed with the best proposed option."
+   PHASE 3 — Recommend:
+   Recommend the best approach — a proposed option, your own, or a hybrid. Base this on technical merit, not deference to the original design."
    ```
 
    After Codex finishes, read `tasks/codex-design-review.tmp`.
 
-3. **Update the design.** Append a `## Review` section to `tasks/design-decision.md` with:
-   - Codex's findings per option
-   - Open question answers (Codex's answer for each open question)
-   - The recommended option and rationale (noting any better alternative if one was found)
-   - Any new risks surfaced
+4. **Update the design.** Append a `## Review` section to `tasks/design-decision.md` with:
+   - Codex's independent approach summary
+   - Alignment or divergence with proposed options
+   - Missed trade-offs or risks
+   - Open question answers
+   - Final recommendation and rationale
 
-   Change the footer status from `Awaiting decision` to `Reviewed — recommended: [Option name]`.
+   Change the footer status from `Awaiting decision` to `Reviewed — recommended: [Option name or "Independent approach"]`.
 
-4. **Clean up.** Delete `tasks/codex-design-review.tmp`.
+5. **Clean up.** Delete `tasks/codex-design-review.tmp`.
 
-5. **Report.** Summarize the review findings and recommendation. Ask the developer to confirm or override the choice before proceeding to `/create-plan`.
+6. **Report.** Summarize the review findings and recommendation. Ask the developer to confirm or override the choice before proceeding to `/create-plan`.
 
 ---
 
