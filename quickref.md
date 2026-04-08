@@ -52,6 +52,7 @@
 ```
 | Command        | What it does                                                                     |
 |----------------|----------------------------------------------------------------------------------|
+| `/finish`      | Wrap up task: mark done, commit everything including QRSPI artifacts             |
 | `/commit`      | Stage, commit, and push to current branch                                        |
 | `/push-pr`     | Push, open PR, code review, and merge if passing                                 |
 | `/push-pr-light`| Push, open PR, light diff review, and merge if passing                           |
