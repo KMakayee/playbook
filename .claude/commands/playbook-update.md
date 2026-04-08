@@ -39,6 +39,7 @@ templates/deferred.md
 .claude/commands/push-pr.md
 .claude/commands/push-pr-light.md
 .claude/commands/checkpoint.md
+.claude/commands/finish.md
 .claude/commands/issue-audit-codex.md
 .claude/commands/issue-research-codex.md
 templates/error-report.md
