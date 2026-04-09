@@ -29,7 +29,7 @@ Issues are tracked using the playbook's own issue board — not TaskCreate or Gi
 
 To log a new issue, append to `tasks/new-issues.md` using the format from `templates/new-issues.md`. Auto-increment the issue number.
 
-Use `/issue-research`, `/issue-plan`, `/issue-audit`, `/issue-implement` to move issues through the workflow.
+Use `/issue-research-codex`, `/issue-plan`, `/issue-plan-review-codex`, `/issue-implement` to move issues through the workflow.
 
 ## Conventions
 

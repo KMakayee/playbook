@@ -28,9 +28,9 @@ templates/playbook-sections.md
 .claude/commands/plan-review-codex.md
 .claude/commands/implement.md
 .claude/commands/create-todo.md
-.claude/commands/issue-research.md
+.claude/commands/issue-research-codex.md
 .claude/commands/issue-plan.md
-.claude/commands/issue-audit.md
+.claude/commands/issue-plan-review-codex.md
 .claude/commands/issue-implement.md
 .claude/commands/issue-update.md
 templates/new-issues.md
@@ -40,8 +40,6 @@ templates/deferred.md
 .claude/commands/push-pr-light.md
 .claude/commands/checkpoint.md
 .claude/commands/finish.md
-.claude/commands/issue-audit-codex.md
-.claude/commands/issue-research-codex.md
 templates/error-report.md
 ```
 
