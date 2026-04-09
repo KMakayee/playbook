@@ -1,7 +1,7 @@
 # Deferred Items
 
 > **Purpose:** Capture out-of-scope or deferred work discovered during issue audits, so it doesn't get lost.
-> **Updated by:** `/issue-audit` moves items here when they fall outside the current plan's scope.
+> **Updated by:** `/issue-plan-review-codex` moves items here when they fall outside the current plan's scope.
 
 ---
 

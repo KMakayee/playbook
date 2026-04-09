@@ -36,15 +36,13 @@
 **Issue Board**
 
 ```
-| Command                    | What it does                                              |
-|----------------------------|-----------------------------------------------------------|
-| `/issue-research #N`       | Research issue #N → produce `tasks/research-issue.md`     |
-| `/issue-research-codex #N` | Same as above, using Codex for codebase exploration       |
-| `/issue-plan #N`           | Generate `tasks/plan.md` from research findings           |
-| `/issue-audit #N`          | Audit plan against research and acceptance criteria       |
-| `/issue-audit-codex #N`    | Same as above, using Codex for audit analysis             |
-| `/issue-implement #N`      | Execute the approved plan                                 |
-| `/issue-update #N`         | After completion, check impact on other open issues       |
+| Command                          | What it does                                              |
+|----------------------------------|-----------------------------------------------------------|
+| `/issue-research-codex #N`       | Codex researches issue, Claude verifies → `tasks/research-issue-N.md` |
+| `/issue-plan #N`                 | Generate `tasks/plan.md` from research findings           |
+| `/issue-plan-review-codex #N`    | Codex reviews plan against research and acceptance criteria|
+| `/issue-implement #N`            | Execute the approved plan                                 |
+| `/issue-update #N`               | After completion, check impact on other open issues       |
 ```
 
 **Code Quality**

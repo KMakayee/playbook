@@ -5,7 +5,8 @@
       "WebSearch",
       "WebFetch",
       "Read(//Users/chief/.claude/**)",
-      "Skill(code-review:code-review)"
+      "Skill(code-review:code-review)",
+      "Skill(update-config)"
     ]
   },
   "hooks": {
