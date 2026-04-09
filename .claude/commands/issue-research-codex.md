@@ -95,7 +95,7 @@ Research issue **#$ARGUMENTS** from the issue board using OpenAI Codex for codeb
 
 10. **Update issue status.** In `tasks/issues.md`, change issue #$ARGUMENTS status from its current value to `In Research`.
 
-11. **Report.** Tell the developer: `tasks/research-issue-$ARGUMENTS.md` is ready for review. Summarize the key findings in 3-5 sentences. Note which findings were verified and any corrections made.
+11. **Report.** Tell the developer: `tasks/research-issue-$ARGUMENTS.md` is ready for review. Summarize the key findings in 3-5 sentences. Note which findings were verified and any corrections made. Suggest next step: "Run `/issue-plan $ARGUMENTS` to create the implementation plan."
 
 ---
 

@@ -15,7 +15,7 @@ Execute the approved plan for issue **#$ARGUMENTS** phase-by-phase. Follow the p
 2. **Read the plan fully:**
    - Read `tasks/plan.md` FULLY — use the Read tool WITHOUT limit/offset parameters.
    - Understand the phase structure and success criteria.
-   - Read `tasks/research-issue-$ARGUMENTS.md` and `tasks/design-decision.md` (if it exists) if you need additional context on specific files or patterns.
+   - Read `tasks/research-issue-$ARGUMENTS.md` if you need additional context on specific files or patterns.
 
 3. **Check for resume:**
    - Look for existing checkmarks (`- [x]`) in the plan's success criteria.
@@ -52,7 +52,7 @@ Execute the approved plan for issue **#$ARGUMENTS** phase-by-phase. Follow the p
    - Present a summary of what was implemented, referencing the plan phases.
    - Ask the developer to review the changes.
 
-7. **Clean up.** After developer verification:
+7. **Clean up.** Once the developer confirms the changes look good:
    - Remove `tasks/research-issue-$ARGUMENTS.md`, `tasks/plan.md`
    - Do NOT remove `tasks/deferred.md`
 
