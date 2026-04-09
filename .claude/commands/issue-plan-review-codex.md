@@ -6,7 +6,7 @@ Review the plan for issue **#$ARGUMENTS** using OpenAI Codex, then update the pl
 
 ## Steps
 
-1. **Check prerequisites.** Verify `tasks/plan.md` and `tasks/research-issue-$ARGUMENTS.md` exist. If not, stop and tell the developer which commands to run first. Also read issue `#$ARGUMENTS` from `tasks/issues.md`. If `tasks/design-decision.md` exists, read it too. Read all artifacts FULLY.
+1. **Check prerequisites.** Verify `tasks/plan.md` and `tasks/research-issue-$ARGUMENTS.md` exist. If not, stop and tell the developer which commands to run first. Also read issue `#$ARGUMENTS` from `tasks/issues.md`. Read all artifacts FULLY.
 
 2. **Run Codex review.** Run the following Bash command with a 10-minute timeout (600000ms) — Codex may take a while on large codebases:
 
@@ -14,10 +14,10 @@ Review the plan for issue **#$ARGUMENTS** using OpenAI Codex, then update the pl
    codex exec \
      --sandbox read-only \
      -o tasks/codex-plan-review.tmp \
-     "Review the implementation plan in tasks/plan.md against the research in tasks/research-issue-$ARGUMENTS.md and issue #$ARGUMENTS in tasks/issues.md. If tasks/design-decision.md exists, cross-reference it too.
+     "Review the implementation plan in tasks/plan.md against the research in tasks/research-issue-$ARGUMENTS.md and issue #$ARGUMENTS in tasks/issues.md.
 
    IMPORTANT — For every finding across all parts, classify it as either:
-   - CORRECTION: factual error, stale reference, or contradiction with the input documents (research/design/issue). These should be fixed, not debated.
+   - CORRECTION: factual error, stale reference, or contradiction with the input documents (research/issue). These should be fixed, not debated.
    - TRADE-OFF: genuine design choice with viable alternatives. These need developer input.
    Do not present corrections as open questions.
 
