@@ -37,7 +37,12 @@ Create a detailed implementation plan from the finalized design in `tasks/design
      - **Success criteria per phase** — commands the agent can run to verify each phase works
      - **Artifact references** — pointers to `tasks/research-codebase.md` and `tasks/design-decision.md`
 
-6. **Present summary to the developer:**
+6. **Verify the draft plan:**
+   - Cross-check against ALL sections of `tasks/design-decision.md`, including the review section (missed risks, corrections, open question answers). Every item flagged there should either appear in the plan or be noted as intentionally deferred with reasoning.
+   - Verify all file paths used in success criteria are correct relative to the repo root.
+   - If the plan claims backward compatibility, verify by checking existing test fixtures for the changed types.
+
+7. **Present summary to the developer:**
    - List the phases with one-line descriptions
    - Highlight any areas where research was thin and you had to make judgment calls
    - Note the plan is ready for review and approval before implementation begins
