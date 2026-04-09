@@ -16,8 +16,13 @@ Review the plan in `tasks/plan.md` using OpenAI Codex, then update the plan with
      -o tasks/codex-plan-review.tmp \
      "Review the implementation plan in tasks/plan.md against the research in tasks/research-codebase.md and the design in tasks/design-decision.md.
 
+   IMPORTANT — For every finding across all parts, classify it as either:
+   - CORRECTION: factual error, stale reference, or contradiction with the input documents (research/design). These should be fixed, not debated.
+   - TRADE-OFF: genuine design choice with viable alternatives. These need developer input.
+   Do not present corrections as open questions.
+
    PART 1 — Judgment calls:
-   Identify every place the plan made a judgment call — tool choices, library selections, file organization decisions, ordering choices, scope inclusions/exclusions. For each one, evaluate independently on technical merit: is this the simplest approach that solves the problem? If a simpler alternative exists, flag it. Do not defer to external docs or specs as authoritative — they are context, not constraints.
+   Identify every place the plan made a judgment call — tool choices, library selections, file organization decisions, ordering choices, scope inclusions/exclusions. If the plan has a 'Judgment Calls' section, evaluate each numbered item there specifically. Then scan the rest of the plan for any additional implicit judgment calls. For each call, evaluate independently on technical merit: is this the simplest approach that solves the problem? If a simpler alternative exists, flag it. Do not defer to external docs or specs as authoritative — they are context, not constraints.
 
    PART 2 — Feasibility:
    For each phase, verify against the codebase that the files, functions, and integration points referenced actually exist and behave as the plan assumes. Flag any stale references or incorrect assumptions.
@@ -35,8 +40,8 @@ Review the plan in `tasks/plan.md` using OpenAI Codex, then update the plan with
 
 3. **Update the plan.** Append a `## Review` section to `tasks/plan.md` with:
    - Judgment calls evaluated (with Codex's assessment of each)
-   - Feasibility issues (stale references, incorrect assumptions)
-   - Completeness gaps (missing acceptance criteria coverage)
+   - **Corrections** — factual errors, stale references, contradictions with input documents. These are not open questions.
+   - **Trade-offs** — genuine choices needing developer input, with Codex's recommendation for each.
    - Risk flags (ordering issues, broken-state risks)
 
 4. **Clean up.** Delete `tasks/codex-plan-review.tmp`.
