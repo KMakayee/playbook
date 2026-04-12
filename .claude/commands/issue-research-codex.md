@@ -15,15 +15,9 @@ Research issue **#$ARGUMENTS** from the issue board using OpenAI Codex for codeb
 4. **Read any directly mentioned files first:**
    - If the issue references specific files, tickets, docs, or configs, read them FULLY first
    - **IMPORTANT**: Use the Read tool WITHOUT limit/offset parameters to read entire files
-   - This ensures you have full context before crafting the Codex prompt
+   - This gives Claude context to verify and synthesize Codex's findings later
 
-5. **Analyze and decompose the research question:**
-   - Break down the issue's Description and Acceptance Criteria into composable research areas
-   - Identify specific components, patterns, or concepts to investigate
-   - Consider which directories, files, or architectural patterns are relevant
-   - Use this decomposition to craft a focused Codex prompt
-
-6. **Run Codex research.** Run the following Bash command. Use a 10-minute timeout (600000ms) — Codex may take a while on large codebases:
+5. **Run Codex research.** Run the following Bash command. Use a 10-minute timeout (600000ms) — Codex may take a while on large codebases:
 
    ```bash
    codex exec \
@@ -46,14 +40,14 @@ Research issue **#$ARGUMENTS** from the issue board using OpenAI Codex for codeb
 
    After Codex finishes, read `tasks/codex-exploration.tmp` FULLY.
 
-7. **Verify Codex findings.** Spot-check the key claims from Codex's output:
+6. **Verify Codex findings.** Spot-check the key claims from Codex's output:
    - Verify 3-5 critical file paths and line numbers actually exist and contain what Codex says
    - Confirm key function signatures and behavior descriptions are accurate
    - Check that cross-component connections Codex identified are real
    - Flag anything that doesn't match — Codex can hallucinate paths and line numbers
    - If verification reveals significant inaccuracies, spawn a sub-agent to investigate the specific area that's wrong
 
-8. **Write research artifact** to `tasks/research-issue-$ARGUMENTS.md` (max 1000 lines):
+7. **Write research artifact** to `tasks/research-issue-$ARGUMENTS.md` (max 1000 lines). Synthesize Claude's context from Steps 1-4 with Codex's verified findings:
 
      ```markdown
      # Research: Issue #$ARGUMENTS — [Title]
@@ -91,11 +85,11 @@ Research issue **#$ARGUMENTS** from the issue board using OpenAI Codex for codeb
      [Any areas that need further investigation]
      ```
 
-9. **Clean up.** Delete `tasks/codex-exploration.tmp`.
+8. **Clean up.** Delete `tasks/codex-exploration.tmp`.
 
-10. **Update issue status.** In `tasks/issues.md`, change issue #$ARGUMENTS status from its current value to `In Research`.
+9. **Update issue status.** In `tasks/issues.md`, change issue #$ARGUMENTS status from its current value to `In Research`.
 
-11. **Report.** Tell the developer: `tasks/research-issue-$ARGUMENTS.md` is ready for review. Summarize the key findings in 3-5 sentences. Note which findings were verified and any corrections made. Suggest next step: "Run `/issue-plan $ARGUMENTS` to create the implementation plan."
+10. **Report.** Tell the developer: `tasks/research-issue-$ARGUMENTS.md` is ready for review. Summarize the key findings in 3-5 sentences. Note which findings were verified and any corrections made. Suggest next step: "Run `/issue-plan $ARGUMENTS` to create the implementation plan."
 
 ---
 
