@@ -33,6 +33,8 @@ templates/playbook-sections.md
 .claude/commands/issue-plan-review-codex.md
 .claude/commands/issue-implement.md
 .claude/commands/issue-update.md
+.claude/commands/issue-code-review-codex.md
+.claude/commands/auto-issues.md
 templates/new-issues.md
 templates/deferred.md
 .claude/commands/commit.md

@@ -157,6 +157,6 @@ When compacting:
 
 At the start of each session, run these lightweight checks (no sub-agents, under 30 seconds total):
 
-1. **Leftover artifacts** — Check if `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, or `tasks/plan.md` exist from a previous session. If found, notify the developer and ask whether to clean up or resume.
+1. **Leftover artifacts** — Check if `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, `tasks/plan.md`, or any `tasks/plan-issue-*.md` / `tasks/research-issue-*.md` files exist from a previous session. If found, notify the developer and ask whether to clean up or resume.
 2. **Unconfigured CLAUDE.md** — Scan the top half of CLAUDE.md for `[TEAM FILLS IN` markers or `<!-- TODO` comments. If found, mention that `/playbook-setup` can fill them in.
 3. **Playbook version** — If `.playbook-version` exists, read it. If the installed date is older than 30 days, mention that `/playbook-update` can check for updates.

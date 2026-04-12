@@ -56,6 +56,8 @@ Check for these files in `tasks/`:
 - `tasks/design-decision.md`
 - `tasks/research-patterns.md`
 - `tasks/plan.md`
+- Any `tasks/plan-issue-*.md` files (issue-specific plans)
+- Any `tasks/research-issue-*.md` files (issue research artifacts)
 
 For each file found, ask the developer:
 > "`tasks/[filename]` exists from a previous session. Delete it, or keep it?"

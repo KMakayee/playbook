@@ -29,6 +29,8 @@
 | `tasks/design-decision.md` | _present / absent_ | _deleted / archived / N/A_ |
 | `tasks/research-patterns.md` | _present / absent_ | _deleted / archived / N/A_ |
 | `tasks/plan.md` | _present / absent_ | _deleted / archived / N/A_ |
+| `tasks/plan-issue-*.md` | _present / absent_ | _deleted / archived / N/A_ |
+| `tasks/research-issue-*.md` | _present / absent_ | _deleted / archived / N/A_ |
 
 ---
 

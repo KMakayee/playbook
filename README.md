@@ -24,7 +24,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 ## What's included
 
-### Commands (23)
+### Commands (26)
 
 **QRSPI workflow**
 
@@ -46,10 +46,12 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 | Command | Purpose |
 |---|---|
 | `/issue-research-codex` | Codex researches issue, Claude verifies; writes `tasks/research-issue-N.md` |
-| `/issue-plan` | Generate `tasks/plan.md` from research |
+| `/issue-plan` | Generate `tasks/plan-issue-N.md` from research |
 | `/issue-plan-review-codex` | Codex reviews plan against research and acceptance criteria |
 | `/issue-implement` | Execute approved plan step-by-step |
+| `/issue-code-review-codex` | Codex reviews implementation against issue-specific plan |
 | `/issue-update` | Check impact of completed issue on other open issues |
+| `/auto-issues` | Run full issue pipeline end-to-end, unattended |
 
 **Setup & maintenance**
 
@@ -67,6 +69,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 | `/push-pr` | Push, open PR, full code review, conditional merge |
 | `/push-pr-light` | Push, open PR, light diff review, conditional merge |
 | `/checkpoint` | Save current work state to `tasks/checkpoint.md` |
+| `/finish` | Wrap up task: verify, commit artifacts, clean up |
 | `/fix-tables` | Wrap bare markdown tables in fenced code blocks |
 
 ### Hooks
@@ -102,7 +105,7 @@ Fetches the latest playbook, shows what changed, and lets you approve each file 
 | `CLAUDE.md` | Project context + workflow rules | Yes — every session |
 | `quickref.md` | Human-readable QRSPI cheat sheet | No — for your reference |
 | `templates/*` | Structures for research, plans, audits, etc. | Referenced when writing artifacts |
-| `.claude/commands/*` | 23 slash commands | Only when invoked |
+| `.claude/commands/*` | 26 slash commands | Only when invoked |
 | `.claude/hooks/stop-verify.sh` | Verification nudge hook | On agent stop events |
 | `.claude/settings.local.json` | Permissions and hook config | Yes — every session |
 
