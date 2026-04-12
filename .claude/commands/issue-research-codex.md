@@ -22,7 +22,7 @@ Research issue **#$ARGUMENTS** from the issue board using OpenAI Codex for codeb
    ```bash
    codex exec \
      --sandbox read-only \
-     -o tasks/codex-exploration.tmp \
+     -o tasks/codex-issue-research-$ARGUMENTS.tmp \
      "Read issue #$ARGUMENTS from tasks/issues.md. Use its Description and Acceptance Criteria to scope your research.
 
    Do the following in a single pass:
@@ -38,7 +38,7 @@ Research issue **#$ARGUMENTS** from the issue board using OpenAI Codex for codeb
    Return a structured report covering all areas. Use specific file paths and line numbers, not vague references."
    ```
 
-   After Codex finishes, read `tasks/codex-exploration.tmp` FULLY.
+   After Codex finishes, read `tasks/codex-issue-research-$ARGUMENTS.tmp` FULLY.
 
 6. **Verify Codex findings.** Spot-check the key claims from Codex's output:
    - Verify 3-5 critical file paths and line numbers actually exist and contain what Codex says
@@ -85,11 +85,9 @@ Research issue **#$ARGUMENTS** from the issue board using OpenAI Codex for codeb
      [Any areas that need further investigation]
      ```
 
-8. **Clean up.** Delete `tasks/codex-exploration.tmp`.
+8. **Update issue status.** In `tasks/issues.md`, change issue #$ARGUMENTS status from its current value to `In Research`.
 
-9. **Update issue status.** In `tasks/issues.md`, change issue #$ARGUMENTS status from its current value to `In Research`.
-
-10. **Report.** Tell the developer: `tasks/research-issue-$ARGUMENTS.md` is ready for review. Summarize the key findings in 3-5 sentences. Note which findings were verified and any corrections made. Suggest next step: "Run `/issue-plan $ARGUMENTS` to create the implementation plan."
+9. **Report.** Tell the developer: `tasks/research-issue-$ARGUMENTS.md` is ready for review. Summarize the key findings in 3-5 sentences. Note which findings were verified and any corrections made. Suggest next step: "Run `/issue-plan $ARGUMENTS` to create the implementation plan."
 
 ---
 

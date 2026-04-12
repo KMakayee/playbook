@@ -6,7 +6,7 @@ After completing issue **#$ARGUMENTS**, check if the changes affect other open i
 
 ## Steps
 
-1. **Read the completed issue.** Read issue `#$ARGUMENTS` from `tasks/issues.md`. Confirm its status is `Done` or `In Progress`. If it's still in an earlier status, warn the developer that this command is meant to run after implementation.
+1. **Read the completed issue.** Read issue `#$ARGUMENTS` from `tasks/issues.md`. Confirm its status is `Implemented`. If it's still in an earlier status, warn the developer that this command is meant to run after implementation and code review.
 
 2. **Read all other issues.** Read every other issue in `tasks/issues.md` that is NOT `Done` or `Deferred`.
 
@@ -22,9 +22,11 @@ After completing issue **#$ARGUMENTS**, check if the changes affect other open i
    - [YYYY-MM-DD] Issue #$ARGUMENTS completed: [1-2 sentence description of how this affects the current issue and what, if anything, needs to change in its approach]
    ```
 
-5. **Do not modify the completed issue.** Only annotate OTHER issues.
+5. **Update issue status.** In `tasks/issues.md`, change issue #$ARGUMENTS status to `Done`.
 
-6. **Present summary.** Report:
+6. **Do not otherwise modify the completed issue.** Only annotate OTHER issues.
+
+7. **Present summary.** Report:
    - How many open issues were checked
    - Which issues were impacted and what was noted
    - Which issues were unaffected
@@ -36,5 +38,5 @@ After completing issue **#$ARGUMENTS**, check if the changes affect other open i
 ## Rules
 
 - Be conservative. Only flag genuine impacts, not tenuous connections.
-- Do not change issue statuses, priorities, or acceptance criteria — only add notes to the Impacts section.
+- Do not change other issues' statuses, priorities, or acceptance criteria — only add notes to their Impacts section.
 - If there are no other open issues, report that and finish.

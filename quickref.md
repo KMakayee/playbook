@@ -39,10 +39,12 @@
 | Command                          | What it does                                              |
 |----------------------------------|-----------------------------------------------------------|
 | `/issue-research-codex #N`       | Codex researches issue, Claude verifies → `tasks/research-issue-N.md` |
-| `/issue-plan #N`                 | Generate `tasks/plan.md` from research findings           |
+| `/issue-plan #N`                 | Generate `tasks/plan-issue-N.md` from research findings   |
 | `/issue-plan-review-codex #N`    | Codex reviews plan against research and acceptance criteria|
 | `/issue-implement #N`            | Execute the approved plan                                 |
+| `/issue-code-review-codex #N`    | Codex reviews implementation against issue-specific plan  |
 | `/issue-update #N`               | After completion, check impact on other open issues       |
+| `/auto-issues #N`                | Run full issue pipeline end-to-end, unattended            |
 ```
 
 **Code Quality**
