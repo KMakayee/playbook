@@ -52,8 +52,7 @@ Execute the approved plan for issue **#$ARGUMENTS** phase-by-phase. Follow the p
    - Present a summary of what was implemented, referencing the plan phases.
    - Ask the developer to review the changes.
 
-7. **Clean up.** Once the developer confirms the changes look good:
-   - Remove `tasks/research-issue-$ARGUMENTS.md`, `tasks/plan.md`
+7. **Commit artifacts.** Include `tasks/research-issue-$ARGUMENTS.md` and `tasks/plan.md` in the final commit — do NOT remove them.
    - Do NOT remove `tasks/deferred.md`
 
 8. **Update issue status.** In `tasks/issues.md`, change issue #$ARGUMENTS status to `Done`.
