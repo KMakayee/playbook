@@ -102,7 +102,7 @@ Report: "Phase 6 complete — code reviewed."
 
 ### Phase 7: Apply Code Review
 
-**Timeout: 600000ms.**
+**Run with `run_in_background` — may run end-to-end tests, can take 10+ minutes.**
 
 ```bash
 claude -p "Read tasks/codex-issue-code-review-$ARGUMENTS.tmp (the code review findings) and tasks/plan-issue-$ARGUMENTS.md for context on issue #$ARGUMENTS. Then:
@@ -145,54 +145,8 @@ Integrity check — run directly in this session. These are mechanical file chec
 
 **Must run before cleanup so artifacts are still on disk.**
 
-Run all checks in a single script so verdict state is preserved:
-
 ```bash
-VERDICT="PASS"
-ISSUES=""
-
-# 1. Log completeness — all 9 logs exist and aren't tiny
-for phase in 1-research 2-plan 3-review 4-apply-review 5-implement 6-code-review 7-apply-code-review 8-update 9-commit; do
-  f="tasks/logs/auto-issue-$ARGUMENTS-$phase-$TIMESTAMP.log"
-  if [ ! -f "$f" ]; then
-    ISSUES="$ISSUES\nMISSING LOG: $f"
-    VERDICT="FAIL"
-  elif [ "$(wc -l < "$f")" -lt 10 ]; then
-    ISSUES="$ISSUES\nTINY LOG: $f ($(wc -l < "$f") lines)"
-    [ "$VERDICT" = "PASS" ] && VERDICT="WARN"
-  fi
-done
-
-# 2. Artifact substance — key artifacts have real content (20+ lines)
-for f in tasks/research-issue-$ARGUMENTS.md tasks/plan-issue-$ARGUMENTS.md tasks/codex-issue-code-review-$ARGUMENTS.tmp; do
-  if [ ! -f "$f" ]; then
-    ISSUES="$ISSUES\nMISSING ARTIFACT: $f"
-    VERDICT="FAIL"
-  elif [ "$(wc -l < "$f")" -lt 20 ]; then
-    ISSUES="$ISSUES\nTHIN ARTIFACT: $f ($(wc -l < "$f") lines)"
-    [ "$VERDICT" = "PASS" ] && VERDICT="WARN"
-  fi
-done
-
-# 3. Review cycle completed (skip if plan already flagged missing above)
-if [ -f tasks/plan-issue-$ARGUMENTS.md ] && ! grep -q "## Review (Resolved)" tasks/plan-issue-$ARGUMENTS.md; then
-  ISSUES="$ISSUES\nPLAN REVIEW NOT RESOLVED"
-  VERDICT="FAIL"
-fi
-
-# 4. Append to eval index
-INDEX="tasks/logs/pipeline-eval-index.md"
-if [ ! -f "$INDEX" ]; then
-  echo "| Issue | Timestamp | Verdict | Notes |" > "$INDEX"
-  echo "|---|---|---|---|" >> "$INDEX"
-fi
-NOTES=$(echo -e "$ISSUES" | tr '\n' ' ' | sed 's/^ *//')
-[ -z "$NOTES" ] && NOTES="—"
-echo "| #$ARGUMENTS | $TIMESTAMP | $VERDICT | $NOTES |" >> "$INDEX"
-
-echo ""
-echo "VERDICT: $VERDICT"
-[ -n "$ISSUES" ] && echo -e "ISSUES:$ISSUES"
+bash .claude/scripts/pipeline-eval.sh $ARGUMENTS $TIMESTAMP
 ```
 
 Report: "Phase 10 complete — pipeline eval: [PASS/WARN/FAIL]." Include any flagged issues in the report.
