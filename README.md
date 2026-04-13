@@ -24,7 +24,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 ## What's included
 
-### Commands (26)
+### Commands (25)
 
 **QRSPI workflow**
 
@@ -70,7 +70,6 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 | `/push-pr-light` | Push, open PR, light diff review, conditional merge |
 | `/checkpoint` | Save current work state to `tasks/checkpoint.md` |
 | `/finish` | Wrap up task: verify, commit artifacts, clean up |
-| `/fix-tables` | Wrap bare markdown tables in fenced code blocks |
 
 ### Hooks
 
@@ -105,7 +104,7 @@ Fetches the latest playbook, shows what changed, and lets you approve each file 
 | `CLAUDE.md` | Project context + workflow rules | Yes — every session |
 | `quickref.md` | Human-readable QRSPI cheat sheet | No — for your reference |
 | `templates/*` | Structures for research, plans, audits, etc. | Referenced when writing artifacts |
-| `.claude/commands/*` | 26 slash commands | Only when invoked |
+| `.claude/commands/*` | 25 slash commands | Only when invoked |
 | `.claude/hooks/stop-verify.sh` | Verification nudge hook | On agent stop events |
 | `.claude/settings.local.json` | Permissions and hook config | Yes — every session |
 
@@ -120,4 +119,4 @@ Enabling LSP (Language Server Protocol) in Claude Code gives **~25% faster and c
 
 ---
 
-Built on the QRSPI workflow, evolved from the Research-Plan-Implement approach in [No Vibes Allowed](https://www.humanlayer.dev/nva), with workflow orchestration principles from Boris Cherny.
+Built on the QRSPI workflow, evolved from the Research-Plan-Implement approach by [HumanLayer](https://github.com/humanlayer), with workflow orchestration principles from Boris Cherny.

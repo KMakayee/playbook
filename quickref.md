@@ -8,17 +8,14 @@
 
 **Playbook**
 
-```
 | Command             | What it does                                                     |
 |---------------------|------------------------------------------------------------------|
 | `/playbook-setup`   | Configure CLAUDE.md for your codebase                            |
 | `/playbook-update`  | Fetch and apply latest playbook version                          |
 | `/playbook-audit`   | Health check — stale config, leftover artifacts                  |
-```
 
 **QRSPI Workflow**
 
-```
 | Command                    | What it does                                              |
 |----------------------------|-----------------------------------------------------------|
 | `/create-todo`             | Create standalone `tasks/todo.md` for ad-hoc tracking     |
@@ -31,11 +28,9 @@
 | `/plan-review-codex`       | Codex reviews plan judgment calls, feasibility, and risks |
 | `/implement`               | Execute approved plan phase-by-phase                      |
 | `/code-review-codex`       | Codex reviews implementation against plan                 |
-```
 
 **Issue Board**
 
-```
 | Command                          | What it does                                              |
 |----------------------------------|-----------------------------------------------------------|
 | `/issue-research-codex #N`       | Codex researches issue, Claude verifies → `tasks/research-issue-N.md` |
@@ -45,23 +40,19 @@
 | `/issue-code-review-codex #N`    | Codex reviews implementation against issue-specific plan  |
 | `/issue-update #N`               | After completion, check impact on other open issues       |
 | `/auto-issues #N`                | Run full issue pipeline end-to-end, unattended            |
-```
 
 **Code Quality**
 
-```
-| Command        | What it does                                                                     |
-|----------------|----------------------------------------------------------------------------------|
-| `/finish`      | Wrap up task: mark done, commit everything including QRSPI artifacts             |
-| `/commit`      | Stage, commit, and push to current branch                                        |
-| `/push-pr`     | Push, open PR, code review, and merge if passing                                 |
+| Command         | What it does                                                                     |
+|-----------------|----------------------------------------------------------------------------------|
+| `/finish`       | Wrap up task: mark done, commit everything including QRSPI artifacts             |
+| `/commit`       | Stage, commit, and push to current branch                                        |
+| `/push-pr`      | Push, open PR, code review, and merge if passing                                 |
 | `/push-pr-light`| Push, open PR, light diff review, and merge if passing                           |
-| `/checkpoint`  | Save current work state to `tasks/checkpoint.md`                                 |
-| `/fix-tables`  | Wrap bare markdown tables in fenced code blocks                                  |
-| `/simplify`    | Review changed code for reuse, quality, and efficiency (built-in)                |
-| `/batch`       | Decompose large changes into parallel sub-agents in isolated worktrees (built-in)|
-| `/loop`        | Run a prompt on a recurring interval, e.g. `/loop 5m check deploy` (built-in)   |
-```
+| `/checkpoint`   | Save current work state to `tasks/checkpoint.md`                                 |
+| `/simplify`     | Review changed code for reuse, quality, and efficiency (built-in)                |
+| `/batch`        | Decompose large changes into parallel sub-agents in isolated worktrees (built-in)|
+| `/loop`         | Run a prompt on a recurring interval, e.g. `/loop 5m check deploy` (built-in)   |
 
 ---
 
@@ -77,7 +68,6 @@ LSP gives Claude instant, accurate code navigation — definitions, references, 
 
 **Supported languages:**
 
-```
 | Language   | Plugin                 | Binary to install                                  |
 |------------|------------------------|----------------------------------------------------|
 | Python     | `pyright-lsp`          | `pip install pyright`                               |
@@ -91,7 +81,6 @@ LSP gives Claude instant, accurate code navigation — definitions, references, 
 | Kotlin     | `kotlin-lsp`           | `kotlin-language-server`                            |
 | Swift      | `swift-lsp`            | `sourcekit-lsp` (included with Xcode)              |
 | Lua        | `lua-lsp`              | `lua-language-server`                              |
-```
 
 **When to use what:**
 - **LSP:** definitions, references, type info, diagnostics after edits
@@ -154,14 +143,12 @@ If uncertain, it is non-trivial. Do not Edit/Write source files until the task i
 
 ## Compaction Triggers
 
-```
 | When                     | Action                                          |
 |--------------------------|-------------------------------------------------|
 | Context hits 30–35%      | Compact immediately                             |
 | Research phase done      | Compact before Plan                             |
 | Switching sub-problems   | Compact before pivoting                         |
 | New conversation         | Start clean — never carry full prior context    |
-```
 
 ---
 
