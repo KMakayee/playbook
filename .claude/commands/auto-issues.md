@@ -155,6 +155,8 @@ Do NOT delete:
 
 After cleanup, commit with message: `chore: clean up issue #$ARGUMENTS artifacts`
 
+Then push explicitly: `git push origin HEAD` (avoids "no upstream branch" errors on worktree branches where Phase 9's child process set tracking in a separate session).
+
 ## After All Phases
 
 Report a final summary:
