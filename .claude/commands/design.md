@@ -31,7 +31,7 @@ Claude leads the creative step — proposes 2-3 viable approaches grounded in re
    - Confirm the combination respects documented axis coupling; if it violates coupling, either justify why the coupling doesn't apply here or drop the combination
    - Do NOT introduce axes or choices that aren't in the research artifact; if the task needs one that's missing, stop and notify the developer that further research is needed
    - If only one combination is viable, explain why alternatives were ruled out (by coupling, by constraint, or by heuristics)
-   - If more than 3 combinations are viable, narrow to the strongest 3 and briefly note what was excluded
+   - If more than 3 combinations are viable, narrow to the strongest 3 and briefly note what was excluded; if only 2 are genuinely distinct, stop at 2 — do not pad with strawmen to hit a count
    - Keep options genuinely distinct — they must differ on at least one axis choice that meaningfully changes behavior, complexity, or risk
 
 3. **Evaluate each approach against these criteria:**
