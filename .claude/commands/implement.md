@@ -117,7 +117,7 @@ If there are no fixes to apply (all findings were skipped or flagged), skip dire
 Compute the timestamp inline — shell state doesn't persist between calls:
 
 ```bash
-mkdir -p tasks/logs && TIMESTAMP=$(date +%Y%m%d-%H%M) && claude -p --effort max "Read tasks/code-review-fixes.tmp. Apply each fix listed under '## Code Review Fixes' exactly as described. For each fix:
+mkdir -p tasks/logs && TIMESTAMP=$(date +%Y%m%d-%H%M) && claude -p "Read tasks/code-review-fixes.tmp. Apply each fix listed under '## Code Review Fixes' exactly as described. For each fix:
 1. Read the file FULLY before modifying it.
 2. Apply the fix.
 3. Run any relevant tests to confirm the fix doesn't break anything.
