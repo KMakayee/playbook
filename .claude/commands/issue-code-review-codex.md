@@ -52,4 +52,3 @@ Review the implementation for issue **#$ARGUMENTS** against the issue-specific p
 
 - This reviews — it does not fix. The developer decides what to address.
 - If the `codex` command is not found or fails, tell the developer and offer to do the review inline instead.
-- This command is for issue-specific reviews. For generic QRSPI plan reviews, use `/code-review-codex` instead.

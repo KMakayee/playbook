@@ -16,18 +16,13 @@
 
 **QRSPI Workflow**
 
-| Command                    | What it does                                              |
-|----------------------------|-----------------------------------------------------------|
-| `/create-todo`             | Create standalone `tasks/todo.md` for ad-hoc tracking     |
-| `/research-codebase`       | Investigate codebase → `tasks/research-codebase.md`       |
-| `/research-codebase-codex` | Codex reviews and verifies existing research              |
-| `/design`                  | Evaluate options → `tasks/design-decision.md`             |
-| `/design-review-codex`     | Codex reviews and finalizes the design                    |
-| `/research-patterns`       | Find production repos with pattern (optional)             |
-| `/create-plan`             | Generate implementation plan → `tasks/plan.md`            |
-| `/plan-review-codex`       | Codex reviews plan judgment calls, feasibility, and risks |
-| `/implement`               | Execute approved plan phase-by-phase                      |
-| `/code-review-codex`       | Codex reviews implementation against plan                 |
+| Command                  | What it does                                                                   |
+|--------------------------|--------------------------------------------------------------------------------|
+| `/create-todo`           | Create standalone `tasks/todo.md` for ad-hoc tracking                          |
+| `/research-codebase` | Codex sweeps, Claude synthesizes → `tasks/research-codebase.md`                |
+| `/design`            | Options + Codex cross-check; inline pattern research → `tasks/design-decision.md` |
+| `/create-plan`       | Claude drafts + Codex reviews → `tasks/plan.md`                                |
+| `/implement`         | Execute plan + Codex code review + child-process fixes                         |
 
 **Issue Board**
 
@@ -103,28 +98,26 @@ If uncertain, it is non-trivial. Do not Edit/Write source files until the task i
 
 ## Phase 1: Research
 
-1. Run `/research-codebase` (or `/research-codebase-codex`) with the task description
-2. Produces `tasks/research-codebase.md` — located paths, current behavior, codebase patterns, risks
+1. Run `/research-codebase` with the task description — Codex sweeps, Claude synthesizes
+2. Produces `tasks/research-codebase.md` — located paths, current behavior, design axes, risks
 3. **Check context** — if above 30%, compact now
 
 ## Phase 2: Design
 
-1. Run `/design` — reads research, produces `tasks/design-decision.md` with 2-3 options and trade-offs
-2. Run `/design-review-codex` — Codex reviews design, recommends an option, finalizes
-3. **Optional:** Run `/research-patterns` — finds production repos with chosen pattern → `tasks/research-patterns.md`
-4. **Do not plan until design is finalized**
+1. Run `/design` — Claude proposes options, Codex cross-checks, Claude picks the winner → `tasks/design-decision.md`
+2. Pattern research runs inline via RUN/SKIP gate — produces `tasks/research-patterns.md` for novel/complex work
+3. **Do not plan until design is finalized**
 
 ## Phase 3: Plan
 
-1. Run `/create-plan` — reads research, design, and patterns artifacts; produces `tasks/plan.md`
-2. **Optional:** Run `/plan-review-codex` — Codex reviews judgment calls, feasibility, completeness, and risks
-3. **Get human approval** — do NOT implement until plan is reviewed
+1. Run `/create-plan` — Claude drafts, Codex reviews, Claude absorbs findings → `tasks/plan.md`
+2. **Get human approval** — do NOT implement until plan is reviewed
 
 > The plan creates **mental alignment** between you and the agent. Review the *intent*, not every line of generated code.
 
 ## Phase 4: Implement
 
-1. Run `/implement` — executes the plan phase-by-phase
+1. Run `/implement` — executes the plan phase-by-phase, then runs Codex code review and applies triaged fixes via child process
 2. **Follow the plan exactly** — deviations require a plan update first
 3. **Change only what's specified** — no drive-by refactors or "improvements"
 4. **Test after each step** — not just at the end
@@ -132,12 +125,6 @@ If uncertain, it is non-trivial. Do not Edit/Write source files until the task i
 6. **Commit per phase** — conventional commit messages
 7. **Track progress** — checkboxes in `tasks/plan.md`
 8. **One batch per prompt** — if the plan has independent batches, execute each in its own prompt (pre-edit gate applies per-batch)
-
-## Phase 5: Code Review
-
-1. Run `/code-review-codex` — Codex reviews implementation against the plan
-2. Reports: Solid, Needs revision, Missing
-3. Developer decides what to address
 
 ---
 

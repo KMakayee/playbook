@@ -4,111 +4,165 @@ Research the codebase for the task described by the user: **$ARGUMENTS**
 
 If `$ARGUMENTS` is empty or blank, pick the next unchecked task (`- [ ]`) from `tasks/todo.md` and use it as the research target. If there are no unchecked tasks, tell the user and stop.
 
-## Steps:
+This command uses a two-stage research process:
+1. **Codex** does the broad sweep — maps files, enumerates options, establishes constraints
+2. **Claude** synthesizes — adds the diagnostic layer (why, not just what), fills gaps, connects the dots
 
-1. **Clean up prior artifacts (if any):**
-   - If any of `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, `tasks/plan.md` exist, read the `## Research Question` from `tasks/research-codebase.md` and match it to an entry in `tasks/todo.md`.
-   - Complete (`- [x]`): delete the artifacts.
-   - In-progress (`- [ ]`): stop and ask the developer to resume or start fresh.
-   - No match found: stop, show the research question, and ask the developer whether to delete or keep.
+---
 
-2. **Read any directly mentioned files first:**
-   - If the user mentions specific files (tickets, docs, JSON), read them FULLY first
-   - **IMPORTANT**: Use the Read tool WITHOUT limit/offset parameters to read entire files
-   - **CRITICAL**: Read these files yourself in the main context before spawning any sub-tasks
-   - This ensures you have full context before decomposing the research
+## Steps
 
-3. **Analyze and decompose the research question:**
-   - Break down the user's query into composable research areas
-   - Think deeply about the underlying patterns, connections, and architectural implications the user might be seeking
-   - Identify specific components, patterns, or concepts to investigate
-   - Consider which directories, files, or architectural patterns are relevant
+### 1. Clean up prior artifacts (if any)
+- If any of `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, `tasks/plan.md` exist, read the `## Research Question` from `tasks/research-codebase.md` and match it to an entry in `tasks/todo.md`.
+- Complete (`- [x]`): delete the artifacts.
+- In-progress (`- [ ]`): stop and ask the developer to resume or start fresh.
+- No match found: stop, show the research question, and ask the developer whether to delete or keep.
 
-4. **Explore the codebase:**
-   - Spawn sub-agents to research the codebase however you see fit — parallelize across domains, go deep on a single module, whatever the task requires.
-   - All agents are documentarians: describe what exists, don't evaluate or suggest improvements.
+### 2. Read any directly mentioned files first
+- If the user mentions specific files (tickets, docs, JSON), read them FULLY first.
+- **IMPORTANT**: Use the Read tool WITHOUT limit/offset parameters to read entire files.
+- **CRITICAL**: Read these files yourself in the main context before proceeding.
 
-   **Tactical guidance:**
-   - Start broad — find WHERE relevant files and components live
-   - Then go deep — understand HOW specific code works
-   - Look for patterns — identify conventions, testing approaches, and architecture
-   - Run multiple agents in parallel when searching different domains
-   - Don't over-prompt agents on HOW to search — they already know
-   - Have agents document examples and usage patterns as they exist
+### 3. Run Codex research
+Codex leads the exploration. It maps the codebase, enumerates the solution space, and establishes constraints.
 
-5. **Research beyond the codebase (when needed):**
-   - If the task involves external libraries, APIs, protocols, migrations, or unfamiliar error messages, spawn web research agents **in parallel with** codebase agents.
-   - Prefer official docs and release notes over blog posts and tutorials.
-   - Return source URLs with all external findings so they can be verified.
-   - If external research contradicts what the codebase does, document **both** — don't silently prefer one over the other.
+1. Read the prompt template from `.claude/prompts/research-guide.md`.
+2. Compose the `{TASK}` block:
+   - Describe the goal and why it matters (1-2 paragraphs)
+   - Reference key docs the task depends on (strategy files, specs, checkpoints)
+   - Do NOT decompose the task into sub-steps or list implementation approaches — Codex forms its own understanding from the docs
+3. Compose the `{SEARCH_HINTS}` block with three sub-sections:
+   - **Key files to start from:** file paths and glob patterns relevant to the task (found by reading the task description and referenced docs)
+   - **Known interfaces/APIs involved:** type names, function signatures, external APIs the task touches
+   - **Fixed params/constraints from prior work:** locked values, version pins, or decisions from earlier phases that the task inherits
+   Only include concrete facts (paths, names, values). Do not include analysis, opinions, or suggested approaches.
+4. Replace `{TASK}` and `{SEARCH_HINTS}` in the template. Do NOT modify the investigation sections (1-6) — they stay generic.
+5. Write the composed prompt to `tasks/codex-prompt.tmp`.
+6. Run:
+   ```bash
+   codex exec \
+     --sandbox read-only \
+     -o tasks/codex-research.tmp \
+     "$(cat tasks/codex-prompt.tmp)"
+   ```
+   Use a 10-minute timeout (600000ms) — Codex may take a while on large codebases.
+7. After Codex finishes, read `tasks/codex-research.tmp` FULLY.
 
-6. **Wait for all sub-agents to complete and synthesize findings:**
-   - IMPORTANT: Wait for ALL sub-agent tasks to complete before proceeding
-   - Compile all sub-agent results
-   - Prioritize live codebase findings as primary source of truth
-   - Connect findings across different components
-   - Include specific file paths and line numbers for reference
-   - Highlight patterns, connections, and architectural decisions
-   - Answer the user's specific questions with concrete evidence
+If the `codex` command is not found or fails, stop and tell the developer to fix it before proceeding.
 
-7. **Write research artifact** to `tasks/research-codebase.md`:
+### 4. Claude synthesizes
+Claude reads Codex's raw findings and adds the analytical layer. Do NOT duplicate what Codex already covered — build on it.
 
-     ```markdown
-     # Research: [Task/Question]
+**Spot-check Codex's work:**
+- Verify a sample of file paths and line numbers Codex reported — do they exist and match?
+- For each external finding, ask: would a wrong claim flip an axis choice? If yes, WebFetch the cited URL to verify. If no (version pins, defaults, background context), skip. Usually a few per run.
+- Flag any claims that don't hold up.
 
-     ## Research Question
-     [Task description from $ARGUMENTS]
+**Normalize Codex's output to axes:**
+- Codex's training priors push it toward flat "Option A / Option B / Option C" combinations even when instructed to produce axes. If that happened, decompose its options into axes during synthesis — identify the dimensions each option varies on, extract the distinct choices, and rewrite as per-axis entries. Don't treat it as a Codex failure; it's expected.
+- **Axis coupling is Codex's weakest spot** — it requires reasoning across sections, which Codex does poorly. Expect to derive most couplings yourself during synthesis by cross-referencing the axes Codex surfaced. Verify any couplings Codex did propose against the cited evidence.
+- **Watch for bundled axes** — an axis that mixes two dimensions (shape + timing, shape + scope, shape + ownership) forces design to pick both at once, producing awkward hybrid choices. Split into separate axes so each expresses one dimension.
+- If an axis seems thin (fewer than 2 real choices, or choices not grounded in codebase/spec), either drop it or flag it as a gap to fill below.
 
-     ## Summary
-     [High-level documentation of what was found]
+**Fill the gaps Codex left:**
+- Spawn sub-agents to investigate areas where Codex's findings are thin, ambiguous, or where connections are missing.
+- Keep sub-agents focused and parallel — each explores one specific gap.
 
-     ## Detailed Findings
+**Research beyond the codebase:**
+- **Audit axes for external dependencies first:** Walk every axis in the synthesized artifact. For each choice, ask: is its viability fully evaluable from codebase+spec alone? If not (e.g., "does PGlite support GENERATED STORED columns?", "what's the protocol behavior in version N?"), external research is required — not optional. Do not park these as risks; they block axis evaluation in /design.
+- Also check Codex's "External Knowledge Gaps" section and the task itself for anything that requires research outside the codebase — external APIs, protocols, library docs, migration guides, domain knowledge.
+- Spawn web research sub-agents in parallel with gap-filling agents.
+- Prefer official docs and release notes over blog posts and tutorials.
+- Return source URLs with all external findings so they can be verified.
+- For every external finding, link it to the specific axis/choice it unblocks so /design can use it directly.
+- If external research contradicts what the codebase does, document both.
 
-     ### [Component/Area 1]
-     - Description of what exists ([file.ext:line](link))
-     - How it connects to other components
-     - Current implementation details (without evaluation)
+**Add the diagnostic layer:**
+- **Why** — Why is the code structured this way? What design decisions led here?
+- **Cross-component connections** — How do the pieces Codex found relate to each other and to the broader system?
+- **Novel/orthogonal ideas** — Axes or choices Codex missed, orthogonal framings that reshape the axis list, or couplings Codex didn't catch. Do NOT introduce full implementation combinations — that's for /design.
+- **Risk analysis** — What could go wrong? What's fragile? What assumptions does the current code make?
 
-     ### [Component/Area 2]
-     ...
+### 5. Write research artifact
+Write the synthesized research to `tasks/research-codebase.md` (max 1000 lines):
 
-     ## Code References
-     - `path/to/file.py:123` - Description of what's there
-     - `another/file.ts:45-67` - Description of the code block
+```markdown
+# Research: [Task/Question]
 
-     ## External Research
-     [Only if external research was conducted]
-     ### [Topic]
-     - Key findings with source URLs
-     - How external findings relate to the current codebase
-     - Any divergences between external best practices and current implementation
+## Research Question
+[Task description from $ARGUMENTS]
 
-     ## Architecture Documentation
-     [Current patterns, conventions, and design implementations found in the codebase]
+## Summary
+[High-level synthesis — the "so what" layer. What did we learn and what does it mean for implementation?]
 
-     ## Open Questions
-     [Any areas that need further investigation]
-     ```
+## Detailed Findings
 
-8. **Present findings:**
-   - Present a concise summary of findings to the user
-   - Include key file references for easy navigation
-   - Ask if they have follow-up questions or need clarification
+### [Component/Area 1]
+- What exists and where ([file.ext:line](link))
+- How it connects to other components
+- Why it's structured this way
+- Current implementation details
 
-9. **Handle follow-up questions:**
-   - If the user has follow-up questions, append to the same research document
-   - Add a new section: `## Follow-up Research [timestamp]`
-   - Spawn new sub-agents as needed for additional investigation
-   - Continue updating the document
+### [Component/Area 2]
+...
 
-## Important notes:
-- Always use parallel sub-agents to maximize efficiency and minimize context usage
-- Always run fresh codebase research — never rely solely on existing research documents
-- Focus on finding concrete file paths and line numbers for developer reference
-- Research documents should be self-contained with all necessary context
-- Each sub-agent prompt should be specific and focused on read-only documentation operations
-- Document cross-component connections and how systems interact
-- Include temporal context (when the research was conducted)
-- Keep the main agent focused on synthesis, not deep file reading
-- Have sub-agents document examples and usage patterns as they exist
-- **File reading**: Always read mentioned files FULLY (no limit/offset) before spawning sub-tasks
+## Code References
+- `path/to/file.py:123` - Description of what's there
+- `another/file.ts:45-67` - Description of the code block
+
+## Architecture Analysis
+[Current patterns, conventions, and design decisions — with reasoning about why they exist]
+
+## Design Axes
+[Decompose the decision into independent axes. For each axis, list viable choices grounded in codebase/spec — do NOT combine axes into full approaches. That's for /design.]
+
+### Axis: [name of decision dimension]
+- **Choices:** [2-4 discrete points on this axis]
+- **Per-axis constraints:** [what every choice here must respect — spec sections, contracts, precedent]
+- **Evidence:** [file:line references, spec §]
+
+### Axis: [name of decision dimension 2]
+...
+
+## Axis Coupling
+[Dependencies between axes — list each coupling in "If Axis N = X → Axis M is narrowed to {A, B}" format with reason and reference. Omit this section if axes are fully independent.]
+
+## Cross-Cutting Constraints
+[Constraints that apply to any solution regardless of axis choice — type signatures, naming conventions, test infra, deps]
+
+## External Research
+[Required whenever an axis choice's viability depends on external knowledge. Skip only if every axis is fully evaluable from codebase+spec alone.]
+- Finding (with source URL)
+- **Unblocks:** Axis N, choice X (name the specific axis/choice the finding establishes or rules out)
+- How the finding relates to the current codebase
+- Any divergences between external docs and current implementation
+
+## Risk Analysis
+[What could go wrong, fragile assumptions, edge cases to watch. Do NOT park external-research gaps here — those are resolved in External Research, not parked as risks.]
+
+## Open Questions
+[Any areas that need further investigation]
+```
+
+### 6. Clean up
+Delete `tasks/codex-prompt.tmp` and `tasks/codex-research.tmp`.
+
+### 7. Present findings
+- Present a concise summary of findings to the user.
+- Include key file references for easy navigation.
+- Highlight anything surprising or non-obvious that Claude's synthesis uncovered.
+- Ask if they have follow-up questions.
+
+### 8. Handle follow-up questions
+- If the user has follow-up questions, append to the same research document.
+- Add a new section: `## Follow-up Research [timestamp]`
+- Spawn new sub-agents as needed for additional investigation.
+
+---
+
+## Important notes
+- **Codex leads, Claude synthesizes.** Don't restate Codex's file mapping — extend it with connections, reasoning, and gap-filling.
+- **Verify before trusting.** Spot-check Codex's file paths and line numbers. Flag inaccuracies.
+- Sub-agents are for targeted gap-filling, not broad re-exploration.
+- Keep the research artifact under 1000 lines.
+- Sub-agents MUST NOT spawn further sub-agents (recursion guard).

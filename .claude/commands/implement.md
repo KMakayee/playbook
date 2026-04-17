@@ -1,55 +1,155 @@
 # Implement
 
-Execute the approved plan in `tasks/plan.md` phase-by-phase. Follow the plan precisely, verify after each phase, and commit working code at every step.
+Execute the approved plan phase-by-phase, then review and fix. Implementation stays in this session for full control. Codex review and fix application are offloaded to keep context quality high.
 
-## Steps:
+---
 
-1. **Check prerequisites:**
-   - Verify `tasks/plan.md` exists. If not, stop and tell the developer to run `/create-plan` first.
-   - Verify the plan is finalized — it should not have unresolved blocking questions. If it does, stop and tell the developer the plan needs to be reviewed and finalized first.
-   - Verify `tasks/research-codebase.md` exists — it's needed for reference during implementation.
+## Steps
 
-2. **Read the plan fully:**
-   - Read `tasks/plan.md` FULLY — use the Read tool WITHOUT limit/offset parameters.
-   - Understand the design decision, phase structure, and success criteria.
-   - Read `tasks/research-codebase.md` and `tasks/design-decision.md` if you need additional context on specific files or patterns.
+### 1. Check prerequisites
 
-3. **Check for resume:**
-   - Look for existing checkmarks (`- [x]`) in the plan's success criteria.
-   - If found, the plan was partially implemented in a prior session. Pick up from the first unchecked phase.
-   - Trust that completed phases are done — only re-verify if something seems off.
+- Verify `tasks/plan.md` exists. If not, stop — run `/create-plan` first.
+- Verify the plan is finalized — it should not have unresolved blocking questions. If it does, stop and tell the developer the plan needs to be reviewed and finalized first.
+- Verify `tasks/research-codebase.md` exists — it's needed for reference during implementation.
 
-4. **Execute phase-by-phase:**
-   For each phase in the plan:
+### 2. Read the plan fully
 
-   a. **Read all files** mentioned in the phase before making changes. Use the Read tool WITHOUT limit/offset.
+- Read `tasks/plan.md` FULLY — use the Read tool WITHOUT limit/offset parameters.
+- Understand the design decision, phase structure, and success criteria.
+- Read `tasks/research-codebase.md` and `tasks/design-decision.md` if you need additional context on specific files or patterns.
 
-   b. **Implement the changes** specified for this phase. Keep changes minimal — only modify what the plan specifies.
+### 3. Check for resume
 
-   c. **Handle mismatches:**
-      - **Minor** (function moved a few lines, variable renamed): adapt and continue.
-      - **Structural** (module reorganized, interface changed, file deleted): STOP. Re-research that specific sub-problem using a sub-agent, then adapt the plan and continue.
-      - **Tests fail after 2 fix attempts:** STOP and ask the developer for guidance.
+- Look for existing checkmarks (`- [x]`) in the plan's success criteria.
+- If found, the plan was partially implemented in a prior session. Pick up from the first unchecked phase.
+- Trust that completed phases are done — only re-verify if something seems off.
 
-   d. **Run automated verification** — execute the automated success criteria listed in the plan for this phase. Fix any failures before proceeding.
+### 4. Execute phase-by-phase
 
-   e. **Check off completed items** — update the plan file to mark success criteria as done (`- [x]`).
+For each phase in the plan:
 
-   f. **Commit the phase:**
-      - Commit with a conventional message that describes what was done (e.g., `feat: add validation layer for user input`)
-      - Each phase should be a separate commit so changes are reviewable
+a. **Read all files** mentioned in the phase before making changes. Use the Read tool WITHOUT limit/offset.
 
-5. **After all phases are complete:**
-   - Run the full test/lint suite one final time to confirm everything works together.
-   - Present a summary of what was implemented, referencing the plan phases.
+b. **Implement the changes** specified for this phase. Keep changes minimal — only modify what the plan specifies.
 
-## Important notes:
-- The plan is your guide, not a script. Follow intent while adapting to what you find — but deviations require a plan update first.
-- One phase at a time. Complete and verify a phase before starting the next. Never work on multiple phases simultaneously.
-- Read files fully before modifying them. Never edit a file you haven't read in this session.
-- Progress lives in `tasks/plan.md` checkboxes — no separate todo file needed. The plan IS the progress tracker.
-- Commit after every phase. Frequent, small commits are better than one large commit at the end.
-- If something unexpected is encountered that doesn't fit the mismatch categories above, use your judgment — adapt for minor issues, stop for major ones.
-- **Sub-agents are optional**: Use them sparingly for targeted debugging or verifying that something from the plan still exists. Never for broad exploration during implementation.
-- **Compaction**: For multi-phase plans, compact between phases — drop file contents from completed phases and verbose test output, keep plan.md location, current phase, and what's next.
-- **File reading**: Always read mentioned files FULLY (no limit/offset) before modifying them.
+c. **Handle mismatches:**
+   - **Minor** (function moved a few lines, variable renamed): adapt and continue.
+   - **Structural** (module reorganized, interface changed, file deleted): STOP. Re-research that specific sub-problem using a sub-agent, then adapt the plan and continue.
+   - **Plan premise invalidated** (the mechanism the plan specified doesn't actually work as described): document the deviation in `tasks/plan.md`, adapt while preserving the step's intent, and continue. If the deviation affects the design — not just the mechanism — STOP and revisit the plan.
+   - **Tests fail after 2 fix attempts:** STOP and ask the developer for guidance.
+
+d. **Run automated verification** — execute the automated success criteria listed in the plan for this phase.
+   - **Failures in files your plan touched:** fix them before proceeding.
+   - **Failures in files outside your plan's scope** (pre-existing lint/format drift, unrelated warnings): verify the scoped subset passes, do NOT fix — that's scope creep. Surface in Step 11's "Flagged for review".
+
+e. **Check off completed items** — update the plan file to mark success criteria as done (`- [x]`).
+
+f. **Commit the phase:**
+   - Commit with a conventional message that describes what was done (e.g., `feat: add validation layer for user input`)
+   - Each phase should be a separate commit so changes are reviewable
+   - If you modified `tasks/plan.md` during the phase (checkmarks, deviation notes from 4c), include it in the phase's commit — the updates are part of the work record.
+
+### 5. Post-implementation verification
+
+After all phases are complete, run the full test/lint suite one final time to confirm everything works together. Apply the same scoping rule from Step 4d: failures in files your plan touched must be fixed; pre-existing drift in unrelated files gets noted for Step 11, not fixed.
+
+### 6. Run Codex code review
+
+**Run with `run_in_background` — Codex phase, may take 10+ minutes.**
+
+```bash
+codex exec \
+  --sandbox read-only \
+  -o tasks/codex-code-review.tmp \
+  "Review the recent implementation against the plan in tasks/plan.md.
+
+PART 1 — Plan adherence:
+- Does the implementation match what the plan specified? Flag any deviations.
+- Were any files changed that the plan didn't call for? (Note: \`tasks/plan.md\` may be updated during implementation — checkmarks, deviation notes — do not flag this as scope drift.)
+- Are tests present and do they cover the acceptance criteria?
+
+PART 2 — Independent code quality (evaluate on merit, regardless of what the plan says):
+- Are there bugs, edge cases, or missing error handling?
+- Can any of the code be simplified? Look for unnecessary abstractions, over-engineering, redundant logic, or verbose patterns that could be cleaner.
+- Are established patterns and best practices being followed? Flag any anti-patterns, misused idioms, or places where a well-known pattern would be a better fit.
+- Is the chosen approach the simplest one that solves the problem? If a simpler tool, pattern, or technique would work better than what the plan prescribed, flag it — the plan is not infallible.
+
+For each finding, include the exact file path and line number(s)."
+```
+
+**Check:** Verify `tasks/codex-code-review.tmp` exists. If missing, stop and tell the developer.
+
+### 7. Triage findings
+
+Read `tasks/codex-code-review.tmp` FULLY.
+
+**Spot-check Codex's claims:**
+- Verify a sample of file paths and line numbers Codex reported — do they exist and match?
+- Discard any claims that don't hold up.
+
+**Categorize each finding:**
+- **Fix:** Bugs, missing error handling, genuine simplification wins, pattern violations — anything where the fix is clear and scoped.
+- **Skip:** False positives, claims that didn't survive spot-checking, subjective style preferences.
+- **Flag for developer:** Architectural concerns, changes that would alter behavior beyond the plan's intent, anything ambiguous.
+
+**Write fix instructions** to `tasks/code-review-fixes.tmp` — a precise, actionable list for the child process:
+
+```markdown
+## Code Review Fixes
+
+### Fix 1: [Short description]
+- **File:** path/to/file.ext:line
+- **Issue:** What Codex found (verified)
+- **Fix:** Exactly what to change
+
+### Fix 2: ...
+
+## Flagged for Developer
+- [Finding] — [Why it was deferred]
+```
+
+If there are no fixes to apply (all findings were skipped or flagged), skip directly to Step 10.
+
+### 8. Apply fixes via child process
+
+**Run with `run_in_background` — may take a few minutes.**
+
+Compute the timestamp inline — shell state doesn't persist between calls:
+
+```bash
+mkdir -p tasks/logs && TIMESTAMP=$(date +%Y%m%d-%H%M) && claude -p --effort max "Read tasks/code-review-fixes.tmp. Apply each fix listed under '## Code Review Fixes' exactly as described. For each fix:
+1. Read the file FULLY before modifying it.
+2. Apply the fix.
+3. Run any relevant tests to confirm the fix doesn't break anything.
+Do NOT commit — the parent session will verify and commit.
+You are running non-interactively — do not ask questions." --dangerously-skip-permissions > tasks/logs/code-review-fixes-$TIMESTAMP.log 2>&1
+```
+
+### 9. Final verification
+
+After the child process completes, verify that the code review fixes were applied correctly and that the full plan was implemented — all success criteria in `tasks/plan.md` should be met. Run the test/lint suite one final time, applying the same scoping rule from Step 4d (scoped failures must pass; inherited drift is noted, not fixed).
+
+Once verified and any issues fixed, commit with message: `fix: apply code review revisions`.
+
+### 10. Clean up
+
+Delete:
+- `tasks/codex-code-review.tmp`
+- `tasks/code-review-fixes.tmp`
+
+### 11. Present results
+
+Report with these sections:
+- **Implemented:** Phases completed and commits made
+- **Fixed:** What Codex found and the child process fixed (with file:line references)
+- **Flagged for review:** Findings that need human judgment (with reasoning for why they were deferred). Include any repo-wide check failures outside your plan's scope (from Step 4d).
+- **How to test:** Commands to run and manual steps to verify the implementation (e.g., test commands, endpoints to hit, UI flows to walk through)
+
+---
+
+## Important notes
+
+- **Sub-agents are optional**: Use them sparingly for targeted debugging, never for broad exploration during implementation.
+- **Triage is the key step.** The parent session decides *what* to fix. The child process decides *how*. Write precise fix instructions — vague instructions produce vague fixes.
+- Codex reviews, Claude triages, child fixes. Not everything Codex flags needs fixing — use judgment. When in doubt, flag rather than fix.
+- If `codex` or `claude` is not found or fails, stop and tell the developer to fix it before proceeding.
