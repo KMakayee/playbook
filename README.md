@@ -1,6 +1,11 @@
-# Claude Code Playbook
+# Agentic Engineering Playbook
 
-A toolkit of commands, hooks, templates, and workflow rules for disciplined AI-assisted engineering with Claude Code.
+A workflow toolkit that orchestrates **Claude** and **Codex** for disciplined software engineering. Each phase pairs the two agents — Codex does broad codebase sweeps and independent cross-checks, Claude synthesizes, makes judgment calls, and drives implementation. Together they catch mistakes neither would catch alone: Codex surfaces what exists; Claude decides what matters.
+
+## Prerequisites
+
+- [Claude Code](https://claude.com/claude-code) — the runtime for slash commands
+- [Codex CLI](https://github.com/openai/codex) — invoked in every QRSPI phase for independent review
 
 ## Setup
 
@@ -82,7 +87,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 ### Workflow rules
 
-`CLAUDE.md` includes the QRSPI (Questions, Research, Structure, Plan, Implement) workflow rules. Any task touching 2+ files or changing interfaces requires structured research, a reviewed design, an approved plan, and step-by-step implementation with verification. Each phase includes an independent Codex cross-check before proceeding. Trivial changes (single file, <20 lines) skip the process. See `quickref.md` for the full checklist.
+`CLAUDE.md` includes the QRSPI (Questions, Research, Structure, Plan, Implement) workflow rules. Any task touching 2+ files or changing interfaces requires structured research, a reviewed design, an approved plan, and step-by-step implementation with verification. Every phase pairs Claude's synthesis with an independent Codex cross-check — the two-agent handshake is what separates this playbook from single-agent workflows. Trivial changes (single file, <20 lines) skip the process. See `quickref.md` for the full checklist.
 
 ## Updating
 
@@ -114,4 +119,4 @@ Enabling LSP (Language Server Protocol) in Claude Code gives **~25% faster and c
 
 ---
 
-Built on the QRSPI workflow, evolved from the Research-Plan-Implement approach by [HumanLayer](https://github.com/humanlayer), with workflow orchestration principles from Boris Cherny.
+Built on the QRSPI workflow, evolved from the Research-Plan-Implement approach by [HumanLayer](https://github.com/humanlayer), with workflow orchestration principles from Boris Cherny. Two-agent orchestration pattern inspired by pairing human code review with an independent reviewer.
