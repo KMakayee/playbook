@@ -18,13 +18,8 @@ templates/playbook-sections.md
 .claude/commands/playbook-audit.md
 .claude/commands/playbook-update.md
 .claude/commands/research-codebase.md
-.claude/commands/research-codebase-codex.md
-.claude/commands/research-patterns.md
 .claude/commands/design.md
-.claude/commands/design-review-codex.md
-.claude/commands/code-review-codex.md
 .claude/commands/create-plan.md
-.claude/commands/plan-review-codex.md
 .claude/commands/implement.md
 .claude/commands/create-todo.md
 .claude/commands/issue-research-codex.md

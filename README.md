@@ -24,21 +24,16 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 ## What's included
 
-### Commands (25)
+### Commands
 
 **QRSPI workflow**
 
 | Command | Purpose |
 |---|---|
-| `/research-codebase` | Investigate codebase; writes `tasks/research-codebase.md` |
-| `/research-codebase-codex` | Codex reviews and verifies existing research |
-| `/design` | Evaluate options and trade-offs; writes `tasks/design-decision.md` |
-| `/design-review-codex` | Codex reviews and finalizes the design |
-| `/research-patterns` | Find production repos with chosen pattern (optional); writes `tasks/research-patterns.md` |
-| `/create-plan` | Generate implementation plan; writes `tasks/plan.md` |
-| `/plan-review-codex` | Codex reviews plan judgment calls, feasibility, and risks |
-| `/implement` | Execute approved plan phase-by-phase |
-| `/code-review-codex` | Codex reviews implementation against plan |
+| `/research-codebase` | Codex sweeps, Claude synthesizes; writes `tasks/research-codebase.md` |
+| `/design` | Evaluate options, run Codex cross-check, pick a winner; writes `tasks/design-decision.md`. Includes inline pattern research with RUN/SKIP gate. |
+| `/create-plan` | Draft plan, Codex reviews, absorb findings; writes `tasks/plan.md` |
+| `/implement` | Execute plan phase-by-phase, run Codex code review, apply triaged fixes via child process |
 | `/create-todo` | Create standalone `tasks/todo.md` for ad-hoc tracking |
 
 **Issue workflow**
@@ -87,7 +82,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 ### Workflow rules
 
-`CLAUDE.md` includes the QRSPI (Questions, Research, Structure, Plan, Implement) workflow rules. Any task touching 2+ files or changing interfaces requires structured research, a reviewed design, an approved plan, and step-by-step implementation with verification. Codex review gates validate design and implementation independently. Trivial changes (single file, <20 lines) skip the process. See `quickref.md` for the full checklist.
+`CLAUDE.md` includes the QRSPI (Questions, Research, Structure, Plan, Implement) workflow rules. Any task touching 2+ files or changing interfaces requires structured research, a reviewed design, an approved plan, and step-by-step implementation with verification. Each phase includes an independent Codex cross-check before proceeding. Trivial changes (single file, <20 lines) skip the process. See `quickref.md` for the full checklist.
 
 ## Updating
 
@@ -104,7 +99,7 @@ Fetches the latest playbook, shows what changed, and lets you approve each file 
 | `CLAUDE.md` | Project context + workflow rules | Yes — every session |
 | `quickref.md` | Human-readable QRSPI cheat sheet | No — for your reference |
 | `templates/*` | Structures for research, plans, audits, etc. | Referenced when writing artifacts |
-| `.claude/commands/*` | 25 slash commands | Only when invoked |
+| `.claude/commands/*` | Slash commands | Only when invoked |
 | `.claude/hooks/stop-verify.sh` | Verification nudge hook | On agent stop events |
 | `.claude/settings.local.json` | Permissions and hook config | Yes — every session |
 

@@ -74,26 +74,23 @@ If uncertain, it is non-trivial. Do not call Edit or Write on source files until
 
 Before writing any code, investigate the codebase to gather ground truth. Document what IS, not what should be.
 
-1. Run `/research-codebase` with the task description. It produces `tasks/research-codebase.md` (max 1000 lines) — located paths, current behavior analysis, codebase patterns, risks, and open questions.
-2. **Optional:** Run `/research-codebase-codex` to have Codex verify and enhance the research.
-3. **Verify context budget** — If above 30% context utilization after writing research, compact before proceeding.
+1. Run `/research-codebase` with the task description. Codex sweeps the codebase; Claude synthesizes. Produces `tasks/research-codebase.md` (max 1000 lines) — located paths, current behavior analysis, codebase patterns, design axes, risks, and open questions.
+2. **Verify context budget** — If above 30% context utilization after writing research, compact before proceeding.
 
-## Phase 2: Design (`/design` → `/design-review-codex`)
+## Phase 2: Design (`/design`)
 
-Evaluate implementation options and present them with trade-offs.
+Evaluate implementation options and pick a winner.
 
-1. Run `/design` — reads `tasks/research-codebase.md`, produces `tasks/design-decision.md` with 2-3 options, trade-offs, and open questions.
-2. Run `/design-review-codex` — Codex reviews the design, appends findings, and recommends an option.
-3. **Optional:** Run `/research-patterns` — finds production repos implementing the chosen approach, produces `tasks/research-patterns.md`.
-4. **Do not plan until the design is finalized.** If the design review raises concerns, address them first.
+1. Run `/design` — reads `tasks/research-codebase.md`, proposes options, runs Codex as an independent cross-check, and writes the final decision to `tasks/design-decision.md`.
+2. Pattern research runs inline via a RUN/SKIP gate — produces `tasks/research-patterns.md` when novel/complex external patterns apply.
+3. **Do not plan until the design is finalized.** If the review raises blocking concerns, address them first.
 
-## Phase 3: Plan (`/create-plan` → `/plan-review-codex`)
+## Phase 3: Plan (`/create-plan`)
 
 Generate a detailed implementation plan from the finalized design — do NOT plan from memory.
 
-1. Run `/create-plan` — reads research, design, and patterns artifacts; produces `tasks/plan.md`.
-2. **Optional:** Run `/plan-review-codex` — Codex reviews judgment calls, feasibility, completeness, and risks in the plan.
-3. **Do not implement until the plan is approved.** If rejected or revised, update `tasks/plan.md` before proceeding.
+1. Run `/create-plan` — reads research, design, and patterns artifacts; Claude drafts, Codex reviews, Claude absorbs findings. Produces `tasks/plan.md`.
+2. **Do not implement until the plan is approved.** If rejected or revised, update `tasks/plan.md` before proceeding.
 
 ## Phase 4: Implement (`/implement`)
 
@@ -101,7 +98,7 @@ Generate a detailed implementation plan from the finalized design — do NOT pla
 
 Execute the approved plan. Do not improvise.
 
-1. Run `/implement` — executes the plan phase-by-phase.
+1. Run `/implement` — executes the plan phase-by-phase, then runs Codex code review and applies triaged fixes via a child process.
 2. Follow the plan step by step. Deviations require a plan update first.
 3. Keep changes minimal — only modify what the plan specifies.
 4. Run tests after each logical unit of change, not just at the end.
