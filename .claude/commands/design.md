@@ -160,17 +160,24 @@ Before handing off to `/create-plan`, check:
 
 If Claude can resolve a failed check → fix and re-verify. If it needs developer input → STOP and tell the developer.
 
-### 6. Pattern research (required for novel/complex work)
+### 6. Pattern research
 
-Studies external references — repos, docs, specs, articles, papers — that inform the chosen approach. Run for novel/complex work; skip for direct extensions of existing codebase patterns. State the gate result explicitly (e.g., `Gate: RUN — external domain (OAuth)` / `Gate: SKIP — extends src/routes/user.ts pattern`).
+Studies external references — repos, docs, specs, articles, papers — that inform the chosen approach.
 
-**Use best judgment to RUN or SKIP.** Examples of when to RUN:
-- Pattern absent from existing codebase (no precedent in research)
-- Well-established external domain — auth, crypto, payments, queuing, pub/sub, RBAC, file upload, rate limiting, caching, concurrency, external protocols (OAuth, SAML, gRPC)
-- Design surfaced external-knowledge questions or gaps
-- Multi-component orchestration, distributed state, or wire-level correctness
+**Decide RUN or SKIP based on the chosen approach.**
 
-**When in doubt, RUN.** If SKIP and stale `tasks/research-patterns.md` exists, delete it.
+**SKIP requires all of these to hold:**
+- The chosen approach directly extends a pattern already documented in `tasks/research-codebase.md` (cite the pattern)
+- No external standards, protocols, or algorithms are load-bearing
+- No new orchestration across components, services, or processes
+
+If any one is uncertain, RUN.
+
+State the gate result with concrete evidence:
+- `Gate: RUN — <reason>`
+- `Gate: SKIP — extends <specific pattern cited from research>`
+
+If SKIP and a stale `tasks/research-patterns.md` exists, delete it.
 
 **If RUN:**
 
@@ -193,7 +200,7 @@ Delete `tasks/codex-design-review.tmp`, `tasks/codex-design-tiebreaker.tmp` (if 
 - **State the pattern research gate result:**
   - If RUN: summarize the patterns found (top 2-3 signals) and flag any entries from `tasks/research-patterns.md`'s "Concerns for Developer Review" section.
   - If SKIP: state the reason.
-- **Self-evaluate the gate decision:** In one sentence, state why the RUN/SKIP call holds against Step 6's criteria. If it doesn't: run Step 6 now if it should have been RUN; note the over-caution if it should have been SKIP.
+- **Self-evaluate the gate decision:** For SKIP, name the specific pattern from research the approach extends. For RUN, name which SKIP criterion didn't hold. If a SKIP can't cite a specific pattern, run Step 6 now.
 - Ask the developer to confirm or override the choice before proceeding to `/create-plan`.
 
 ---

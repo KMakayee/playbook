@@ -141,7 +141,7 @@ Execute the approved plan. Do not improvise.
 
 When a plan contains multiple independent batches (e.g., a code review with 6 fix batches), do NOT implement them all in one pass. Each batch is a separate unit of work in its own prompt.
 
-1. During Phase 3, identify and list independent batches in the plan.
+1. During Phase 3 (Plan): `/create-plan`, identify and list independent batches in `tasks/plan.md`, and flag at the top that the plan runs one batch per `/implement` cycle.
 2. Execute one batch per prompt. The pre-edit gate applies per-batch — trivial batches can skip QRSPI, non-trivial batches get full QRSPI.
 3. Compact between batches to keep context low.
 
