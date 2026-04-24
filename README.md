@@ -71,10 +71,6 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 | `/checkpoint` | Save current work state to `tasks/checkpoint.md` |
 | `/finish` | Wrap up task: verify, commit artifacts, clean up |
 
-### Hooks
-
-- **stop-verify** — Nudges the agent to verify work before finishing (changes match plan, no unintended files, verified not assumed).
-
 ### Templates
 
 | Template | Purpose |
@@ -105,8 +101,7 @@ Fetches the latest playbook, shows what changed, and lets you approve each file 
 | `quickref.md` | Human-readable QRSPI cheat sheet | No — for your reference |
 | `templates/*` | Structures for research, plans, audits, etc. | Referenced when writing artifacts |
 | `.claude/commands/*` | Slash commands | Only when invoked |
-| `.claude/hooks/stop-verify.sh` | Verification nudge hook | On agent stop events |
-| `.claude/settings.local.json` | Permissions and hook config | Yes — every session |
+| `.claude/settings.local.json` | Permissions config | Yes — every session |
 
 ## LSP
 

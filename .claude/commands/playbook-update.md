@@ -39,7 +39,6 @@ templates/deferred.md
 .claude/prompts/research-guide.md
 .claude/prompts/research-patterns-guide.md
 .claude/scripts/pipeline-eval.sh
-.claude/hooks/stop-verify.sh
 templates/error-report.md
 ```
 

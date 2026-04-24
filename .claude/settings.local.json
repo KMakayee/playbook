@@ -7,19 +7,5 @@
       "Skill(code-review:code-review)",
       "Skill(update-config)"
     ]
-  },
-  "hooks": {
-    "Stop": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash \"$(git rev-parse --show-toplevel)/.claude/hooks/stop-verify.sh\"",
-            "timeout": 5
-          }
-        ]
-      }
-    ]
   }
 }
