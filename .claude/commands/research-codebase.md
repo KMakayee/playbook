@@ -2,7 +2,9 @@
 
 Research the codebase for the task described by the user: **$ARGUMENTS**
 
-If `$ARGUMENTS` is empty or blank, pick the next unchecked task (`- [ ]`) from `tasks/todo.md` and use it as the research target. If there are no unchecked tasks, tell the user and stop.
+If `$ARGUMENTS` is empty or blank, stop and tell the user to re-invoke with a short prompt describing the research target (e.g., `/research-codebase add retry logic to the ingest worker`). Do not auto-pick from `tasks/todo.md` — the caller is responsible for selecting a task that is dependency- and OQ-ready.
+
+**Readiness preflight.** Before kicking off Codex, scan `tasks/todo.md` and any linked spec/OQ doc for entries that match the target. If the target references or depends on unresolved Open Questions, blocked-by markers, or pre-registrations, stop and list the unresolved gates to the user. Do not start research until the caller either resolves the gates or explicitly confirms they want to proceed anyway.
 
 This command uses a two-stage research process:
 1. **Codex** does the broad sweep — maps files, enumerates options, establishes constraints
