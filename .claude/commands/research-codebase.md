@@ -12,11 +12,9 @@ This command uses a two-stage research process:
 
 ## Steps
 
-### 1. Clean up prior artifacts (if any)
-- If any of `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, `tasks/plan.md` exist, read the `## Research Question` from `tasks/research-codebase.md` and match it to an entry in `tasks/todo.md`.
-- Complete (`- [x]`): delete the artifacts.
-- In-progress (`- [ ]`): stop and ask the developer to resume or start fresh.
-- No match found: stop, show the research question, and ask the developer whether to delete or keep.
+### 1. Check for prior artifacts
+- If any of `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, or `tasks/plan.md` exist, stop. List which files are present and tell the developer to finalize the prior task (e.g., via `/finish`) or manually remove the artifacts before starting new research.
+- Do not proceed until the `tasks/` directory is free of these four files.
 
 ### 2. Read any directly mentioned files first
 - If the user mentions specific files (tickets, docs, JSON), read them FULLY first.
