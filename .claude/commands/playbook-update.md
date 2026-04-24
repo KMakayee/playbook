@@ -173,7 +173,9 @@ Tell the developer: "Version tracking updated. Consider adding `.playbook-versio
    **Source:** [URL]
    ```
 
-3. Remind the developer:
+3. **Verify no maintainer artifacts slipped in.** Check whether `tasks/todo.md`, `tasks/errors.md`, or `tasks/issues.md` exist in the project. `/playbook-update` does not touch `tasks/`, so any of these files present were either authored by the developer or leaked from the initial install (the README install flow includes `rm -rf tasks` to prevent this). If any are found, remind the developer: *"Found `tasks/[filename]` — verify the contents are yours. If they look like leftover maintainer state, remove them."* Do not exit update without surfacing this check.
+
+4. Remind the developer:
    > "Run `git diff` to review all changes, then commit when you're satisfied."
 
 ---

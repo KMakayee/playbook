@@ -15,9 +15,12 @@ From your project root:
 git clone https://github.com/KMakayee/playbook.git
 mv playbook/* playbook/.claude .
 rm -rf playbook/.git && rmdir playbook
+rm -rf tasks
 ```
 
 > The `mv` command overwrites existing files. Back up your `CLAUDE.md`, `.claude/`, and `templates/` directories first if they already exist.
+>
+> `rm -rf tasks` clears the playbook maintainer's working artifacts (`todo.md`, `errors.md`, `issues.md`) that ship with the repo. QRSPI commands recreate `tasks/` as you work.
 
 Then open Claude Code and run:
 
