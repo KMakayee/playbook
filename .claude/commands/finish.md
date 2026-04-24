@@ -26,13 +26,19 @@ Wrap up the current task: mark it done and commit everything including QRSPI art
    - Commit to the current branch using that message.
    - Push to the current branch.
 
-3. **Report:**
+3. **Clean up QRSPI artifacts (local commit, no push):**
+   - After the push in step 2 succeeds, `git rm` whichever of these exist: `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, `tasks/plan.md`.
+   - Commit the deletions with a message of the form `chore: clean up QRSPI artifacts for <subject>` — reuse the subject from step 2's commit so the pair is easy to correlate in history.
+   - **Do not push this commit.** It rides on the next task's push, keeping `/finish` to a single push.
+   - If no artifacts exist, skip this step entirely.
+
+4. **Report:**
    - Show which todo task was marked complete (if any).
-   - Confirm the commit hash and message.
-   - List which artifact files were committed.
+   - Confirm the commit hash and message for the main commit from step 2.
+   - List which artifact files were committed in step 2 and which were removed in step 3's follow-up local commit.
    - If there are remaining tasks in `tasks/todo.md`, show the next one up.
 
 ## Important notes:
 - This command verifies the plan is complete before proceeding. If any plan items are unchecked, it stops early.
-- QRSPI artifacts are kept and committed — they serve as a record of the work done. Do not delete them.
-- If there are no changes to commit (clean working tree, no staged changes), skip step 2 and just mark the todo complete.
+- QRSPI artifacts are committed as a record of the work, then removed in a follow-up local commit so the next task starts with a clean `tasks/` directory. The cleanup commit is not pushed — it travels with the next task's push.
+- If there are no changes to commit (clean working tree, no staged changes), skip step 2 and just mark the todo complete. Step 3 still runs if artifacts are present.
