@@ -59,6 +59,7 @@ If no path is provided, ask the developer which design document to use.
    - The description should include which files/sections to reference for more details
    - For broad designs, note what each task needs to figure out during research
    - For detailed designs, reference specific sections of the design doc
+   - **Deferred** section (optional) for work that is explicitly out-of-scope-for-now but may be absorbed by a task's research. Distinct from Out of Scope, which is scoped out permanently. Cross-reference the task whose research should fold in the investigation, so the decision to absorb or keep deferred has a clear owner.
 
 9. **Present to the developer:**
    - List the tasks with one-line summaries
