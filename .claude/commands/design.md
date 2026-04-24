@@ -128,7 +128,7 @@ Reconcile Codex's independent approach with Claude's options and write a unified
 **Tiebreaker (rare, runs ONLY once):**
 If the winner is still unclear after absorbing Codex's findings — e.g., two options are technically equivalent on the heuristics, or a load-bearing question remains unresolved and is blocking the choice — run Codex one more time with a focused tiebreaker prompt. Never run it a second time, even if the decision is still unclear afterward.
 
-**Before running, replace `{SPECIFIC_QUESTION}` in the prompt below with the actual blocking question** (a concrete sentence naming the options in tension or the unresolved fact). Do NOT run the command with the literal `{SPECIFIC_QUESTION}` placeholder.
+**Before running, replace `{SPECIFIC_QUESTION}` in the prompt below with the actual blocking question** (a concrete sentence naming the options in tension or the unresolved fact). Do NOT run the command with the literal `{SPECIFIC_QUESTION}` placeholder. Use a 10-minute timeout (600000ms) — Codex may take a while on large codebases.
 
 ```bash
 codex exec \
