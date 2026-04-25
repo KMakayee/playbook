@@ -56,7 +56,7 @@ Holistic precedents only — end-to-end similar problems that span multiple axes
 
 Axis-local precedents (e.g., "this one axis was previously handled as X") belong inline under the relevant axis as Evidence in §3, not here. Skip this section if no multi-axis precedent exists.
 
-### 6. External Knowledge Gaps
+### 6. External Research
 Flag anything the task requires that can't be answered from the codebase alone:
 - External libraries or APIs that need documentation lookup
 - Protocols, specs, or standards the implementation must follow
@@ -66,7 +66,7 @@ Flag anything the task requires that can't be answered from the codebase alone:
 
 **Audit axes for external dependencies:** Before finishing, walk every axis from §3 and check whether each choice is evaluable from codebase+spec alone. If a choice's viability depends on external knowledge (e.g., "does library X support feature Y?", "what's the behavior of API Z in version N?"), that's a mandatory external-research target — not optional. For each such gap, name which axis/choice it blocks so the downstream researcher can prioritize.
 
-Don't research these yourself — just list what needs external research and why.
+For every gap above, perform the external research yourself using web search. Return source URLs with each finding and label each one with `Unblocks: Axis N, choice X`. Prefer official docs, specs, and release notes over blog posts and tutorials. If a finding contradicts what the codebase does, document both.
 
 ## How to report
 - Be exhaustive — breadth matters more than depth

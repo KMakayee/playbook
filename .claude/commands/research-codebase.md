@@ -40,7 +40,7 @@ Codex leads the exploration. It maps the codebase, enumerates the solution space
 5. Write the composed prompt to `tasks/codex-prompt.tmp`.
 6. Run:
    ```bash
-   codex exec \
+   codex -c model_reasoning_effort=xhigh --search exec \
      --sandbox read-only \
      -o tasks/codex-research.tmp \
      "$(cat tasks/codex-prompt.tmp)"
@@ -70,11 +70,10 @@ Claude reads Codex's raw findings and adds the analytical layer. Do NOT duplicat
 
 **Research beyond the codebase:**
 - **Audit axes for external dependencies first:** Walk every axis in the synthesized artifact. For each choice, ask: is its viability fully evaluable from codebase+spec alone? If not (e.g., "does PGlite support GENERATED STORED columns?", "what's the protocol behavior in version N?"), external research is required — not optional. Do not park these as risks; they block axis evaluation in /design.
-- Also check Codex's "External Knowledge Gaps" section and the task itself for anything that requires research outside the codebase — external APIs, protocols, library docs, migration guides, domain knowledge.
-- Spawn web research sub-agents in parallel with gap-filling agents.
-- Prefer official docs and release notes over blog posts and tutorials.
-- Return source URLs with all external findings so they can be verified.
-- For every external finding, link it to the specific axis/choice it unblocks so /design can use it directly.
+- **Codex's broad sweep already did the first pass** — `--search` was enabled, so its §6 "External Research" output should contain source URLs and `Unblocks: Axis N, choice X` labels. Inspect this section in `tasks/codex-research.tmp` before spawning any sub-agents.
+- **Spawn web research sub-agents only as a fallback** when Codex's external research is thin (fewer than 2 distinct sources for an axis whose viability requires external evidence) or its findings contradict each other. Each fallback sub-agent fills one specific gap Codex flagged — do not re-do work Codex already covered.
+- Prefer official docs and release notes over blog posts and tutorials. Return source URLs with all external findings.
+- For every external finding (Codex's or sub-agent's), link it to the specific axis/choice it unblocks so /design can use it directly.
 - If external research contradicts what the codebase does, document both.
 
 **Add the diagnostic layer:**
