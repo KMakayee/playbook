@@ -394,10 +394,10 @@ If any step fails, **stop**, return to the relevant phase, fix the command, and 
 
 ### Success criteria
 
-- [ ] `README.md:74` and `quickref.md:47` rows are updated; `git diff` shows only those two lines changed in their respective files.
-- [ ] Both `playbook-setup.md` and `playbook-update.md` maintainer-artifact warnings include `tasks/checkpoint.md`.
-- [ ] Dogfood test steps 1–15 all pass without manual intervention. Record any deviations as inline notes in this section before marking Phase 4 complete.
-- [ ] Specifically: untracked-file capture (step 3), line-cap refusal (step 4), byte-cap refusal (step 5), index isolation (step 9), replace-mode atomicity (step 12), and the compact-cycle (step 15) — these are the load-bearing behaviors the dogfood must exercise; missing any one is a failed dogfood.
+- [x] `README.md:74` and `quickref.md:47` rows are updated; `git diff` shows only those two lines changed in their respective files.
+- [x] Both `playbook-setup.md` and `playbook-update.md` maintainer-artifact warnings include `tasks/checkpoint.md`.
+- [ ] Dogfood test steps 1–15 all pass without manual intervention. Record any deviations as inline notes in this section before marking Phase 4 complete. *(Deferred — acceptance gate is a human-driven procedure that exercises real Claude Code session boundaries and `/compact` across sessions; cannot run inside this `/implement` pass. Developer must execute before marking Task 1 done.)*
+- [ ] Specifically: untracked-file capture (step 3), line-cap refusal (step 4), byte-cap refusal (step 5), index isolation (step 9), replace-mode atomicity (step 12), and the compact-cycle (step 15) — these are the load-bearing behaviors the dogfood must exercise; missing any one is a failed dogfood. *(Deferred with the above.)*
 
 ### Post-implementation integration test (final acceptance gate)
 
