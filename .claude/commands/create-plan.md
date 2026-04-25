@@ -66,7 +66,7 @@ PART 2 — Feasibility:
 For each phase, verify against the codebase that the files, functions, and integration points referenced actually exist and behave as the plan assumes. Flag any stale references or incorrect assumptions.
 
 PART 3 — Completeness:
-Does the plan cover all acceptance criteria from the design? Are there gaps — things the design specified that the plan doesn't address? Are the success criteria for each phase actually sufficient to verify correctness?
+Are there gaps — things the design specified that the plan doesn't address (excluding acceptance-criteria coverage, which is PART 5's job)? Are the success criteria for each phase actually sufficient to verify correctness?
 
 PART 4 — Risk:
 Are there phases that could leave the codebase in a broken state if interrupted? Are there ordering dependencies the plan doesn't acknowledge? Are there scope items that should be deferred but aren't?
