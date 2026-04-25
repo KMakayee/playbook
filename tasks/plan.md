@@ -404,11 +404,11 @@ Now that nothing references the old `-codex` issue commands, remove them.
 **Files changed:** none (deletions only).
 
 **Success criteria:**
-- [ ] `test ! -f .claude/commands/issue-research-codex.md`
-- [ ] `test ! -f .claude/commands/issue-plan-review-codex.md`
-- [ ] `test ! -f .claude/commands/issue-code-review-codex.md`
-- [ ] `ls .claude/commands/issue-*.md .claude/commands/auto-issues.md | wc -l` returns `5`
-- [ ] `! grep -rn 'issue-research-codex\|issue-plan-review-codex\|issue-code-review-codex' .claude/ README.md quickref.md CLAUDE.md templates/ tasks/issues.md` (zero hits across the entire managed surface — `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/plan.md`, and `tasks/todo.md` are excluded since they document the migration itself; `tasks/todo.md:38` describes Task 6 by quoting the old command names)
+- [x] `test ! -f .claude/commands/issue-research-codex.md`
+- [x] `test ! -f .claude/commands/issue-plan-review-codex.md`
+- [x] `test ! -f .claude/commands/issue-code-review-codex.md`
+- [x] `ls .claude/commands/issue-*.md .claude/commands/auto-issues.md | wc -l` returns `5`
+- [x] `! grep -rn 'issue-research-codex\|issue-plan-review-codex\|issue-code-review-codex' .claude/ README.md quickref.md CLAUDE.md templates/ tasks/issues.md` (zero hits across the entire managed surface — `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/plan.md`, and `tasks/todo.md` are excluded since they document the migration itself; `tasks/todo.md:38` describes Task 6 by quoting the old command names)
 
 Commit: `chore: remove obsolete -codex issue command files`
 
