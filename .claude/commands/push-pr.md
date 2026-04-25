@@ -13,7 +13,7 @@ Review the status above. Then:
      3. Else derive the default branch: `git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@'` (strip the `origin/` prefix; the raw output is `origin/<default>`).
      4. If all three yield empty, ask the developer for the base.
    - **Fetch + count.** `git fetch origin <base> && git rev-list --count HEAD..origin/<base>`.
-   - **If non-zero:** stop. Tell the developer: "Branch is N commits behind `<base>`. Run `/catchup`, then re-run `/push-pr`." Do not proceed. (Cannot programmatically invoke `/catchup` — see `/checkpoint`'s `/compact` recommendation pattern.)
+   - **If non-zero:** stop. Tell the developer: "Branch is N commits behind `<base>`. Run `/catchup <base>`, then re-run `/push-pr <base>` (omit `<base>` if it matches the default)." Do not proceed. (Cannot programmatically invoke `/catchup` — see `/checkpoint`'s `/compact` recommendation pattern.)
    - **If zero:** continue.
 3. Verify the current branch has been pushed to the remote. If not (no upstream tracking branch, or local is ahead of remote), push it now.
 4. Check whether an open PR already exists for this branch:

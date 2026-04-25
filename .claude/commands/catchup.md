@@ -56,27 +56,27 @@ Run the sub-checks in the order below. The in-progress-merge check **must run be
 
 3. **Override.** If `$ARGUMENTS` was a non-empty `<base>`, skip detection and use the argument directly. Validate that `git rev-parse --verify origin/<base>` succeeds; error and stop if not (do not silently fall back to detection — explicit override should fail loudly).
 
-4. **Refuse if currently on `<default>`.** Compare `git rev-parse --abbrev-ref HEAD` against the resolved `<default>`. If equal, refuse with a one-liner — `/catchup` on `<default>` is a no-op since you are already there — and stop.
+4. **Refuse if currently on `<base>`.** Compare `git rev-parse --abbrev-ref HEAD` against the resolved `<base>`. If equal, refuse with a one-liner — `/catchup` on `<base>` is a no-op since you are already there — and stop.
 
 ---
 
 ## Step 3 — Fetch + staleness signal
 
-1. **Narrow fetch.** Run `git fetch origin <default>` — fetch only the default branch, not every remote ref.
+1. **Narrow fetch.** Run `git fetch origin <base>` — fetch only the resolved base branch, not every remote ref.
 
 2. **Ahead/behind count.** Run:
 
    ```
-   git rev-list --left-right --count HEAD...origin/<default>
+   git rev-list --left-right --count HEAD...origin/<base>
    ```
 
    The output is `<ahead>\t<behind>`. Parse both numbers.
 
 3. **Idempotent short-circuit.** If `<behind>` is `0`, report:
 
-   > "Already up to date with `origin/<default>` (ahead by `<ahead>`). No merge needed."
+   > "Already up to date with `origin/<base>` (ahead by `<ahead>`). No merge needed."
 
-   **Skip directly to Step 8** (handoff). Do not attempt a merge. Do not run validation. Idempotency is the point — re-running `/catchup` on a fresh branch should be a clean no-op.
+   **Skip directly to Step 8** (handoff). Do not attempt a merge. Do not run validation. Idempotency is the point — re-running `/catchup [<base>]` on a fresh branch should be a clean no-op.
 
 ---
 
@@ -85,7 +85,7 @@ Run the sub-checks in the order below. The in-progress-merge check **must run be
 Run:
 
 ```
-git merge origin/<default>
+git merge origin/<base>
 ```
 
 `git merge` auto-creates a merge commit when there are no conflicts, and pauses the merge in progress (with `MERGE_HEAD` written) when there are conflicts.
@@ -184,7 +184,7 @@ Report the final state in one short summary:
 
 Then **explicitly recommend** the next move:
 
-> "Branch is up to date with `origin/<default>` and verified. Run `/push-pr` for full code review, or `/push-pr-light` for a quick diff scan."
+> "Branch is up to date with `origin/<base>` and verified. Run `/push-pr` for full code review, or `/push-pr-light` for a quick diff scan."
 
 **Why recommend rather than auto-invoke:** a slash command cannot programmatically invoke another slash command — `/push-pr` and `/push-pr-light` are also markdown prompts that the agent must execute. The agent surfaces the recommendation; the developer (or the agent's next prompt) runs the chosen push command.
 
