@@ -279,10 +279,10 @@ After removal, the surrounding bullets at lines 172, 175–177 close up:
 
 **Success criteria:**
 
-- [ ] `grep -c "Sub-agents are optional" .claude/commands/implement.md` returns 0.
-- [ ] `grep -n "Sub-agents are no longer used here" .claude/commands/implement.md` still returns the line at (approximately) line 52 — preserved.
-- [ ] `grep -n "## Important notes" .claude/commands/implement.md` still returns one match.
-- [ ] No new sub-agent wording added (this phase only removes).
+- [x] `grep -c "Sub-agents are optional" .claude/commands/implement.md` returns 0.
+- [x] `grep -n "Sub-agents are no longer used here" .claude/commands/implement.md` still returns the line at (approximately) line 52 — preserved.
+- [x] `grep -n "## Important notes" .claude/commands/implement.md` still returns one match.
+- [x] No new sub-agent wording added (this phase only removes).
 
 ---
 
