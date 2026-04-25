@@ -11,6 +11,9 @@ The parent `/design` session has finalized a design decision. Study external ref
 - `tasks/design-decision.md` — design rationale and options considered
 - `tasks/research-codebase.md` — codebase patterns, conventions, and constraints
 
+## Effort calibration
+Aim for 2–3 strong sources for narrow patterns; 4–5 for cross-cutting patterns; deep-dive on the 1–2 most relevant sources when the chosen approach is novel or empirically untested. Quality over breadth — one well-studied source beats five skimmed ones.
+
 ## What to investigate
 
 ### 1. Candidate sources

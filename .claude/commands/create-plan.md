@@ -49,14 +49,17 @@ Claude leads the synthesis step — translates the chosen approach into a phased
 Run Codex against the drafted plan. Use a 10-minute timeout (600000ms) — Codex may take a while on large codebases:
 
 ```bash
-codex exec \
+codex -c model_reasoning_effort=xhigh exec \
   --sandbox read-only \
   -o tasks/codex-plan-review.tmp \
   "Review the implementation plan in tasks/plan.md against the research in tasks/research-codebase.md and the design in tasks/design-decision.md.
 
-IMPORTANT — For every finding across all parts, classify it as either:
+Effort calibration: light review for plans with ≤3 phases or ≤100 LOC of plan-specified changes; standard review for 4–7 phases or 100–500 LOC; exhaustive review for ≥8 phases or >500 LOC.
+
+IMPORTANT — For every finding across all parts, classify it with one label:
 - CORRECTION: factual error, stale reference, or contradiction with the input documents (research/design). These should be fixed, not debated.
 - TRADE-OFF: genuine design choice with viable alternatives. These need developer input.
+- RISK: something that could go wrong, fragile assumption, or interruption hazard (PART 6 stale-reference audit excluded — those are CORRECTIONS).
 Do not present corrections as open questions.
 
 PART 1 — Judgment calls:
@@ -79,6 +82,8 @@ For every file:line reference cited in the plan, verify it exists at the cited l
 
 Be specific with file paths and line numbers."
 ```
+
+Verify the output before reading: `bash .claude/scripts/codex-output-check.sh tasks/codex-plan-review.tmp 10`. If the check fails, stop and tell the developer.
 
 After Codex finishes, read `tasks/codex-plan-review.tmp` FULLY.
 

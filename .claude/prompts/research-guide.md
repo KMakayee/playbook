@@ -10,6 +10,9 @@ These accelerate file discovery. They are not scope constraints — investigate 
 
 {SEARCH_HINTS}
 
+## Effort calibration
+Calibrate sweep depth to task scope. Light sweep when the task touches ≤2 files in a single module. Standard sweep for 3–9 files. Exhaustive sweep with cross-module coverage when the task touches ≥10 files or spans multiple subsystems. Err toward exhaustive when in doubt — under-investment is the more common failure mode. (Single-call sweep — no parallel fan-out, per the design's Axis 4 = B framing.)
+
 ## What to investigate
 
 ### 1. File & Code Map
@@ -67,6 +70,13 @@ Flag anything the task requires that can't be answered from the codebase alone:
 **Audit axes for external dependencies:** Before finishing, walk every axis from §3 and check whether each choice is evaluable from codebase+spec alone. If a choice's viability depends on external knowledge (e.g., "does library X support feature Y?", "what's the behavior of API Z in version N?"), that's a mandatory external-research target — not optional. For each such gap, name which axis/choice it blocks so the downstream researcher can prioritize.
 
 For every gap above, perform the external research yourself using web search. Return source URLs with each finding and label each one with `Unblocks: Axis N, choice X`. Prefer official docs, specs, and release notes over blog posts and tutorials. If a finding contradicts what the codebase does, document both.
+
+### 7. Findings Index
+At the end of the report, list every finding from §1–§6 with its section anchor and one of these labels:
+- `CORRECTION:` factual error or contradiction the implementer must fix (e.g., wrong file path).
+- `TRADE-OFF:` a genuine choice with viable alternatives (synthesis input).
+- `RISK:` something that could go wrong (synthesis input).
+This index lets the parent /research-codebase session triage findings without re-skimming the whole report.
 
 ## How to report
 - Be exhaustive — breadth matters more than depth

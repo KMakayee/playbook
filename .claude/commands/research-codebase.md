@@ -36,7 +36,7 @@ Codex leads the exploration. It maps the codebase, enumerates the solution space
    - **Known interfaces/APIs involved:** type names, function signatures, external APIs the task touches
    - **Fixed params/constraints from prior work:** locked values, version pins, or decisions from earlier phases that the task inherits
    Only include concrete facts (paths, names, values). Do not include analysis, opinions, or suggested approaches.
-4. Replace `{TASK}` and `{SEARCH_HINTS}` in the template. Do NOT modify the investigation sections (1-6) — they stay generic.
+4. Replace `{TASK}` and `{SEARCH_HINTS}` in the template. Do NOT modify the investigation sections (1-7) — they stay generic.
 5. Write the composed prompt to `tasks/codex-prompt.tmp`.
 6. Run:
    ```bash
@@ -46,7 +46,8 @@ Codex leads the exploration. It maps the codebase, enumerates the solution space
      "$(cat tasks/codex-prompt.tmp)"
    ```
    Use a 10-minute timeout (600000ms) — Codex may take a while on large codebases.
-7. After Codex finishes, read `tasks/codex-research.tmp` FULLY.
+7. Verify the output before reading: `bash .claude/scripts/codex-output-check.sh tasks/codex-research.tmp 20`. If the check fails, stop and tell the developer.
+8. After Codex finishes, read `tasks/codex-research.tmp` FULLY.
 
 If the `codex` command is not found or fails, stop and tell the developer to fix it before proceeding.
 

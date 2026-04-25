@@ -44,8 +44,11 @@ c. **Handle mismatches:**
      The plan assumed: {brief description of the plan's premise}.
      What's actually present: {brief description of what the implementer found}.
 
-     Inspect tasks/plan.md (the original premise) and tasks/research-codebase.md (the original sweep), then sweep the current code at the cited paths. Return: actual structure and locations, what the plan assumed, and a delta description Claude can use to update the plan. Be specific with file paths and line numbers."
+     Inspect tasks/plan.md (the original premise) and tasks/research-codebase.md (the original sweep), then sweep the current code at the cited paths. Return: actual structure and locations, what the plan assumed, and a delta description Claude can use to update the plan. Be specific with file paths and line numbers.
+     Effort calibration: scope to the specific mismatch — do not sweep beyond the cited files unless the mismatch implicates a wider refactor."
      ```
+     Verify the output before reading: `bash .claude/scripts/codex-output-check.sh tasks/codex-debug-{phase}.tmp 5`. If the check fails, stop and tell the developer.
+
      Use a 10-minute timeout (600000ms). Read the output, adapt the plan, and continue. (Sub-agents are no longer used here — Codex sweeps faster on read-only structural questions, and the recursion guard at `CLAUDE.md:178` foreclosed Codex-from-inside-sub-agents anyway.)
    - **Plan premise invalidated** (the mechanism the plan specified doesn't actually work as described): document the deviation in `tasks/plan.md`, adapt while preserving the step's intent, and continue. If the deviation affects the design — not just the mechanism — STOP and revisit the plan.
    - **Tests fail after 2 fix attempts:** STOP and ask the developer for guidance.
@@ -70,10 +73,12 @@ After all phases are complete, run the full test/lint suite one final time to co
 **Run with `run_in_background` — Codex phase, may take 10+ minutes.**
 
 ```bash
-codex exec \
+codex -c model_reasoning_effort=xhigh exec \
   --sandbox read-only \
   -o tasks/codex-code-review.tmp \
   "Review the recent implementation against the plan in tasks/plan.md.
+
+Effort calibration: light review for ≤50 LOC changed; standard review for 50–300 LOC; exhaustive review for >300 LOC or any change touching critical paths flagged in tasks/research-codebase.md.
 
 PRELUDE — Cross-batch coherence (only if multi-batch):
 If tasks/plan.md flags itself as a multi-batch plan (per CLAUDE.md:124-138), inspect the prior batches' progress in plan.md (checked-off items) and the recent git log on this branch for cross-batch coherence. Evaluate whether this batch's changes contradict, duplicate, or undo prior batches' work. If the plan is single-batch, skip this section.
@@ -89,10 +94,11 @@ PART 2 — Independent code quality (evaluate on merit, regardless of what the p
 - Are established patterns and best practices being followed? Flag any anti-patterns, misused idioms, or places where a well-known pattern would be a better fit.
 - Is the chosen approach the simplest one that solves the problem? If a simpler tool, pattern, or technique would work better than what the plan prescribed, flag it — the plan is not infallible.
 
-For each finding, include: (a) the exact file path and line number(s); (b) a candidate minimal-fix sketch (raw input — Claude will triage; do not auto-apply); (c) a repro or failing-test command that demonstrates the issue, when applicable."
+For each finding, include: (a) the exact file path and line number(s); (b) a candidate minimal-fix sketch (raw input — Claude will triage; do not auto-apply); (c) a repro or failing-test command that demonstrates the issue, when applicable.
+Prefix each finding with `CORRECTION:`, `TRADE-OFF:`, or `RISK:` per the QRSPI taxonomy."
 ```
 
-**Check:** Verify `tasks/codex-code-review.tmp` exists. If missing, stop and tell the developer.
+**Check:** Verify the output: `bash .claude/scripts/codex-output-check.sh tasks/codex-code-review.tmp 10`. If the check fails, stop and tell the developer.
 
 ### 7. Triage findings
 
