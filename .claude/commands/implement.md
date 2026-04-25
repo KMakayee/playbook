@@ -34,7 +34,19 @@ b. **Implement the changes** specified for this phase. Keep changes minimal — 
 
 c. **Handle mismatches:**
    - **Minor** (function moved a few lines, variable renamed): adapt and continue.
-   - **Structural** (module reorganized, interface changed, file deleted): STOP. Re-research that specific sub-problem using a sub-agent, then adapt the plan and continue.
+   - **Structural** (module reorganized, interface changed, file deleted): STOP. Run a top-level Codex call to re-research the mismatch (replace `{phase}` with the current phase number, e.g. `tasks/codex-debug-3.tmp`):
+     ```bash
+     codex -c model_reasoning_effort=xhigh exec \
+       --sandbox read-only \
+       -o tasks/codex-debug-{phase}.tmp \
+       "Re-research a structural mismatch encountered while implementing tasks/plan.md.
+
+     The plan assumed: {brief description of the plan's premise}.
+     What's actually present: {brief description of what the implementer found}.
+
+     Inspect tasks/plan.md (the original premise) and tasks/research-codebase.md (the original sweep), then sweep the current code at the cited paths. Return: actual structure and locations, what the plan assumed, and a delta description Claude can use to update the plan. Be specific with file paths and line numbers."
+     ```
+     Use a 10-minute timeout (600000ms). Read the output, adapt the plan, and continue. (Sub-agents are no longer used here — Codex sweeps faster on read-only structural questions, and the recursion guard at `CLAUDE.md:178` foreclosed Codex-from-inside-sub-agents anyway.)
    - **Plan premise invalidated** (the mechanism the plan specified doesn't actually work as described): document the deviation in `tasks/plan.md`, adapt while preserving the step's intent, and continue. If the deviation affects the design — not just the mechanism — STOP and revisit the plan.
    - **Tests fail after 2 fix attempts:** STOP and ask the developer for guidance.
 
@@ -63,6 +75,9 @@ codex exec \
   -o tasks/codex-code-review.tmp \
   "Review the recent implementation against the plan in tasks/plan.md.
 
+PRELUDE — Cross-batch coherence (only if multi-batch):
+If tasks/plan.md flags itself as a multi-batch plan (per CLAUDE.md:124-138), inspect the prior batches' progress in plan.md (checked-off items) and the recent git log on this branch for cross-batch coherence. Evaluate whether this batch's changes contradict, duplicate, or undo prior batches' work. If the plan is single-batch, skip this section.
+
 PART 1 — Plan adherence:
 - Does the implementation match what the plan specified? Flag any deviations.
 - Were any files changed that the plan didn't call for? (Note: \`tasks/plan.md\` may be updated during implementation — checkmarks, deviation notes — do not flag this as scope drift.)
@@ -74,7 +89,7 @@ PART 2 — Independent code quality (evaluate on merit, regardless of what the p
 - Are established patterns and best practices being followed? Flag any anti-patterns, misused idioms, or places where a well-known pattern would be a better fit.
 - Is the chosen approach the simplest one that solves the problem? If a simpler tool, pattern, or technique would work better than what the plan prescribed, flag it — the plan is not infallible.
 
-For each finding, include the exact file path and line number(s)."
+For each finding, include: (a) the exact file path and line number(s); (b) a candidate minimal-fix sketch (raw input — Claude will triage; do not auto-apply); (c) a repro or failing-test command that demonstrates the issue, when applicable."
 ```
 
 **Check:** Verify `tasks/codex-code-review.tmp` exists. If missing, stop and tell the developer.
@@ -136,6 +151,7 @@ Once verified and any issues fixed, commit with message: `fix: apply code review
 Delete:
 - `tasks/codex-code-review.tmp`
 - `tasks/code-review-fixes.tmp`
+- Any `tasks/codex-debug-*.tmp` files (one per structural-mismatch Codex call, if any fired during phases)
 
 ### 11. Present results
 
