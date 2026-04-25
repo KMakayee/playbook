@@ -34,7 +34,10 @@ Claude leads the synthesis step — translates the chosen approach into a phased
    - For each phase, specify the exact files to change with line references from research.
    - Describe what changes are needed and why (traceable to the design decision).
    - Write success criteria: commands the agent can run to verify the phase works.
-   - If you encounter something unclear, stop and re-research that specific sub-problem using a sub-agent — do not guess.
+   - If you encounter something unclear, stop and re-research that specific sub-problem using a single sub-agent — do not guess. Follow `CLAUDE.md` § Sub-Agent Use, restated here for this site:
+     - Use `subagent_type: "Explore"` for code-only checks (verifying a function or file exists, reading a small section).
+     - The spawn prompt must require file:line citations and instruct the sub-agent to flag any contradictions with the plan's premise.
+     - If output lacks citations or doesn't resolve the question, the parent reads the relevant files directly to answer it — do not re-spawn.
 
 4. **Write the plan artifact** to `tasks/plan.md`. Structure the plan however best fits the task — there's no rigid template. Use Claude's native planning format. Consider including, where useful:
    - **Design decision reference** — chosen approach with pointer to `tasks/design-decision.md`
@@ -120,4 +123,4 @@ Delete `tasks/codex-plan-review.tmp`.
 - **This command produces a plan artifact — it does NOT implement anything.**
 - **The design decision is already made.** Do not revisit or re-evaluate design options — plan the execution of the chosen approach.
 - **Be skeptical of research references.** If research says a function exists at a specific line, verify it before building the plan around it. Code changes between research and planning.
-- **Sub-agents are optional** for verifying a specific function or file still exists, but MUST NOT spawn further sub-agents (recursion guard).
+- **Sub-agents:** Required when re-researching an unclear sub-problem during plan drafting (see Step 2, item 3). Otherwise not used in this command. Sub-agents MUST NOT spawn further sub-agents (recursion guard).
