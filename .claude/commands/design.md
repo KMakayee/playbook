@@ -182,16 +182,23 @@ If SKIP and a stale `tasks/research-patterns.md` exists, delete it.
 **If RUN:**
 
 1. Fill `.claude/prompts/research-patterns-guide.md` — replace `{RESEARCH_TOPIC}` with a short description of what external patterns to study (derived from the chosen approach in `## Decision`). Write to `tasks/patterns-prompt.tmp`.
-2. Spawn via Bash with `run_in_background: true`:
+2. Run Codex with `--search` (foreground, 10-minute timeout / 600000ms — matches the other QRSPI Codex calls):
 
    ```bash
-   mkdir -p tasks/logs && TIMESTAMP=$(date +%Y%m%d-%H%M) && claude -p "$(cat tasks/patterns-prompt.tmp)" --dangerously-skip-permissions > tasks/logs/patterns-research-$TIMESTAMP.log 2>&1
+   codex -c model_reasoning_effort=xhigh --search exec \
+     --sandbox read-only \
+     -o tasks/codex-patterns-research.tmp \
+     "$(cat tasks/patterns-prompt.tmp)"
    ```
 
-3. After completion, verify `tasks/research-patterns.md` exists (if missing, check the log and tell the developer). Read it FULLY. If it surfaces design-level concerns, flag them in Step 8 — do NOT edit `tasks/design-decision.md`.
+3. After Codex finishes, read `tasks/codex-patterns-research.tmp` FULLY. Spot-check a sample of source URLs (open one per finding to confirm the source exists and the claim holds).
+
+4. **Fallback (only if Codex's coverage is thin):** read the `## Coverage Assessment` section that Codex produced. Spawn Claude sub-agents in parallel — one per source gap — to deep-read individual sources if **any** of the following hold: (a) source count < 2 strong sources, (b) confidence is LOW, or (c) any source's read depth is "superficial" on a topic critical to the chosen approach. Each sub-agent fetches one source and returns a per-source findings dump. Sub-agents MUST NOT spawn further sub-agents (recursion guard at `CLAUDE.md:178`). If Codex's coverage assessment shows ≥2 strong sources at MEDIUM or HIGH confidence with no superficial reads, skip this step.
+
+5. Write `tasks/research-patterns.md` from Codex's findings (plus any sub-agent supplementation) — preserve the structure shown in the prompt template, fix any URLs that didn't hold up, and add a `## Concerns for Developer Review` section if patterns suggest revisiting the design (do NOT edit `tasks/design-decision.md`).
 
 ### 7. Clean up
-Delete `tasks/codex-design-review.tmp`, `tasks/codex-design-tiebreaker.tmp` (if it exists), and `tasks/patterns-prompt.tmp` (if it exists).
+Delete `tasks/codex-design-review.tmp`, `tasks/codex-design-tiebreaker.tmp` (if it exists), `tasks/patterns-prompt.tmp` (if it exists), and `tasks/codex-patterns-research.tmp` (if pattern research ran).
 
 ### 8. Present findings
 - Give a short summary of the final options (reflecting any updates from Codex's cross-check).

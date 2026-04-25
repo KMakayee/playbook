@@ -1,6 +1,6 @@
 # Patterns Research
 
-The parent `/design` session has finalized a design decision. Study external references — repos (production, reference, or educational), official docs, specs/RFCs, engineering blogs, research papers, reference implementations — that inform the chosen approach, and document applicable patterns. Write your output to `tasks/research-patterns.md`. Do NOT modify the design decision.
+The parent `/design` session has finalized a design decision. Study external references — repos (production, reference, or educational), official docs, specs/RFCs, engineering blogs, research papers, reference implementations — that inform the chosen approach, and document applicable patterns. Return your findings to stdout for the parent `/design` session to consume — the parent writes `tasks/research-patterns.md`. Do NOT modify the design decision.
 
 ## Research Topic
 
@@ -31,15 +31,14 @@ For each source, capture the aspects that matter for the research topic. Let the
 
 ## How to work
 
-- Use sub-agents to deep-read individual sources — each sub-agent explores one source.
-- Sub-agents MUST NOT spawn further sub-agents (recursion guard).
+- Read each source thoroughly in one pass — quality over breadth.
 - Focus on patterns, not line-by-line copying.
 - Return source URLs with all external findings.
 - If web search yields nothing useful (niche stack, novel problem), document what was searched and recommend proceeding with the design as-is.
 
-## Output
+## Output format
 
-Write to `tasks/research-patterns.md`:
+Return your findings as markdown using this structure (the parent `/design` session writes `tasks/research-patterns.md` from your output):
 
 ```markdown
 # Patterns Research: [Research Topic]
@@ -56,6 +55,11 @@ Write to `tasks/research-patterns.md`:
 ### [Source 2 — ...]
 ...
 
+## Coverage Assessment
+- **Source count:** [N strong sources / M total sources searched]
+- **Read depth per source:** [for each source, one of: deep (full read), moderate (skimmed key sections), or superficial (top-level summary only). Be honest — the parent /design session uses this signal to decide whether to spawn fallback sub-agents.]
+- **Confidence:** [HIGH / MEDIUM / LOW based on source quality, agreement across sources, and read depth]
+
 ## Synthesized Patterns
 [Cross-cutting patterns across multiple sources]
 
@@ -65,7 +69,3 @@ Write to `tasks/research-patterns.md`:
 ## Concerns for Developer Review
 [Any findings that suggest the design should be revisited — flagged only, not changed. Omit this section if there are no concerns.]
 ```
-
-## Non-interactive mode
-
-You are running as a child process — do not ask questions. Make judgment calls and proceed.
