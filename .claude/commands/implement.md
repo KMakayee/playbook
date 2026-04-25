@@ -171,7 +171,6 @@ Report with these sections:
 
 ## Important notes
 
-- **Sub-agents are optional**: Use them sparingly for targeted debugging, never for broad exploration during implementation.
 - **Triage is the key step.** The parent session decides *what* to fix. The child process decides *how*. Write precise fix instructions — vague instructions produce vague fixes.
 - Codex reviews, Claude triages, child fixes. Not everything Codex flags needs fixing — use judgment. When in doubt, flag rather than fix.
 - If `codex` or `claude` is not found or fails, stop and tell the developer to fix it before proceeding.

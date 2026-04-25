@@ -202,7 +202,13 @@ If SKIP and a stale `tasks/research-patterns.md` exists, delete it.
 
 4. After Codex finishes, read `tasks/codex-patterns-research.tmp` FULLY. Spot-check a sample of source URLs (open one per finding to confirm the source exists and the claim holds).
 
-5. **Fallback (only if Codex's coverage is thin or spot-check fails):** read the `## Coverage Assessment` section that Codex produced. Spawn Claude sub-agents in parallel — one per source gap — to deep-read individual sources if **any** of the following hold: (a) source count < 2 strong sources, (b) confidence is LOW, (c) any source's read depth is "superficial" on a topic critical to the chosen approach, or (d) the step-4 spot-check surfaced dead URLs, sources that didn't exist, or claims that didn't hold up against the cited source. Each sub-agent fetches one source and returns a per-source findings dump. Sub-agents MUST NOT spawn further sub-agents (recursion guard at `CLAUDE.md:178`). If Codex's coverage assessment shows ≥2 strong sources at MEDIUM or HIGH confidence with no superficial reads AND the step-4 spot-check passed, skip this step.
+5. **Fallback (only if Codex's coverage is thin or spot-check fails):** read the `## Coverage Assessment` section that Codex produced. Spawn Claude sub-agents to deep-read individual sources if **any** of the following hold: (a) source count < 2 strong sources, (b) confidence is LOW, (c) any source's read depth is "superficial" on a topic critical to the chosen approach, or (d) the step-4 spot-check surfaced dead URLs, sources that didn't exist, or claims that didn't hold up against the cited source. If Codex's coverage assessment shows ≥2 strong sources at MEDIUM or HIGH confidence with no superficial reads AND the step-4 spot-check passed, skip this step.
+
+   When spawning, follow `CLAUDE.md` § Sub-Agent Use restated for this site:
+   - One sub-agent per source gap (split test specialized to source-count). When spawning ≥2, send all `Agent` calls in a single message.
+   - Use the default/general-purpose subagent type so web fetches work — `Explore` is read-only and lacks web tools.
+   - Each spawn prompt must require source URLs in the per-source findings dump and instruct the sub-agent to flag contradictions with Codex's coverage assessment.
+   - If output lacks URLs or contradicts Codex, the parent reads the relevant sources directly to fill the gap — do not re-spawn. Sub-agents MUST NOT spawn further sub-agents (recursion guard at `CLAUDE.md:178`).
 
 6. Write `tasks/research-patterns.md` from Codex's findings (plus any sub-agent supplementation) — preserve the structure shown in the prompt template, fix any URLs that didn't hold up, and add a `## Concerns for Developer Review` section if patterns suggest revisiting the design (do NOT edit `tasks/design-decision.md`).
 
@@ -223,4 +229,4 @@ Delete `tasks/codex-design-review.tmp`, `tasks/codex-design-tiebreaker.tmp` (if 
 
 ## Important notes
 - **No implementation details.** Specific code and file-level changes belong in the plan phase.
-- **Sub-agents are optional** for deep research on a specific technical question, but MUST NOT spawn further sub-agents (recursion guard).
+- **Sub-agents:** Required for the pattern-research fallback when the Step 6 trigger conditions hold (see Step 6, item 5). Otherwise not used in this command. Sub-agents MUST NOT spawn further sub-agents (recursion guard).

@@ -177,6 +177,15 @@ When compacting:
 
 **Recursion guard:** Sub-agents MUST NOT spawn further sub-agents or follow QRSPI. They are leaf tasks: read, search, and report.
 
+## Sub-Agent Use
+
+When spawning sub-agents in QRSPI commands:
+
+- **Split test:** Spawn N sub-agents only if you can write N independent prompts where each result is usable without the others. If a gap can't be split this way, use one sub-agent.
+- **Batch parallel calls:** When spawning ≥2 sub-agents, send all `Agent` calls in a single message (one tool-use batch). "In parallel" alone is not enough — explicit batching is the steering signal.
+- **Acceptance contract:** Each spawn prompt must require file:line citations (for code reads) or source URLs (for web reads), and must instruct the sub-agent to flag any contradictions with prior findings.
+- **Parent-only fallback:** If output is missing citations/URLs or contradicts prior findings, the parent reads the relevant files/sources directly to fill the gap. Do not re-spawn for the same gap (recursion guard at `CLAUDE.md:178`).
+
 ---
 
 <important if="completing a task">

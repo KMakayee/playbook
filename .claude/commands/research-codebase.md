@@ -66,14 +66,19 @@ Claude reads Codex's raw findings and adds the analytical layer. Do NOT duplicat
 - If an axis seems thin (fewer than 2 real choices, or choices not grounded in codebase/spec), either drop it or flag it as a gap to fill below.
 
 **Fill the gaps Codex left:**
-- Spawn sub-agents to investigate areas where Codex's findings are thin, ambiguous, or where connections are missing.
-- Keep sub-agents focused and parallel — each explores one specific gap.
+- Spawn one Agent per *independent* gap — independent means each gap's prompt and result must be usable without the others (split test, see `CLAUDE.md` § Sub-Agent Use).
+- When spawning ≥2 sub-agents, send all `Agent` calls in a single message. Use `subagent_type: "Explore"` for code-only gaps.
+- Each spawn prompt must require file:line citations and instruct the sub-agent to flag any contradictions with Codex's findings.
+- If output lacks citations or contradicts Codex, reject it: the parent reads the relevant files directly to fill the gap — do not re-spawn for the same gap.
 
 **Research beyond the codebase:**
 - **Audit axes for external dependencies first:** Walk every axis in the synthesized artifact. For each choice, ask: is its viability fully evaluable from codebase+spec alone? If not (e.g., "does PGlite support GENERATED STORED columns?", "what's the protocol behavior in version N?"), external research is required — not optional. Do not park these as risks; they block axis evaluation in /design.
 - **Codex's broad sweep already did the first pass** — `--search` was enabled, so its §6 "External Research" output should contain source URLs and `Unblocks: Axis N, choice X` labels. Inspect this section in `tasks/codex-research.tmp` before spawning any sub-agents.
-- **Spawn web research sub-agents only as a fallback** when an external-research gap remains after Codex's first pass — either because Codex's coverage is thin (fewer than 2 distinct sources for an axis whose viability requires external evidence), its findings contradict each other, or the axis audit (line above) surfaced a gap Codex didn't address. Each fallback sub-agent fills one specific unresolved gap — do not re-do work Codex already covered.
+- **Spawn web research sub-agents only as a fallback** when an external-research gap remains after Codex's first pass — either Codex's coverage is thin (fewer than 2 distinct sources for an axis whose viability requires external evidence), its findings contradict each other, or the axis audit surfaced a gap Codex didn't address.
+- One sub-agent per unresolved source gap (split test, see `CLAUDE.md` § Sub-Agent Use). When spawning ≥2, send all `Agent` calls in a single message.
+- Use the default/general-purpose subagent type so web fetches work — `Explore` is read-only and lacks web tools. Do not re-do work Codex already covered.
 - Prefer official docs and release notes over blog posts and tutorials. Return source URLs with all external findings.
+- Each spawn prompt must require source URLs and instruct the sub-agent to flag contradictions with Codex's findings. If output lacks URLs or contradicts Codex, the parent reads the relevant sources directly to fill the gap — do not re-spawn.
 - For every external finding (Codex's or sub-agent's), link it to the specific axis/choice it unblocks so /design can use it directly.
 - If external research contradicts what the codebase does, document both.
 
@@ -156,7 +161,8 @@ Delete `tasks/codex-prompt.tmp` and `tasks/codex-research.tmp`.
 ### 8. Handle follow-up questions
 - If the user has follow-up questions, append to the same research document.
 - Add a new section: `## Follow-up Research [timestamp]`
-- Spawn new sub-agents as needed for additional investigation.
+- Spawn new sub-agents as needed for additional investigation — one Agent per *independent* follow-up gap (split test, see `CLAUDE.md` § Sub-Agent Use). When spawning ≥2, send all `Agent` calls in a single message; use `subagent_type: "Explore"` for code-only follow-ups, default/general-purpose for follow-ups requiring web fetches.
+- Each spawn prompt must require file:line citations (or source URLs for web reads) and instruct the sub-agent to flag contradictions with prior findings. If output lacks citations/URLs or contradicts prior findings, the parent reads the relevant file/source directly to fill the gap — do not re-spawn.
 
 ---
 
