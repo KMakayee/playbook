@@ -133,16 +133,16 @@ Overwrite `.claude/commands/issue-plan.md` with a content rewrite. Keep the file
 **Files changed:** `.claude/commands/issue-plan.md` (overwrite).
 
 **Success criteria:**
-- [ ] `grep -q 'model_reasoning_effort=xhigh' .claude/commands/issue-plan.md`
-- [ ] `grep -q 'codex-output-check.sh' .claude/commands/issue-plan.md`
-- [ ] `grep -q 'CORRECTION' .claude/commands/issue-plan.md && grep -q 'TRADE-OFF' .claude/commands/issue-plan.md && grep -q 'RISK' .claude/commands/issue-plan.md`
-- [ ] `grep -q 'tasks/deferred.md' .claude/commands/issue-plan.md` (deferred-item handling carried)
-- [ ] `grep -q 'In Review' .claude/commands/issue-plan.md` (final status setter)
-- [ ] `grep -q 'tasks/codex-issue-plan-review-\$ARGUMENTS\.tmp' .claude/commands/issue-plan.md`
-- [ ] `grep -q '600000' .claude/commands/issue-plan.md`
-- [ ] `! grep -q '## Review (Resolved)' .claude/commands/issue-plan.md` (in-place absorption — no marker output)
-- [ ] `grep -q 'Recommended Approach' .claude/commands/issue-plan.md` (consumes from research artifact)
-- [ ] `grep -q 'PART 1' .claude/commands/issue-plan.md && grep -q 'PART 6' .claude/commands/issue-plan.md` (full QRSPI Codex prompt)
+- [x] `grep -q 'model_reasoning_effort=xhigh' .claude/commands/issue-plan.md`
+- [x] `grep -q 'codex-output-check.sh' .claude/commands/issue-plan.md`
+- [x] `grep -q 'CORRECTION' .claude/commands/issue-plan.md && grep -q 'TRADE-OFF' .claude/commands/issue-plan.md && grep -q 'RISK' .claude/commands/issue-plan.md`
+- [x] `grep -q 'tasks/deferred.md' .claude/commands/issue-plan.md` (deferred-item handling carried)
+- [x] `grep -q 'In Review' .claude/commands/issue-plan.md` (final status setter)
+- [x] `grep -q 'tasks/codex-issue-plan-review-\$ARGUMENTS\.tmp' .claude/commands/issue-plan.md`
+- [x] `grep -q '600000' .claude/commands/issue-plan.md`
+- [x] `! grep -q '## Review (Resolved)' .claude/commands/issue-plan.md` (in-place absorption — no marker output)
+- [x] `grep -q 'Recommended Approach' .claude/commands/issue-plan.md` (consumes from research artifact)
+- [x] `grep -q 'PART 1' .claude/commands/issue-plan.md && grep -q 'PART 6' .claude/commands/issue-plan.md` (full QRSPI Codex prompt)
 
 Commit: `feat(issue-plan): integrate Codex review, mirror /create-plan`
 
