@@ -267,9 +267,9 @@ Add `tasks/checkpoint.md` to the scanned set. Update the bullet list (currently 
 
 ### Success criteria
 
-- [ ] `grep -n "tasks/checkpoint.md" .claude/commands/finish.md` matches in step 3's cleanup list.
-- [ ] `grep -n "tasks/checkpoint.md" .claude/commands/playbook-audit.md` matches in Step 4's scan list.
-- [ ] No other lines in either file changed (surgical edits — `git diff` confirms scope).
+- [x] `grep -n "tasks/checkpoint.md" .claude/commands/finish.md` matches in step 3's cleanup list.
+- [x] `grep -n "tasks/checkpoint.md" .claude/commands/playbook-audit.md` matches in Step 4's scan list.
+- [x] No other lines in either file changed (surgical edits — `git diff` confirms scope).
 
 ---
 

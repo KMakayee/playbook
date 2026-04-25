@@ -56,6 +56,7 @@ Check for these files in `tasks/`:
 - `tasks/design-decision.md`
 - `tasks/research-patterns.md`
 - `tasks/plan.md`
+- `tasks/checkpoint.md`
 - Any `tasks/plan-issue-*.md` files (issue-specific plans)
 - Any `tasks/research-issue-*.md` files (issue research artifacts)
 

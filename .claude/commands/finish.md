@@ -27,7 +27,7 @@ Wrap up the current task: mark it done and commit everything including QRSPI art
    - Push to the current branch.
 
 3. **Clean up QRSPI artifacts (local commit, no push):**
-   - After the push in step 2 succeeds, `git rm` whichever of these exist: `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, `tasks/plan.md`.
+   - After the push in step 2 succeeds, `git rm` whichever of these exist: `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, `tasks/plan.md`, `tasks/checkpoint.md`.
    - Commit the deletions with a message of the form `chore: clean up QRSPI artifacts for <subject>` — reuse the subject from step 2's commit so the pair is easy to correlate in history.
    - **Do not push this commit.** It rides on the next task's push, keeping `/finish` to a single push.
    - If no artifacts exist, skip this step entirely.
