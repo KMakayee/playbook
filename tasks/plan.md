@@ -241,13 +241,13 @@ Replace with (Axis 8 = Choice 2, conditional):
 
 **Success criteria:**
 
-- [ ] `grep -n "CLAUDE.md § Sub-Agent Use" .claude/commands/create-plan.md` returns one match.
-- [ ] `grep -c "subagent_type: \"Explore\"" .claude/commands/create-plan.md` returns 1 (code-only type assignment).
-- [ ] `grep -c "flag any contradictions\|flag contradictions" .claude/commands/create-plan.md` returns 1 (acceptance contract at the spawn site).
-- [ ] `grep -c "to answer it" .claude/commands/create-plan.md` returns 1 (parent-fallback target at this site — phrased as "answer the question" since the trigger is "unclear sub-problem").
-- [ ] `grep -c "Sub-agents are optional" .claude/commands/create-plan.md` returns 0.
-- [ ] `grep -n "Sub-agents:" .claude/commands/create-plan.md` returns the new conditional in `## Important notes`.
-- [ ] No "single message" / batch wording present (single-agent site, per design Axis 3 = Choice 4 at this site).
+- [x] `grep -n "CLAUDE.md § Sub-Agent Use" .claude/commands/create-plan.md` returns one match.
+- [x] `grep -c "subagent_type: \"Explore\"" .claude/commands/create-plan.md` returns 1 (code-only type assignment).
+- [x] `grep -c "flag any contradictions\|flag contradictions" .claude/commands/create-plan.md` returns 1 (acceptance contract at the spawn site).
+- [x] `grep -c "to answer it" .claude/commands/create-plan.md` returns 1 (parent-fallback target at this site — phrased as "answer the question" since the trigger is "unclear sub-problem").
+- [x] `grep -c "Sub-agents are optional" .claude/commands/create-plan.md` returns 0.
+- [x] `grep -n "Sub-agents:" .claude/commands/create-plan.md` returns the new conditional in `## Important notes`.
+- [x] No "single message" / batch wording present (single-agent site, per design Axis 3 = Choice 4 at this site).
 
 ---
 
