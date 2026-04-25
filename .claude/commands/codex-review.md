@@ -99,7 +99,15 @@ b. **Offer opt-in triage** at the end of the same response, with phrasing along 
      - **noise** — false positive, didn't survive deeper verification, or subjective style.
   4. Adds a one-line recommendation per finding ("would apply this," "would skip — Codex misread the API," "needs your call — both directions are defensible").
 
-  Present the triaged view. Do NOT apply any changes — even on **apply** items, the developer drives action. This preserves the shortcut framing of the command. If the developer asks Claude in a follow-up turn to apply a specific finding, that's a separate request outside this command.
+  Present a **recommend-only view** — the triage labels are computed internally but the output is filtered to the items worth surfacing:
+
+  - **Recommendations** — list each **apply** finding as an actual recommendation Claude is willing to defend, with the one-line direction inline. These are the items Claude believes are worth acting on.
+  - **Needs your input** — list each **judgment call** finding under this subsection; defensible alternatives exist and the developer should weigh in. Include the one-line "needs your call — both directions are defensible" framing.
+  - **Filtered as noise** — collapse to a count only (e.g., *"3 findings filtered as noise — say `show all` to see them"*). Do NOT enumerate noise items by default.
+
+  If the developer asks for `show all` (or equivalent — "show noise," "list them") in a follow-up turn, present the noise items with their one-line "would skip — ..." recommendations. Otherwise, the noise bucket stays collapsed.
+
+  Do NOT apply any changes — even on **apply** items, the developer drives action. This preserves the shortcut framing of the command. If the developer asks Claude in a follow-up turn to apply a specific finding, that's a separate request outside this command.
 
   The triage view is pure conversation — no temp file is written for it, no artifact is mutated.
 
