@@ -137,15 +137,15 @@ Do **not** edit lines 163–168 (the `## Important notes` block in `research-cod
 
 **Success criteria:**
 
-- [ ] `grep -n "CLAUDE.md § Sub-Agent Use" .claude/commands/research-codebase.md` returns three matches (one per spawn site: gap-fill, external, follow-up).
-- [ ] `grep -c "single message" .claude/commands/research-codebase.md` returns 3.
-- [ ] `grep -c "do not re-spawn" .claude/commands/research-codebase.md` returns 3.
-- [ ] `grep -c "flag contradictions\|flag any contradictions" .claude/commands/research-codebase.md` returns at least 3 (one per spawn site).
-- [ ] `grep -c "to fill the gap" .claude/commands/research-codebase.md` returns at least 3 (the parent-fallback target wording).
-- [ ] Type assignment present at code-only sites: `grep -c "subagent_type: \"Explore\"" .claude/commands/research-codebase.md` returns at least 2 (gap-fill, follow-up).
-- [ ] Type assignment present at web-fetch sites: `grep -c "default/general-purpose" .claude/commands/research-codebase.md` returns at least 2 (external-research, follow-up).
-- [ ] `grep -n "Sub-agents MUST NOT spawn further sub-agents" .claude/commands/research-codebase.md` still returns the recursion-guard line at the (now-shifted) "Important notes" position (verify it's preserved).
-- [ ] Each per-site restatement is ≤ 6 lines long (visual inspection during implementation).
+- [x] `grep -n "CLAUDE.md § Sub-Agent Use" .claude/commands/research-codebase.md` returns three matches (one per spawn site: gap-fill, external, follow-up).
+- [x] `grep -c "single message" .claude/commands/research-codebase.md` returns 3.
+- [x] `grep -c "do not re-spawn" .claude/commands/research-codebase.md` returns 3.
+- [x] `grep -c "flag contradictions\|flag any contradictions" .claude/commands/research-codebase.md` returns at least 3 (one per spawn site).
+- [x] `grep -c "to fill the gap" .claude/commands/research-codebase.md` returns at least 3 (the parent-fallback target wording).
+- [x] Type assignment present at code-only sites: `grep -c "subagent_type: \"Explore\"" .claude/commands/research-codebase.md` returns at least 2 (gap-fill, follow-up).
+- [x] Type assignment present at web-fetch sites: `grep -c "default/general-purpose" .claude/commands/research-codebase.md` returns at least 2 (external-research, follow-up).
+- [x] `grep -n "Sub-agents MUST NOT spawn further sub-agents" .claude/commands/research-codebase.md` still returns the recursion-guard line at the (now-shifted) "Important notes" position (verify it's preserved).
+- [x] Each per-site restatement is ≤ 6 lines long (visual inspection during implementation).
 
 ---
 
