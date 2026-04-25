@@ -72,6 +72,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 | `/push-pr` | Push, open PR, full code review, conditional merge |
 | `/push-pr-light` | Push, open PR, light diff review, conditional merge |
 | `/checkpoint` | Save current work state to `tasks/checkpoint.md` |
+| `/codex-review` | One-shot Codex second-opinion pass over a file, diff, artifact, or freeform target |
 | `/finish` | Wrap up task: verify, commit artifacts, clean up |
 
 ### Templates
