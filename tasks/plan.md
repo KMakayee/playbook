@@ -191,16 +191,16 @@ Replace with (Axis 8 = Choice 2, conditional required/forbidden):
 
 **Success criteria:**
 
-- [ ] `grep -n "CLAUDE.md § Sub-Agent Use" .claude/commands/design.md` returns one match (in the Step 6 fallback block).
-- [ ] `grep -c "single message" .claude/commands/design.md` returns 1.
-- [ ] `grep -c "do not re-spawn" .claude/commands/design.md` returns 1.
-- [ ] `grep -c "default/general-purpose" .claude/commands/design.md` returns 1 (web-fetch type assignment).
-- [ ] `grep -c "flag contradictions" .claude/commands/design.md` returns 1 (acceptance contract).
-- [ ] `grep -c "to fill the gap" .claude/commands/design.md` returns 1 (parent-fallback target wording).
-- [ ] `grep -c "Sub-agents are optional" .claude/commands/design.md` returns 0.
-- [ ] `grep -n "Sub-agents:" .claude/commands/design.md` returns the new conditional line in `## Important notes`.
-- [ ] Trigger conditions (a)–(d) at the fallback site are preserved verbatim.
-- [ ] Recursion-guard reference (`CLAUDE.md:178`) still appears in the fallback block.
+- [x] `grep -n "CLAUDE.md § Sub-Agent Use" .claude/commands/design.md` returns one match (in the Step 6 fallback block).
+- [x] `grep -c "single message" .claude/commands/design.md` returns 1.
+- [x] `grep -c "do not re-spawn" .claude/commands/design.md` returns 1.
+- [x] `grep -c "default/general-purpose" .claude/commands/design.md` returns 1 (web-fetch type assignment).
+- [x] `grep -c "flag contradictions" .claude/commands/design.md` returns 1 (acceptance contract).
+- [x] `grep -c "to fill the gap" .claude/commands/design.md` returns 1 (parent-fallback target wording).
+- [x] `grep -c "Sub-agents are optional" .claude/commands/design.md` returns 0.
+- [x] `grep -n "Sub-agents:" .claude/commands/design.md` returns the new conditional line in `## Important notes`.
+- [x] Trigger conditions (a)–(d) at the fallback site are preserved verbatim.
+- [x] Recursion-guard reference (`CLAUDE.md:178`) still appears in the fallback block.
 
 ---
 
