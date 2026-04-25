@@ -69,8 +69,9 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 | Command | Purpose |
 |---|---|
 | `/commit` | Stage, commit, and push to current branch |
-| `/push-pr` | Push, open PR, full code review, conditional merge |
-| `/push-pr-light` | Push, open PR, light diff review, conditional merge |
+| `/push-pr` | Push, open PR, full code review, squash-merge by default |
+| `/push-pr-light` | Push, open PR, light diff review, squash-merge by default |
+| `/catchup` | Catch a feature branch up to its default base — fetch, merge, surface conflicts, run validation, recommend `/push-pr` |
 | `/checkpoint` | Save / resume / discard work state in `tasks/checkpoint.md` (commits on save, consumes on resume) |
 | `/codex-review` | One-shot Codex second-opinion pass over a file, diff, artifact, or freeform target |
 | `/finish` | Wrap up task: verify, commit artifacts, clean up |

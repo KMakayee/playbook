@@ -42,8 +42,9 @@
 |-----------------|----------------------------------------------------------------------------------|
 | `/finish`       | Wrap up task: mark done, commit everything including QRSPI artifacts             |
 | `/commit`       | Stage, commit, and push to current branch                                        |
-| `/push-pr`      | Push, open PR, code review, and merge if passing                                 |
-| `/push-pr-light`| Push, open PR, light diff review, and merge if passing                           |
+| `/push-pr`      | Push, open PR, code review, squash-merge if passing                              |
+| `/push-pr-light`| Push, open PR, light diff review, squash-merge if passing                        |
+| `/catchup`      | Catch a feature branch up to its default base — fetch, merge, surface conflicts  |
 | `/checkpoint`   | Save / resume / discard work state in `tasks/checkpoint.md` (auto-detects QRSPI phase + cursor) |
 | `/codex-review` | One-shot Codex second-opinion pass over a file, diff, artifact, or freeform target |
 | `/simplify`     | Review changed code for reuse, quality, and efficiency (built-in)                |
