@@ -190,17 +190,17 @@ Overwrite `.claude/commands/issue-implement.md` with a content rewrite. Keep the
 **Files changed:** `.claude/commands/issue-implement.md` (overwrite).
 
 **Success criteria:**
-- [ ] `grep -q 'model_reasoning_effort=xhigh' .claude/commands/issue-implement.md`
-- [ ] `grep -q 'run_in_background' .claude/commands/issue-implement.md`
-- [ ] `grep -q 'codex-output-check.sh' .claude/commands/issue-implement.md`
-- [ ] `grep -q 'tasks/code-review-fixes-issue-\$ARGUMENTS\.tmp' .claude/commands/issue-implement.md`
-- [ ] `grep -q 'tasks/codex-issue-code-review-\$ARGUMENTS\.tmp' .claude/commands/issue-implement.md`
-- [ ] `grep -q -- '--dangerously-skip-permissions' .claude/commands/issue-implement.md`
-- [ ] `grep -q 'In Progress' .claude/commands/issue-implement.md && grep -q 'Implemented' .claude/commands/issue-implement.md`
-- [ ] `grep -q 'CORRECTION:' .claude/commands/issue-implement.md && grep -q 'TRADE-OFF:' .claude/commands/issue-implement.md && grep -q 'RISK:' .claude/commands/issue-implement.md`
-- [ ] `grep -q 'Acceptance' .claude/commands/issue-implement.md` (acceptance-criteria PART carried from old issue-code-review-codex)
-- [ ] `grep -q 'tasks/logs/code-review-fixes-issue-\$ARGUMENTS' .claude/commands/issue-implement.md`
-- [ ] `grep -q '600000' .claude/commands/issue-implement.md`
+- [x] `grep -q 'model_reasoning_effort=xhigh' .claude/commands/issue-implement.md`
+- [x] `grep -q 'run_in_background' .claude/commands/issue-implement.md`
+- [x] `grep -q 'codex-output-check.sh' .claude/commands/issue-implement.md`
+- [x] `grep -q 'tasks/code-review-fixes-issue-\$ARGUMENTS\.tmp' .claude/commands/issue-implement.md`
+- [x] `grep -q 'tasks/codex-issue-code-review-\$ARGUMENTS\.tmp' .claude/commands/issue-implement.md`
+- [x] `grep -q -- '--dangerously-skip-permissions' .claude/commands/issue-implement.md`
+- [x] `grep -q 'In Progress' .claude/commands/issue-implement.md && grep -q 'Implemented' .claude/commands/issue-implement.md`
+- [x] `grep -q 'CORRECTION:' .claude/commands/issue-implement.md && grep -q 'TRADE-OFF:' .claude/commands/issue-implement.md && grep -q 'RISK:' .claude/commands/issue-implement.md`
+- [x] `grep -q 'Acceptance' .claude/commands/issue-implement.md` (acceptance-criteria PART carried from old issue-code-review-codex)
+- [x] `grep -q 'tasks/logs/code-review-fixes-issue-\$ARGUMENTS' .claude/commands/issue-implement.md`
+- [x] `grep -q '600000' .claude/commands/issue-implement.md`
 
 Commit: `feat(issue-implement): integrate Codex code review + child-process apply, mirror /implement`
 
