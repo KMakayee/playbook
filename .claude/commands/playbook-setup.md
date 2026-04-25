@@ -139,7 +139,7 @@ After all sections are filled:
 1. Print a summary of what was filled
 2. Remind the developer: *"Review the full CLAUDE.md to make sure everything reads well together. You can always edit it manually later."*
 3. If the project doesn't have the `templates/` directory or `quickref.md`, mention that they should copy those from the playbook repo as well
-4. **Verify maintainer artifacts were removed.** Check whether `tasks/todo.md`, `tasks/errors.md`, or `tasks/issues.md` exist. These ship with the playbook repo as the maintainer's working artifacts and should have been cleared by `rm -rf tasks` in the README install flow. If any are present, warn the developer: *"Found `tasks/[filename]` — this may be a leftover from the playbook maintainer's working state. Review the contents; if they're not yours, remove them before starting your own work."* Do not exit setup without surfacing this check.
+4. **Verify maintainer artifacts were removed.** Check whether `tasks/todo.md`, `tasks/errors.md`, `tasks/issues.md`, or `tasks/checkpoint.md` exist. These ship with the playbook repo as the maintainer's working artifacts and should have been cleared by `rm -rf tasks` in the README install flow. If any are present, warn the developer: *"Found `tasks/[filename]` — this may be a leftover from the playbook maintainer's working state. Review the contents; if they're not yours, remove them before starting your own work."* Do not exit setup without surfacing this check.
 5. Mention that QRSPI commands will create artifacts in `tasks/` as you work (`research-codebase.md`, `design-decision.md`, `research-patterns.md`, `plan.md`). The `tasks/` directory is tracked in git so working state is versioned — add it to `.gitignore` if you prefer to keep it local only.
 
 ---
