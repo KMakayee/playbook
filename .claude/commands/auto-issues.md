@@ -28,7 +28,7 @@ Use `$TIMESTAMP` in all log filenames below so re-runs don't overwrite previous 
 **Run with `run_in_background` — Codex phase, may take 10+ minutes.**
 
 ```bash
-claude -p "Read .claude/commands/issue-research-codex.md and follow its instructions exactly for issue #$ARGUMENTS. You are running non-interactively — do not ask questions, make reasonable choices and proceed." --dangerously-skip-permissions > tasks/logs/auto-issue-$ARGUMENTS-1-research-$TIMESTAMP.log 2>&1
+claude -p "Read .claude/commands/issue-research.md and follow its instructions exactly for issue #$ARGUMENTS. You are running non-interactively — do not ask questions, make reasonable choices and proceed." --dangerously-skip-permissions > tasks/logs/auto-issue-$ARGUMENTS-1-research-$TIMESTAMP.log 2>&1
 ```
 
 **Check:** Verify `tasks/research-issue-$ARGUMENTS.md` exists. If missing, report failure and stop.
@@ -37,7 +37,7 @@ Report: "Phase 1 complete — research artifact written."
 
 ### Phase 2: Plan
 
-**Timeout: 600000ms.**
+**Run with `run_in_background` — Codex phase, may take 10+ minutes.**
 
 ```bash
 claude -p "Read .claude/commands/issue-plan.md and follow its instructions exactly for issue #$ARGUMENTS. You are running non-interactively — do not ask questions or wait for approval. Make reasonable choices and proceed." --dangerously-skip-permissions > tasks/logs/auto-issue-$ARGUMENTS-2-plan-$TIMESTAMP.log 2>&1
@@ -47,99 +47,43 @@ claude -p "Read .claude/commands/issue-plan.md and follow its instructions exact
 
 Report: "Phase 2 complete — plan artifact written."
 
-### Phase 3: Plan Review
-
-**Run with `run_in_background` — Codex phase, may take 10+ minutes.**
-
-```bash
-claude -p "Read .claude/commands/issue-plan-review-codex.md and follow its instructions exactly for issue #$ARGUMENTS. You are running non-interactively — do not ask questions. Complete the review and append findings to tasks/plan-issue-$ARGUMENTS.md." --dangerously-skip-permissions > tasks/logs/auto-issue-$ARGUMENTS-3-review-$TIMESTAMP.log 2>&1
-```
-
-**Check:** Verify `tasks/plan-issue-$ARGUMENTS.md` contains a `## Review` section. If missing, report failure and stop.
-
-Report: "Phase 3 complete — plan reviewed."
-
-### Phase 4: Apply Review
-
-**Timeout: 600000ms.**
-
-```bash
-claude -p "Read tasks/plan-issue-$ARGUMENTS.md and its ## Review section. Then:
-1. Evaluate and apply: For each CORRECTION and TRADE-OFF, verify it against the codebase. Apply all necessary fixes to the plan.
-2. Defer out-of-scope items: For any findings that are outside the scope of issue #$ARGUMENTS, append to tasks/deferred.md using the format from templates/deferred.md, grouped under issue #$ARGUMENTS.
-3. Mark review as resolved: Change the ## Review heading to ## Review (Resolved).
-4. Verify the plan: Re-read tasks/plan-issue-$ARGUMENTS.md and confirm all applied fixes are reflected, no orphaned stale references remain, and the plan is internally consistent.
-You are running non-interactively — do not ask questions." --dangerously-skip-permissions > tasks/logs/auto-issue-$ARGUMENTS-4-apply-review-$TIMESTAMP.log 2>&1
-```
-
-**Check:** Verify `tasks/plan-issue-$ARGUMENTS.md` contains `## Review (Resolved)`. If missing, report failure and stop.
-
-Report: "Phase 4 complete — review corrections applied, trade-offs deferred."
-
-### Phase 5: Implement
+### Phase 3: Implement
 
 **Run with `run_in_background` — implementation may take 10+ minutes.**
 
 ```bash
-claude -p "Read .claude/commands/issue-implement.md and follow its instructions exactly for issue #$ARGUMENTS. You are running non-interactively — the plan is approved, proceed with implementation. Do not ask questions. If you hit a structural mismatch, adapt and continue." --dangerously-skip-permissions > tasks/logs/auto-issue-$ARGUMENTS-5-implement-$TIMESTAMP.log 2>&1
+claude -p "Read .claude/commands/issue-implement.md and follow its instructions exactly for issue #$ARGUMENTS. You are running non-interactively — the plan is approved, proceed with implementation. Do not ask questions. If you hit a structural mismatch, adapt and continue." --dangerously-skip-permissions > tasks/logs/auto-issue-$ARGUMENTS-3-implement-$TIMESTAMP.log 2>&1
 ```
 
 **Check:** Verify issue #$ARGUMENTS status is `Implemented` in `tasks/issues.md`. If not, check the log and report what happened.
 
-Report: "Phase 5 complete — implementation done."
+Report: "Phase 3 complete — implementation done, code reviewed, fixes applied."
 
-### Phase 6: Code Review
-
-**Run with `run_in_background` — Codex phase, may take 10+ minutes.**
-
-```bash
-claude -p "Read .claude/commands/issue-code-review-codex.md and follow its instructions exactly for issue #$ARGUMENTS. You are running non-interactively — do not ask questions. Complete the review." --dangerously-skip-permissions > tasks/logs/auto-issue-$ARGUMENTS-6-code-review-$TIMESTAMP.log 2>&1
-```
-
-**Check:** Verify `tasks/codex-issue-code-review-$ARGUMENTS.tmp` exists. If missing, report failure and stop.
-
-Report: "Phase 6 complete — code reviewed."
-
-### Phase 7: Apply Code Review
-
-**Run with `run_in_background` — may run end-to-end tests, can take 10+ minutes.**
-
-```bash
-claude -p "Read tasks/codex-issue-code-review-$ARGUMENTS.tmp (the code review findings) and tasks/plan-issue-$ARGUMENTS.md for context on issue #$ARGUMENTS. Then:
-1. Evaluate findings: Apply all necessary fixes — bugs, missing acceptance criteria, and genuine simplification wins.
-2. Run live tests if necessary: If the issue involves user-facing behavior, UI, API endpoints, or anything that unit tests alone cannot verify — run the application end-to-end to confirm the issue is actually solved. If the issue is purely internal (refactor, config, tooling), unit tests are sufficient.
-3. Verify: Re-read issue #$ARGUMENTS from tasks/issues.md and confirm every acceptance criterion is met. Also confirm that each code review fix from step 1 was applied correctly.
-4. Commit fixes: If changes were made, commit with a message like 'fix(#$ARGUMENTS): apply code review revisions'.
-You are running non-interactively — do not ask questions." --dangerously-skip-permissions > tasks/logs/auto-issue-$ARGUMENTS-7-apply-code-review-$TIMESTAMP.log 2>&1
-```
-
-Report: "Phase 7 complete — code review revisions applied."
-
-### Phase 8: Update
+### Phase 4: Update
 
 **Timeout: 600000ms.**
 
 ```bash
-claude -p "Read .claude/commands/issue-update.md and follow its instructions exactly for issue #$ARGUMENTS. You are running non-interactively — do not ask questions." --dangerously-skip-permissions > tasks/logs/auto-issue-$ARGUMENTS-8-update-$TIMESTAMP.log 2>&1
+claude -p "Read .claude/commands/issue-update.md and follow its instructions exactly for issue #$ARGUMENTS. You are running non-interactively — do not ask questions." --dangerously-skip-permissions > tasks/logs/auto-issue-$ARGUMENTS-4-update-$TIMESTAMP.log 2>&1
 ```
 
 **Check:** Verify issue #$ARGUMENTS status is `Done` in `tasks/issues.md`. If not, check the log and report what happened.
 
-Report: "Phase 8 complete — related issues updated, issue marked Done."
+Report: "Phase 4 complete — related issues updated, issue marked Done."
 
-### Phase 9: Commit & Push
+### Phase 5: Commit & Push
 
 **Timeout: 600000ms.**
 
 ```bash
-claude -p "Read .claude/commands/commit.md and follow its instructions exactly. You are running non-interactively — do not ask questions. Stage all tracked changes and any new untracked files in tasks/. Draft a conventional commit message and commit. Push to the current branch." --dangerously-skip-permissions > tasks/logs/auto-issue-$ARGUMENTS-9-commit-$TIMESTAMP.log 2>&1
+claude -p "Read .claude/commands/commit.md and follow its instructions exactly. You are running non-interactively — do not ask questions. Stage all tracked changes and any new untracked files in tasks/. Draft a conventional commit message and commit. Push to the current branch." --dangerously-skip-permissions > tasks/logs/auto-issue-$ARGUMENTS-5-commit-$TIMESTAMP.log 2>&1
 ```
 
 **Check:** Verify the working tree is clean (`git status` shows no uncommitted changes). If not, report what's left.
 
-Report: "Phase 9 complete — committed and pushed."
+Report: "Phase 5 complete — committed and pushed."
 
-### Phase 10: Evaluate
+### Phase 6: Evaluate
 
 Integrity check — run directly in this session. These are mechanical file checks.
 
@@ -149,16 +93,23 @@ Integrity check — run directly in this session. These are mechanical file chec
 bash .claude/scripts/pipeline-eval.sh $ARGUMENTS $TIMESTAMP
 ```
 
-Report: "Phase 10 complete — pipeline eval: [PASS/WARN/FAIL]." Include any flagged issues in the report.
+Report: "Phase 6 complete — pipeline eval: [PASS/WARN/FAIL]." Include any flagged issues in the report.
 
-### Phase 11: Cleanup
+### Phase 7: Cleanup
 
 Delete the issue artifacts that are no longer needed:
-- `tasks/research-issue-$ARGUMENTS.md`
-- `tasks/plan-issue-$ARGUMENTS.md`
-- `tasks/codex-issue-research-$ARGUMENTS.tmp`
-- `tasks/codex-issue-plan-review-$ARGUMENTS.tmp`
-- `tasks/codex-issue-code-review-$ARGUMENTS.tmp`
+
+```bash
+rm -f tasks/research-issue-$ARGUMENTS.md
+rm -f tasks/plan-issue-$ARGUMENTS.md
+# Defensive — integrated commands clean these in normal exit, but interrupted runs leave them behind
+rm -f tasks/codex-issue-prompt-$ARGUMENTS.tmp
+rm -f tasks/codex-issue-research-$ARGUMENTS.tmp
+rm -f tasks/codex-issue-plan-review-$ARGUMENTS.tmp
+rm -f tasks/codex-issue-code-review-$ARGUMENTS.tmp
+rm -f tasks/code-review-fixes-issue-$ARGUMENTS.tmp
+rm -f tasks/codex-debug-issue-$ARGUMENTS-*.tmp
+```
 
 Do NOT delete:
 - `tasks/issues.md` (the board)
@@ -167,7 +118,7 @@ Do NOT delete:
 
 After cleanup, commit with message: `chore: clean up issue #$ARGUMENTS artifacts`
 
-Then push explicitly: `git push origin HEAD` (avoids "no upstream branch" errors on worktree branches where Phase 9's child process set tracking in a separate session).
+Then push explicitly: `git push origin HEAD` (avoids "no upstream branch" errors on worktree branches where Phase 5's child process set tracking in a separate session).
 
 ## After All Phases
 

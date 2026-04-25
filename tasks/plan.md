@@ -269,27 +269,27 @@ Edit `.claude/commands/auto-issues.md`. Replace the 11-phase pipeline (`auto-iss
 **Files changed:** `.claude/commands/auto-issues.md` and `.claude/scripts/pipeline-eval.sh` (both in the same commit).
 
 **Success criteria (auto-issues):**
-- [ ] `! grep -q 'issue-plan-review-codex' .claude/commands/auto-issues.md`
-- [ ] `! grep -q 'issue-code-review-codex' .claude/commands/auto-issues.md`
-- [ ] `! grep -q 'issue-research-codex' .claude/commands/auto-issues.md`
-- [ ] `grep -q '\.claude/commands/issue-research\.md' .claude/commands/auto-issues.md`
-- [ ] `grep -E '^### Phase [1-7]:' .claude/commands/auto-issues.md | wc -l` returns `7`
-- [ ] `! grep -E '^### Phase (8|9|10|11):' .claude/commands/auto-issues.md` (no leftover phases)
-- [ ] `! grep -q 'apply-review\|apply-code-review' .claude/commands/auto-issues.md` (inline apply prompts gone)
-- [ ] `grep -q 'auto-issue-\$ARGUMENTS-1-research' .claude/commands/auto-issues.md`
-- [ ] `grep -q 'auto-issue-\$ARGUMENTS-3-implement' .claude/commands/auto-issues.md`
-- [ ] `grep -q 'auto-issue-\$ARGUMENTS-5-commit' .claude/commands/auto-issues.md`
-- [ ] `grep -q 'rm -f tasks/codex-issue-prompt-\$ARGUMENTS\.tmp' .claude/commands/auto-issues.md` (defensive cleanup wired in)
+- [x] `! grep -q 'issue-plan-review-codex' .claude/commands/auto-issues.md`
+- [x] `! grep -q 'issue-code-review-codex' .claude/commands/auto-issues.md`
+- [x] `! grep -q 'issue-research-codex' .claude/commands/auto-issues.md`
+- [x] `grep -q '\.claude/commands/issue-research\.md' .claude/commands/auto-issues.md`
+- [x] `grep -E '^### Phase [1-7]:' .claude/commands/auto-issues.md | wc -l` returns `7`
+- [x] `! grep -E '^### Phase (8|9|10|11):' .claude/commands/auto-issues.md` (no leftover phases)
+- [x] `! grep -q 'apply-review\|apply-code-review' .claude/commands/auto-issues.md` (inline apply prompts gone)
+- [x] `grep -q 'auto-issue-\$ARGUMENTS-1-research' .claude/commands/auto-issues.md`
+- [x] `grep -q 'auto-issue-\$ARGUMENTS-3-implement' .claude/commands/auto-issues.md`
+- [x] `grep -q 'auto-issue-\$ARGUMENTS-5-commit' .claude/commands/auto-issues.md`
+- [x] `grep -q 'rm -f tasks/codex-issue-prompt-\$ARGUMENTS\.tmp' .claude/commands/auto-issues.md` (defensive cleanup wired in)
 
 **Success criteria (pipeline-eval.sh):**
-- [ ] `bash -n .claude/scripts/pipeline-eval.sh` (syntax valid)
-- [ ] `grep -q '1-research 2-plan 3-implement 4-update 5-commit' .claude/scripts/pipeline-eval.sh`
-- [ ] `! grep -q '3-review\|4-apply-review\|6-code-review\|7-apply-code-review\|8-update\|9-commit' .claude/scripts/pipeline-eval.sh`
-- [ ] `! grep -q 'Review (Resolved)' .claude/scripts/pipeline-eval.sh`
-- [ ] `! grep -q 'tasks/codex-issue-plan-review' .claude/scripts/pipeline-eval.sh`
-- [ ] `! grep -q 'tasks/codex-issue-code-review' .claude/scripts/pipeline-eval.sh`
-- [ ] `! grep -q 'tasks/codex-issue-research' .claude/scripts/pipeline-eval.sh`
-- [ ] `grep -q 'tasks/research-issue-\$ISSUE\.md' .claude/scripts/pipeline-eval.sh && grep -q 'tasks/plan-issue-\$ISSUE\.md' .claude/scripts/pipeline-eval.sh` (artifact substance check preserved)
+- [x] `bash -n .claude/scripts/pipeline-eval.sh` (syntax valid)
+- [x] `grep -q '1-research 2-plan 3-implement 4-update 5-commit' .claude/scripts/pipeline-eval.sh`
+- [x] `! grep -q '3-review\|4-apply-review\|6-code-review\|7-apply-code-review\|8-update\|9-commit' .claude/scripts/pipeline-eval.sh`
+- [x] `! grep -q 'Review (Resolved)' .claude/scripts/pipeline-eval.sh`
+- [x] `! grep -q 'tasks/codex-issue-plan-review' .claude/scripts/pipeline-eval.sh`
+- [x] `! grep -q 'tasks/codex-issue-code-review' .claude/scripts/pipeline-eval.sh`
+- [x] `! grep -q 'tasks/codex-issue-research' .claude/scripts/pipeline-eval.sh`
+- [x] `grep -q 'tasks/research-issue-\$ISSUE\.md' .claude/scripts/pipeline-eval.sh && grep -q 'tasks/plan-issue-\$ISSUE\.md' .claude/scripts/pipeline-eval.sh` (artifact substance check preserved)
 
 Commit: `refactor(auto-issues, pipeline-eval): collapse to 7-phase pipeline; drop obsolete review/temp-file checks`
 
