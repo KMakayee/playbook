@@ -49,14 +49,17 @@ Claude leads the synthesis step — translates the chosen approach into a phased
 Run Codex against the drafted plan. Use a 10-minute timeout (600000ms) — Codex may take a while on large codebases:
 
 ```bash
-codex exec \
+codex -c model_reasoning_effort=xhigh exec \
   --sandbox read-only \
   -o tasks/codex-plan-review.tmp \
   "Review the implementation plan in tasks/plan.md against the research in tasks/research-codebase.md and the design in tasks/design-decision.md.
 
-IMPORTANT — For every finding across all parts, classify it as either:
+Effort calibration: use the highest applicable level. Light review only when ≤3 phases AND ≤100 LOC of plan-specified changes; standard review when 4–7 phases OR 100–500 LOC; exhaustive review when ≥8 phases OR >500 LOC.
+
+IMPORTANT — For every finding across all parts, classify it with one label:
 - CORRECTION: factual error, stale reference, or contradiction with the input documents (research/design). These should be fixed, not debated.
 - TRADE-OFF: genuine design choice with viable alternatives. These need developer input.
+- RISK: something that could go wrong, fragile assumption, or interruption hazard (PART 6 stale-reference audit excluded — those are CORRECTIONS).
 Do not present corrections as open questions.
 
 PART 1 — Judgment calls:
@@ -66,13 +69,21 @@ PART 2 — Feasibility:
 For each phase, verify against the codebase that the files, functions, and integration points referenced actually exist and behave as the plan assumes. Flag any stale references or incorrect assumptions.
 
 PART 3 — Completeness:
-Does the plan cover all acceptance criteria from the design? Are there gaps — things the design specified that the plan doesn't address? Are the success criteria for each phase actually sufficient to verify correctness?
+Are there gaps — things the design specified that the plan doesn't address (excluding acceptance-criteria coverage, which is PART 5's job)? Are the success criteria for each phase actually sufficient to verify correctness?
 
 PART 4 — Risk:
 Are there phases that could leave the codebase in a broken state if interrupted? Are there ordering dependencies the plan doesn't acknowledge? Are there scope items that should be deferred but aren't?
 
+PART 5 — Acceptance criteria coverage:
+For each acceptance criterion implied by tasks/design-decision.md (e.g., what the chosen approach must achieve, scope items the design explicitly includes), verify the plan includes steps that address it. Mark each as Covered (with the plan's phase or step reference) or Missing (flag as a CORRECTION, since the design's acceptance criteria are factual inputs).
+
+PART 6 — Stale-reference audit:
+For every file:line reference cited in the plan, verify it exists at the cited line in the current code and matches what the plan describes. Flag stale references as CORRECTIONS — these are factual errors the implementer must fix before proceeding, not trade-offs to debate.
+
 Be specific with file paths and line numbers."
 ```
+
+Verify the output before reading: `bash .claude/scripts/codex-output-check.sh tasks/codex-plan-review.tmp 10`. If the check fails, stop and tell the developer.
 
 After Codex finishes, read `tasks/codex-plan-review.tmp` FULLY.
 

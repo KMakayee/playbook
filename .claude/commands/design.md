@@ -84,10 +84,11 @@ Codex works in three phases: designs independently first, then cross-checks agai
 2. Run Codex. Use a 10-minute timeout (600000ms) — Codex may take a while on large codebases:
 
    ```bash
-   codex exec \
+   codex -c model_reasoning_effort=xhigh exec \
      --sandbox read-only \
      -o tasks/codex-design-review.tmp \
      "PHASE 1 — Independent design (do this BEFORE reading tasks/design-decision.md):
+   Effort calibration: light evaluation when research surfaces ≤3 axes; thorough when 4–9 axes; exhaustive when ≥10 axes or any axis has ≥4 viable choices.
    Read tasks/research-codebase.md for full codebase context. The Design Axes, Axis Coupling, Cross-Cutting Constraints, and External Research sections are factual — inherit them as given. External findings establish which axis choices are viable (look for 'Unblocks: Axis N, choice X' labels). Your independence is on how to combine axis choices into an approach, NOT on redefining the axes or re-litigating their viability. If you believe an axis or choice is missing, flag it but do not invent one. Then, given this problem: {PROBLEM_STATEMENT}
    Propose your own approach as an explicit combination of axis choices that respects documented coupling. Prioritize simplicity and fewest moving parts. Be specific with file paths and line numbers.
 
@@ -97,12 +98,14 @@ Codex works in three phases: designs independently first, then cross-checks agai
    - Trade-offs or risks the proposed options missed
    - Whether your independent approach is better than all proposed options
    - Open question answers (evidence for any unresolved questions)
+   For each item reported in this phase, prefix it with `CORRECTION:` (factual error in the proposed options or in research/design references), `TRADE-OFF:` (viable alternative the proposed options missed), or `RISK:` (something that could go wrong with the chosen approach).
 
    PHASE 3 — Recommend:
    Recommend the best approach — a proposed option, your own, or a hybrid. Base this on technical merit, not deference to the original design."
    ```
 
-3. After Codex finishes, read `tasks/codex-design-review.tmp` FULLY.
+3. Verify the output before reading: `bash .claude/scripts/codex-output-check.sh tasks/codex-design-review.tmp 10`. If the check fails, stop and tell the developer.
+4. After Codex finishes, read `tasks/codex-design-review.tmp` FULLY.
 
 If the `codex` command is not found or fails, stop and tell the developer to fix it before proceeding.
 
@@ -131,13 +134,17 @@ If the winner is still unclear after absorbing Codex's findings — e.g., two op
 **Before running, replace `{SPECIFIC_QUESTION}` in the prompt below with the actual blocking question** (a concrete sentence naming the options in tension or the unresolved fact). Do NOT run the command with the literal `{SPECIFIC_QUESTION}` placeholder. Use a 10-minute timeout (600000ms) — Codex may take a while on large codebases.
 
 ```bash
-codex exec \
+codex -c model_reasoning_effort=xhigh exec \
   --sandbox read-only \
   -o tasks/codex-design-tiebreaker.tmp \
   "Read tasks/design-decision.md. The decision is blocked on: {SPECIFIC_QUESTION}.
+Effort calibration: scope to the specific blocking question — do not re-litigate axes that aren't in tension.
 Do targeted research to resolve this. Cite file paths, line numbers, or external references as evidence.
-Recommend which option to choose based on what you find."
+Recommend which option to choose based on what you find.
+Prefix every claim with `CORRECTION:`, `TRADE-OFF:`, or `RISK:` per the QRSPI taxonomy."
 ```
+
+Verify the output before reading: `bash .claude/scripts/codex-output-check.sh tasks/codex-design-tiebreaker.tmp 5`. If the check fails, stop and tell the developer.
 
 After Codex finishes, read `tasks/codex-design-tiebreaker.tmp` FULLY, spot-check its claims, and absorb the new evidence into the artifact (update options, resolve the relevant open question). Then pick the winner. If the decision is STILL unclear after the tiebreaker, STOP and escalate to the developer — do NOT run Codex a third time.
 
@@ -182,16 +189,25 @@ If SKIP and a stale `tasks/research-patterns.md` exists, delete it.
 **If RUN:**
 
 1. Fill `.claude/prompts/research-patterns-guide.md` — replace `{RESEARCH_TOPIC}` with a short description of what external patterns to study (derived from the chosen approach in `## Decision`). Write to `tasks/patterns-prompt.tmp`.
-2. Spawn via Bash with `run_in_background: true`:
+2. Run Codex with `--search` (foreground, 10-minute timeout / 600000ms — matches the other QRSPI Codex calls):
 
    ```bash
-   mkdir -p tasks/logs && TIMESTAMP=$(date +%Y%m%d-%H%M) && claude -p "$(cat tasks/patterns-prompt.tmp)" --dangerously-skip-permissions > tasks/logs/patterns-research-$TIMESTAMP.log 2>&1
+   codex -c model_reasoning_effort=xhigh --search exec \
+     --sandbox read-only \
+     -o tasks/codex-patterns-research.tmp \
+     "$(cat tasks/patterns-prompt.tmp)"
    ```
 
-3. After completion, verify `tasks/research-patterns.md` exists (if missing, check the log and tell the developer). Read it FULLY. If it surfaces design-level concerns, flag them in Step 8 — do NOT edit `tasks/design-decision.md`.
+3. Verify the output before reading: `bash .claude/scripts/codex-output-check.sh tasks/codex-patterns-research.tmp 15`. If the check fails, stop and tell the developer.
+
+4. After Codex finishes, read `tasks/codex-patterns-research.tmp` FULLY. Spot-check a sample of source URLs (open one per finding to confirm the source exists and the claim holds).
+
+5. **Fallback (only if Codex's coverage is thin or spot-check fails):** read the `## Coverage Assessment` section that Codex produced. Spawn Claude sub-agents in parallel — one per source gap — to deep-read individual sources if **any** of the following hold: (a) source count < 2 strong sources, (b) confidence is LOW, (c) any source's read depth is "superficial" on a topic critical to the chosen approach, or (d) the step-4 spot-check surfaced dead URLs, sources that didn't exist, or claims that didn't hold up against the cited source. Each sub-agent fetches one source and returns a per-source findings dump. Sub-agents MUST NOT spawn further sub-agents (recursion guard at `CLAUDE.md:178`). If Codex's coverage assessment shows ≥2 strong sources at MEDIUM or HIGH confidence with no superficial reads AND the step-4 spot-check passed, skip this step.
+
+6. Write `tasks/research-patterns.md` from Codex's findings (plus any sub-agent supplementation) — preserve the structure shown in the prompt template, fix any URLs that didn't hold up, and add a `## Concerns for Developer Review` section if patterns suggest revisiting the design (do NOT edit `tasks/design-decision.md`).
 
 ### 7. Clean up
-Delete `tasks/codex-design-review.tmp`, `tasks/codex-design-tiebreaker.tmp` (if it exists), and `tasks/patterns-prompt.tmp` (if it exists).
+Delete `tasks/codex-design-review.tmp`, `tasks/codex-design-tiebreaker.tmp` (if it exists), `tasks/patterns-prompt.tmp` (if it exists), and `tasks/codex-patterns-research.tmp` (if pattern research ran).
 
 ### 8. Present findings
 - Give a short summary of the final options (reflecting any updates from Codex's cross-check).
