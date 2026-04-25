@@ -54,7 +54,7 @@ codex -c model_reasoning_effort=xhigh exec \
   -o tasks/codex-plan-review.tmp \
   "Review the implementation plan in tasks/plan.md against the research in tasks/research-codebase.md and the design in tasks/design-decision.md.
 
-Effort calibration: light review for plans with ≤3 phases or ≤100 LOC of plan-specified changes; standard review for 4–7 phases or 100–500 LOC; exhaustive review for ≥8 phases or >500 LOC.
+Effort calibration: use the highest applicable level. Light review only when ≤3 phases AND ≤100 LOC of plan-specified changes; standard review when 4–7 phases OR 100–500 LOC; exhaustive review when ≥8 phases OR >500 LOC.
 
 IMPORTANT — For every finding across all parts, classify it with one label:
 - CORRECTION: factual error, stale reference, or contradiction with the input documents (research/design). These should be fixed, not debated.

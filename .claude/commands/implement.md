@@ -81,7 +81,7 @@ codex -c model_reasoning_effort=xhigh exec \
 Effort calibration: light review for ≤50 LOC changed; standard review for 50–300 LOC; exhaustive review for >300 LOC or any change touching critical paths flagged in tasks/research-codebase.md.
 
 PRELUDE — Cross-batch coherence (only if multi-batch):
-If tasks/plan.md flags itself as a multi-batch plan (per CLAUDE.md:124-138), inspect the prior batches' progress in plan.md (checked-off items) and the recent git log on this branch for cross-batch coherence. Evaluate whether this batch's changes contradict, duplicate, or undo prior batches' work. If the plan is single-batch, skip this section.
+If tasks/plan.md flags itself as a multi-batch plan (per CLAUDE.md's "Multi-Batch Plans" section), inspect the prior batches' progress in plan.md (checked-off items) and the recent git log on this branch for cross-batch coherence. Evaluate whether this batch's changes contradict, duplicate, or undo prior batches' work. If the plan is single-batch, skip this section.
 
 PART 1 — Plan adherence:
 - Does the implementation match what the plan specified? Flag any deviations.
@@ -98,7 +98,7 @@ For each finding, include: (a) the exact file path and line number(s); (b) a can
 Prefix each finding with `CORRECTION:`, `TRADE-OFF:`, or `RISK:` per the QRSPI taxonomy."
 ```
 
-**Check:** Verify the output: `bash .claude/scripts/codex-output-check.sh tasks/codex-code-review.tmp 10`. If the check fails, stop and tell the developer.
+**Check:** After the backgrounded Codex process completes, verify the output: `bash .claude/scripts/codex-output-check.sh tasks/codex-code-review.tmp 10`. If the check fails, stop and tell the developer.
 
 ### 7. Triage findings
 

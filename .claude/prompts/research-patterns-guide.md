@@ -19,7 +19,7 @@ Aim for 2–3 strong sources for narrow patterns; 4–5 for cross-cutting patter
 ### 1. Candidate sources
 - Web-search for external references relevant to the chosen pattern — open source repos, official docs, specs/RFCs, engineering blogs, research papers, reference implementations.
 - Prioritize quality and relevance over source type. For repos, favor actively maintained and well-tested. For docs, prefer official/canonical over blog aggregations. A well-written spec or reference implementation can beat a production repo for clarity.
-- Aim for 2-3 strong sources — one well-studied source beats five skimmed ones.
+- Use the source-count target from the Effort calibration above; prioritize quality over breadth — one well-studied source beats five skimmed ones.
 
 ### 2. Per-source findings
 For each source, capture the aspects that matter for the research topic. Let the topic drive the lens — e.g., performance/throughput for a rate limiter, correctness and invariants for a protocol, structure and abstractions for a general pattern, failure modes for a distributed system. Always note what specifically translates to our codebase.
