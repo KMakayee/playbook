@@ -22,12 +22,10 @@ templates/playbook-sections.md
 .claude/commands/create-plan.md
 .claude/commands/implement.md
 .claude/commands/create-todo.md
-.claude/commands/issue-research-codex.md
+.claude/commands/issue-research.md
 .claude/commands/issue-plan.md
-.claude/commands/issue-plan-review-codex.md
 .claude/commands/issue-implement.md
 .claude/commands/issue-update.md
-.claude/commands/issue-code-review-codex.md
 .claude/commands/auto-issues.md
 templates/new-issues.md
 templates/deferred.md

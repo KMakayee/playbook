@@ -10,16 +10,16 @@ TIMESTAMP="$2"
 VERDICT="PASS"
 ISSUES=""
 
-# 1. Log completeness — all 9 logs exist; non-Codex logs must have substance
-for phase in 1-research 2-plan 3-review 4-apply-review 5-implement 6-code-review 7-apply-code-review 8-update 9-commit; do
+# 1. Log completeness — all 5 logs exist; every phase produces substantive Claude output
+for phase in 1-research 2-plan 3-implement 4-update 5-commit; do
   f="tasks/logs/auto-issue-$ISSUE-$phase-$TIMESTAMP.log"
   if [ ! -f "$f" ]; then
     ISSUES="$ISSUES\nMISSING LOG: $f"
     VERDICT="FAIL"
   fi
 done
-# Codex phases (1,3,6) produce near-empty stdout — skip line count for them
-for phase in 2-plan 4-apply-review 5-implement 7-apply-code-review 8-update 9-commit; do
+# All 5 phases produce substantive Claude output
+for phase in 1-research 2-plan 3-implement 4-update 5-commit; do
   f="tasks/logs/auto-issue-$ISSUE-$phase-$TIMESTAMP.log"
   if [ -f "$f" ] && [ "$(wc -l < "$f")" -lt 10 ]; then
     ISSUES="$ISSUES\nTINY LOG: $f ($(wc -l < "$f") lines)"
@@ -38,25 +38,7 @@ for f in tasks/research-issue-$ISSUE.md tasks/plan-issue-$ISSUE.md; do
   fi
 done
 
-# 3. Codex outputs — confirm Codex produced real output (5+ lines)
-for f in tasks/codex-issue-research-$ISSUE.tmp tasks/codex-issue-plan-review-$ISSUE.tmp \
-         tasks/codex-issue-code-review-$ISSUE.tmp; do
-  if [ ! -f "$f" ]; then
-    ISSUES="$ISSUES\nMISSING CODEX OUTPUT: $f"
-    VERDICT="FAIL"
-  elif [ "$(wc -l < "$f")" -lt 5 ]; then
-    ISSUES="$ISSUES\nTHIN CODEX OUTPUT: $f ($(wc -l < "$f") lines)"
-    [ "$VERDICT" = "PASS" ] && VERDICT="WARN"
-  fi
-done
-
-# 4. Review cycle completed (skip if plan already flagged missing above)
-if [ -f tasks/plan-issue-$ISSUE.md ] && ! grep -q "## Review (Resolved)" tasks/plan-issue-$ISSUE.md; then
-  ISSUES="$ISSUES\nPLAN REVIEW NOT RESOLVED"
-  VERDICT="FAIL"
-fi
-
-# 5. Append to eval index
+# 3. Append to eval index
 INDEX="tasks/logs/pipeline-eval-index.md"
 if [ ! -f "$INDEX" ]; then
   echo "| Issue | Timestamp | Verdict | Notes |" > "$INDEX"
