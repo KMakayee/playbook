@@ -27,7 +27,7 @@ The prompt body interpolated into `tasks/codex-review-prompt.tmp` must contain (
 ```
 Target to review: $ARGUMENTS
 
-You are doing a one-shot second-opinion pass over the target above. The target may be a file path, a diff, an artifact (e.g., a markdown plan or design doc), or a freeform description. Treat it as context, not as a constraint — evaluate it on technical merit.
+You are doing a one-shot second-opinion pass over the target above. The target may be a file path, a diff, an artifact (e.g., a markdown plan or design doc), or a freeform description.
 
 Evaluate the target on technical merit. Do not defer to it as authoritative simply because it is the input — the target is context, not a constraint.
 
