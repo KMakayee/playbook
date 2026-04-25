@@ -377,13 +377,13 @@ Update the six files that advertise the split commands, plus the pre-existing `t
 **Files changed:** `README.md`, `quickref.md`, `CLAUDE.md`, `templates/new-issues.md`, `templates/deferred.md`, `.claude/commands/playbook-update.md`, `tasks/issues.md`.
 
 **Success criteria:**
-- [ ] `! grep -rn 'issue-research-codex\|issue-plan-review-codex\|issue-code-review-codex' README.md quickref.md CLAUDE.md templates/ .claude/commands/playbook-update.md` (all references gone from these surfaces)
-- [ ] `grep -q '/issue-research\b' README.md && grep -q '/issue-research\b' quickref.md && grep -q '/issue-research\b' CLAUDE.md && grep -q '/issue-research\b' templates/new-issues.md`
-- [ ] `grep -q '/issue-plan\b' templates/deferred.md`
-- [ ] `grep -q 'issue-research.md' .claude/commands/playbook-update.md`
-- [ ] `! grep -q '/issue-audit' tasks/issues.md` (nonexistent command removed)
-- [ ] `grep -q 'Implemented' tasks/issues.md` (status flow includes `Implemented`)
-- [ ] `grep -q 'In Review.*In Progress.*Implemented' tasks/issues.md` (status flow correctly ordered — `In Review` → `In Progress` → `Implemented`)
+- [x] `! grep -rn 'issue-research-codex\|issue-plan-review-codex\|issue-code-review-codex' README.md quickref.md CLAUDE.md templates/ .claude/commands/playbook-update.md` (all references gone from these surfaces)
+- [x] `grep -q '/issue-research\b' README.md && grep -q '/issue-research\b' quickref.md && grep -q '/issue-research\b' CLAUDE.md && grep -q '/issue-research\b' templates/new-issues.md`
+- [x] `grep -q '/issue-plan\b' templates/deferred.md`
+- [x] `grep -q 'issue-research.md' .claude/commands/playbook-update.md`
+- [x] `! grep -q '/issue-audit' tasks/issues.md` (nonexistent command removed)
+- [x] `grep -q 'Implemented' tasks/issues.md` (status flow includes `Implemented`)
+- [x] `grep -q 'In Review.*In Progress.*Implemented' tasks/issues.md` (status flow correctly ordered — `In Review` → `In Progress` → `Implemented`)
 
 Commit: `docs: update cross-references to integrated issue-command surface`
 

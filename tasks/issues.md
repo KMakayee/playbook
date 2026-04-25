@@ -1,8 +1,8 @@
 # Issue Board
 
 > **Purpose:** Track issues through the playbook workflow. Each issue progresses through statuses as slash commands are run against it.
-> **Status flow:** `Draft` → `In Research` → `In Planning` → `In Review` → `In Progress` → `Done` | `Deferred`
-> **Commands:** `/issue-research`, `/issue-plan`, `/issue-audit`, `/issue-implement`, `/issue-update`
+> **Status flow:** `Draft` → `In Research` → `In Planning` → `In Review` → `In Progress` → `Implemented` → `Done` | `Deferred`
+> **Commands:** `/issue-research`, `/issue-plan`, `/issue-implement`, `/issue-update`
 
 ---
 
