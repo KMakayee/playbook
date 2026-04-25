@@ -10,8 +10,10 @@ Takes a single optional argument (`$ARGUMENTS`):
 | empty + `tasks/checkpoint.md` exists | prompt the developer: resume / discard / replace |
 | `resume` | resume-mode (errors if no checkpoint exists) |
 | `discard` | discard-mode (errors if no checkpoint exists) |
+| `delete` | alias for `discard` (errors if no checkpoint exists) |
+| `remove` | alias for `discard` (errors if no checkpoint exists) |
 | `replace` | replace-mode (errors if no checkpoint exists) |
-| anything else | error — list the valid args (`resume`, `discard`, `replace`) and stop |
+| anything else | error — list the valid args (`resume`, `discard`/`delete`/`remove`, `replace`) and stop |
 
 The `$ARGUMENTS` slot is reserved for these mode keywords. Do **not** treat a freeform user blurb in `$ARGUMENTS` as commentary for the body — ignore anything that isn't one of the keywords and surface the error path above.
 
