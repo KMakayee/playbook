@@ -21,6 +21,9 @@ The issue flow has no `/design` step, so the recommended approach lives in `task
 - If `tasks/plan-issue-$ARGUMENTS.md` already exists, **stop. Do not overwrite.** Tell the developer to manually remove the existing artifact (or rename it) before re-running. Do NOT prompt for confirmation — `/auto-issues` runs children with `--dangerously-skip-permissions`, and a non-interactive child instructed to "ask" may interpret the failure to ask as license to proceed. Hard stop.
 - Read `tasks/research-issue-$ARGUMENTS.md` and the issue body in `tasks/issues.md` FULLY — use the Read tool WITHOUT limit/offset parameters.
 
+### 1.5. Update issue status to In Planning
+In `tasks/issues.md`, change issue #$ARGUMENTS status to `In Planning`. (The status flow is `In Research → In Planning → In Review`; this command transitions through both. The final `In Review` setter happens in Step 7.)
+
 ### 2. Claude drafts the plan
 Claude leads the synthesis step — translates the research's recommended approach into a phased execution plan.
 

@@ -28,11 +28,11 @@
 
 | Command                          | What it does                                              |
 |----------------------------------|-----------------------------------------------------------|
-| `/issue-research #N`    | Codex sweeps + Claude synthesizes + recommends → `tasks/research-issue-N.md` |
-| `/issue-plan #N`        | Draft plan, Codex reviews, absorb findings → `tasks/plan-issue-N.md`         |
-| `/issue-implement #N`   | Execute plan + Codex code review + child-process fixes                       |
-| `/issue-update #N`      | After completion, check impact on other open issues                          |
-| `/auto-issues #N`       | Run full issue pipeline end-to-end, unattended                               |
+| `/issue-research N`    | Codex sweeps + Claude synthesizes + recommends → `tasks/research-issue-N.md` |
+| `/issue-plan N`        | Draft plan, Codex reviews, absorb findings → `tasks/plan-issue-N.md`         |
+| `/issue-implement N`   | Execute plan + Codex code review + child-process fixes                       |
+| `/issue-update N`      | After completion, check impact on other open issues                          |
+| `/auto-issues N`       | Run full issue pipeline end-to-end, unattended                               |
 
 **Code Quality**
 
