@@ -71,6 +71,12 @@ Does the plan cover all acceptance criteria from the design? Are there gaps — 
 PART 4 — Risk:
 Are there phases that could leave the codebase in a broken state if interrupted? Are there ordering dependencies the plan doesn't acknowledge? Are there scope items that should be deferred but aren't?
 
+PART 5 — Acceptance criteria coverage:
+For each acceptance criterion implied by tasks/design-decision.md (e.g., what the chosen approach must achieve, scope items the design explicitly includes), verify the plan includes steps that address it. Mark each as Covered (with the plan's phase or step reference) or Missing (flag as a CORRECTION, since the design's acceptance criteria are factual inputs).
+
+PART 6 — Stale-reference audit:
+For every file:line reference cited in the plan, verify it exists at the cited line in the current code and matches what the plan describes. Flag stale references as CORRECTIONS — these are factual errors the implementer must fix before proceeding, not trade-offs to debate.
+
 Be specific with file paths and line numbers."
 ```
 
