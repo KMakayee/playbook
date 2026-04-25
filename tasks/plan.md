@@ -290,20 +290,20 @@ After removal, the surrounding bullets at lines 172, 175–177 close up:
 
 These checks confirm the four design goals hold across all touched files.
 
-- [ ] **Optional formula eliminated from QRSPI commands:** `grep -rn "Sub-agents are optional" .claude/commands/research-codebase.md .claude/commands/design.md .claude/commands/create-plan.md .claude/commands/implement.md` returns 0 matches.
-- [ ] **Issue-flow files untouched:** `git diff --name-only main -- .claude/commands/issue-research-codex.md .claude/commands/issue-plan.md .claude/commands/issue-implement.md` returns no output. (These are paused under Task 6.)
-- [ ] **Non-QRSPI files untouched:** `git diff --name-only main -- .claude/commands/playbook-setup.md .claude/commands/playbook-audit.md .claude/commands/codex-review.md` returns no output.
-- [ ] **Recursion guard preserved verbatim:** `grep -n "Sub-agents MUST NOT spawn further sub-agents or follow QRSPI" CLAUDE.md templates/playbook-sections.md` returns one match in each file.
-- [ ] **Central rule mirrored:** the `## Sub-Agent Use` subsection is present in both `CLAUDE.md` and `templates/playbook-sections.md` with the same four rules (visual diff during implementation).
-- [ ] **Per-site restatements present at all 5 spawn sites:** `grep -rn "CLAUDE.md § Sub-Agent Use" .claude/commands/research-codebase.md .claude/commands/design.md .claude/commands/create-plan.md` returns 5 matches total (3 in research-codebase.md, 1 in design.md, 1 in create-plan.md).
-- [ ] **Per-site rule-presence audit (manual, ≤ 5 minutes).** For each of the 5 spawn sites, read the inserted block and confirm all four rule elements are present in proximity to the spawn-site trigger:
+- [x] **Optional formula eliminated from QRSPI commands:** `grep -rn "Sub-agents are optional" .claude/commands/research-codebase.md .claude/commands/design.md .claude/commands/create-plan.md .claude/commands/implement.md` returns 0 matches.
+- [x] **Issue-flow files untouched:** `git diff --name-only main -- .claude/commands/issue-research-codex.md .claude/commands/issue-plan.md .claude/commands/issue-implement.md` returns no output. (These are paused under Task 6.)
+- [x] **Non-QRSPI files untouched:** `git diff --name-only main -- .claude/commands/playbook-setup.md .claude/commands/playbook-audit.md .claude/commands/codex-review.md` returns no output.
+- [x] **Recursion guard preserved verbatim:** `grep -n "Sub-agents MUST NOT spawn further sub-agents or follow QRSPI" CLAUDE.md templates/playbook-sections.md` returns one match in each file.
+- [x] **Central rule mirrored:** the `## Sub-Agent Use` subsection is present in both `CLAUDE.md` and `templates/playbook-sections.md` with the same four rules (visual diff during implementation).
+- [x] **Per-site restatements present at all 5 spawn sites:** `grep -rn "CLAUDE.md § Sub-Agent Use" .claude/commands/research-codebase.md .claude/commands/design.md .claude/commands/create-plan.md` returns 5 matches total (3 in research-codebase.md, 1 in design.md, 1 in create-plan.md).
+- [x] **Per-site rule-presence audit (manual, ≤ 5 minutes).** For each of the 5 spawn sites, read the inserted block and confirm all four rule elements are present in proximity to the spawn-site trigger:
   1. **Split test** — restated or referenced ("one Agent per independent gap", "one sub-agent per source gap", "single sub-agent", or `CLAUDE.md` § Sub-Agent Use reference).
   2. **Batch wording** — `single message` (omit at the single-agent site `create-plan.md:37`).
   3. **Acceptance contract** — citations/URLs requirement AND contradiction-flagging instruction, both stated in the spawn prompt.
   4. **Parent-only fallback** — `do not re-spawn` AND a fallback target ("the parent reads … directly to fill the gap" or "to answer it").
   Sites: `research-codebase.md` gap-fill (lines ~68–72), `research-codebase.md` external-research (lines ~72–80), `research-codebase.md` follow-up (lines ~156–162), `design.md` pattern-research fallback (lines ~205–214), `create-plan.md` re-research (lines ~37–41).
-- [ ] **No `subagent-output-check.sh` script created:** `ls .claude/scripts/subagent-output-check.sh 2>/dev/null` returns nothing (out-of-scope item per design).
-- [ ] **No new files created** outside the 6 listed: `git status --short` shows changes only to `CLAUDE.md`, `templates/playbook-sections.md`, `.claude/commands/research-codebase.md`, `.claude/commands/design.md`, `.claude/commands/create-plan.md`, `.claude/commands/implement.md`, plus the `tasks/` artifacts.
+- [x] **No `subagent-output-check.sh` script created:** `ls .claude/scripts/subagent-output-check.sh 2>/dev/null` returns nothing (out-of-scope item per design).
+- [x] **No new files created** outside the 6 listed: `git status --short` shows changes only to `CLAUDE.md`, `templates/playbook-sections.md`, `.claude/commands/research-codebase.md`, `.claude/commands/design.md`, `.claude/commands/create-plan.md`, `.claude/commands/implement.md`, plus the `tasks/` artifacts.
 
 ---
 
