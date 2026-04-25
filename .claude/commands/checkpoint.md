@@ -74,11 +74,12 @@ For every untracked file (`git ls-files --others --exclude-standard`), check bot
 
 - **Line cap:** ≤ 100 lines.
 - **Byte cap:** ≤ 10 KB (10240 bytes).
+- **Binary detection:** A file is treated as binary if it contains any null byte in its first 8 KB (or if `git check-attr binary -- <file>` reports `binary: set`). Binary files are **always** refused regardless of size — embedding raw bytes inside a Markdown fence would corrupt them on recovery, and the `untracked-content` block was designed for text only. The refusal message names the file, calls out the binary detection, and gives the same `git add` / `rm` / move-outside-worktree guidance as the cap-tripped case.
 
-**Both must be satisfied** for the file to be embedded. A file passing one cap but tripping the other is still a refusal — the dual cap closes the minified-blob gap (a one-line 500 KB file passes a naïve line-count test).
+**Both caps must be satisfied AND the file must be non-binary** for it to be embedded. A file passing one cap but tripping the other (or any binary file) is a refusal — the dual cap closes the minified-blob gap (a one-line 500 KB file passes a naïve line-count test), and the binary check closes the small-binary gap (a 5 KB PNG passes both caps but cannot be safely embedded as text).
 
-- **Under both caps:** embed the file's contents in an `untracked-content` fenced block.
-- **Above either cap:** `/checkpoint` **refuses** — it lists every offending file, names which cap each one tripped (lines and/or bytes), and tells the developer to either `git add <file>` (so the file rides on the embedded-diff path), `rm` it, or move it outside the worktree, then re-run. (`git rm` is for tracked files only and would error here.) This is deliberate friction: anything large enough to lose silently should be in the developer's hands, not the artifact.
+- **Under both caps and non-binary:** embed the file's contents in an `untracked-content` fenced block.
+- **Above either cap, OR detected as binary:** `/checkpoint` **refuses** — it lists every offending file, names the reason each was refused (line cap, byte cap, or binary), and tells the developer to either `git add <file>` (so the file rides on the embedded-diff path, where `git diff --binary` handles binary content correctly), `rm` it, or move it outside the worktree, then re-run. (`git rm` is for tracked files only and would error here.) This is deliberate friction: anything large enough to lose silently — or any binary that can't survive a Markdown fence — should be in the developer's hands, not the artifact.
 
 ### QRSPI artifact special case
 
@@ -137,9 +138,9 @@ The consume step only runs after rehydration validation succeeds (frontmatter pa
 
 4. **Capture diff** — run `git diff --binary HEAD` and embed the verbatim output in a four-backtick `diff` fence per the fence delimiter rule (escalate beyond four if the diff itself contains a four-or-longer backtick run). No size cap. `--binary` is required so binary files are recoverable from the artifact alone.
 
-5. **Capture untracked** — run `git ls-files --others --exclude-standard`. List each path in a four-backtick `untracked` fenced block. For each path, check both caps (≤ 100 lines AND ≤ 10 KB):
-   - Passes both → emit a four-backtick `untracked-content` block with `path: <file>` on the first line followed by the file body.
-   - Fails either → **abort** with the refusal message from § "Untracked-file handling", listing every offending file and which cap each tripped. Do **not** write `tasks/checkpoint.md`. Do **not** commit. Apply the QRSPI artifact special case if any offender is a QRSPI artifact path.
+5. **Capture untracked** — run `git ls-files --others --exclude-standard`. List each path in a four-backtick `untracked` fenced block. For each path, check both caps (≤ 100 lines AND ≤ 10 KB) and run binary detection:
+   - Passes both caps AND is non-binary → emit a four-backtick `untracked-content` block with `path: <file>` on the first line followed by the file body.
+   - Fails either cap, OR is detected as binary → **abort** with the refusal message from § "Untracked-file handling", listing every offending file and the reason each was refused (line cap, byte cap, or binary). Do **not** write `tasks/checkpoint.md`. Do **not** commit. Apply the QRSPI artifact special case if any offender is a QRSPI artifact path.
 
 6. **Synthesize body** — write a 2–4 line "What's next" note derived from `cursor_text`, `batch_heading`, and the active phase. In standalone mode (no QRSPI artifacts), write a generic "ad-hoc snapshot" line plus the most recent commit subject from `git log -1 --format=%s`. Do **not** treat `$ARGUMENTS` as a freeform blurb.
 

@@ -199,7 +199,7 @@ When compacting:
 
 At the start of each session, run these lightweight checks (no sub-agents, under 30 seconds total):
 
-1. **Leftover artifacts** — Check if `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, `tasks/plan.md`, or any `tasks/plan-issue-*.md` / `tasks/research-issue-*.md` files exist from a previous session. If found, notify the developer and ask whether to clean up or resume.
-2. **Unconfigured CLAUDE.md** — Scan the top half of CLAUDE.md for `[TEAM FILLS IN` markers or `<!-- TODO` comments. If found, mention that `/playbook-setup` can fill them in.
-3. **Playbook version** — If `.playbook-version` exists, read it. If the installed date is older than 30 days, mention that `/playbook-update` can check for updates.
-4. **Active checkpoint** — If `tasks/checkpoint.md` exists, do not auto-resume. Tell the developer: "Found `tasks/checkpoint.md` from a prior session. Run `/checkpoint resume` to rehydrate, `/checkpoint discard` to drop it, or `/checkpoint replace` to overwrite with a fresh save."
+1. **Active checkpoint** — If `tasks/checkpoint.md` exists, do not auto-resume. Tell the developer: "Found `tasks/checkpoint.md` from a prior session. Run `/checkpoint resume` to rehydrate, `/checkpoint discard` to drop it, or `/checkpoint replace` to overwrite with a fresh save." If the developer chooses resume, skip the leftover-artifact check below — `/checkpoint resume` is the cleanup path.
+2. **Leftover artifacts** — Check if `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, `tasks/plan.md`, or any `tasks/plan-issue-*.md` / `tasks/research-issue-*.md` files exist from a previous session. If found, notify the developer and ask whether to clean up or resume.
+3. **Unconfigured CLAUDE.md** — Scan the top half of CLAUDE.md for `[TEAM FILLS IN` markers or `<!-- TODO` comments. If found, mention that `/playbook-setup` can fill them in.
+4. **Playbook version** — If `.playbook-version` exists, read it. If the installed date is older than 30 days, mention that `/playbook-update` can check for updates.

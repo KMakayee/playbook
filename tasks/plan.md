@@ -219,13 +219,13 @@ Tell the user the checkpoint was deleted without rehydration.
 
 - [x] `.claude/commands/checkpoint.md` is rewritten end-to-end and contains all four mode flows (create, resume, discard, replace), the frontmatter schema, and the untracked-file policy.
 - [x] No reference to "Keep it under 100 lines" remains anywhere in the file.
-- [x] `grep -n "git commit --only" .claude/commands/checkpoint.md` matches in create, consume, discard, and replace flows (4 hits expected).
+- [x] `grep -n "git commit --only" .claude/commands/checkpoint.md` matches in create, consume, discard, and replace flows (one or more hits per flow; explanatory prose mentions also count).
 - [x] `grep -n "git add -- tasks/checkpoint.md" .claude/commands/checkpoint.md` matches in create and replace flows (single-path `git add` is allowed; bulk staging like `git add -u` or `git add -A` is not).
 - [x] `grep -nE "git add (-u|-A|--all|--update)" .claude/commands/checkpoint.md` returns **zero** matches (no bulk staging — sweeping the index is what `--only` is meant to avoid).
 - [x] `grep -n "git rm -- tasks/checkpoint.md" .claude/commands/checkpoint.md` matches in consume and discard flows (2 hits expected).
 - [x] `grep -n "git reset" .claude/commands/checkpoint.md` returns zero matches.
 - [x] `grep -n "base_head" .claude/commands/checkpoint.md` matches in both create-mode (capture) and resume-mode (validation).
-- [x] `grep -n "git diff --binary" .claude/commands/checkpoint.md` matches once (capture step).
+- [x] `grep -n "git diff --binary" .claude/commands/checkpoint.md` matches in the capture step (additional explanatory prose mentions are fine).
 - [x] `grep -n "untracked-content" .claude/commands/checkpoint.md` matches.
 - [x] Both caps (100 lines AND 10 KB) for untracked files appear explicitly in the command text.
 - [x] QRSPI-artifact special-case guidance appears in the refusal-message section (so the user is pointed at `git add` + `chore: snapshot QRSPI artifacts`).
@@ -296,10 +296,12 @@ Both files end up with the same 4-check structure (mirroring what the template a
 
 **`CLAUDE.md`** lines 198–203 — replace the current 2-check block (which is missing the leftover-artifact check that's already in the template) with the matching 4-check block in the same order:
 
-1. Leftover artifacts (matching template line 157).
-2. Unconfigured CLAUDE.md (matching template line 158).
-3. Playbook version (matching template line 159).
-4. Active checkpoint (the new check above).
+1. Active checkpoint (the new check above).
+2. Leftover artifacts (matching the renumbered template).
+3. Unconfigured CLAUDE.md (matching the renumbered template).
+4. Playbook version (matching the renumbered template).
+
+> **Deviation from earlier draft:** the plan originally numbered Active checkpoint as #4. Codex code review flagged that during a normal QRSPI-mid-task suspend (the common case) both `tasks/plan.md` and `tasks/checkpoint.md` are present, and the leftover-artifact prompt at position #1 would steer the developer toward cleanup *before* surfacing the checkpoint. Active checkpoint was promoted to #1 so the resume path always wins.
 
 After this phase, the two files express the same instruction set, in the same order, with the same wording — they don't need to be byte-identical (each lives in its own file with its own surrounding context), but the per-check rules and the order must match so the agent's behavior is identical regardless of which file Claude reads.
 
