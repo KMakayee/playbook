@@ -58,9 +58,10 @@ Body sections (all optional but produced by default, in this order):
 
 The design's only non-blocking question for this option:
 
-- **Threshold:** **100 lines AND 10 KB per file** (both must be satisfied for the file to be embedded). The dual cap matters because a one-line minified blob can blow past any reasonable artifact size while still passing a line-count test (Codex flag in design Option A "Why it hurts").
-- **Under both caps:** embed the file's contents in an `untracked-content` fenced block.
-- **Above either cap:** `/checkpoint` refuses — it lists the offending file(s), shows which cap each one tripped (lines or bytes), and tells the user to either `git add <file>` (so the file rides on the embedded-diff path), `rm` it, or move it outside the worktree, then re-run. (`git rm` is for tracked files only and would error here.) This is deliberate friction: anything large enough to lose silently should be in the user's hands, not the artifact.
+- **Threshold:** **100 lines AND 10 KB per file AND non-binary** (all three must be satisfied for the file to be embedded). The dual cap matters because a one-line minified blob can blow past any reasonable artifact size while still passing a line-count test (Codex flag in design Option A "Why it hurts"). The binary check (added in the post-review fix at `8247b0b`) closes the small-binary gap — a 5 KB PNG passes both caps but cannot survive a Markdown fence.
+- **Under both caps and non-binary:** embed the file's contents in an `untracked-content` fenced block.
+- **Above either cap, OR detected as binary:** `/checkpoint` refuses — it lists the offending file(s), shows the reason each was refused (lines, bytes, or binary), and tells the user to either `git add <file>` (so the file rides on the embedded-diff path, where `git diff --binary` handles binary content correctly), `rm` it, or move it outside the worktree, then re-run. (`git rm` is for tracked files only and would error here.) This is deliberate friction: anything large enough to lose silently — or any binary that can't survive a Markdown fence — should be in the user's hands, not the artifact.
+- **Binary detection rule:** A file is treated as binary if it contains any null byte in its first 8 KB, or if `git check-attr binary -- <file>` reports `binary: set`. Binary files are refused regardless of size.
 - **QRSPI artifact special case.** When the offending list includes any of the QRSPI singleton/issue artifact paths — `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, `tasks/plan.md`, `tasks/research-issue-<N>.md`, `tasks/plan-issue-<N>.md` — the refusal message names them explicitly and recommends the `git add` path with an exact one-liner: *"`tasks/research-codebase.md` (33 KB, exceeds 10 KB cap) is a QRSPI artifact. Run `git add tasks/research-codebase.md tasks/design-decision.md tasks/plan.md` (whichever exist) and `git commit -m 'chore: snapshot QRSPI artifacts'`, then re-run `/checkpoint`."* This guides the user to the right action — QRSPI artifacts are *meant* to be tracked; checkpoint is just surfacing the hygiene gap. (Alternative auto-staging was considered but rejected: silently mutating the user's index has surprising downstream effects on `/finish` and `/implement` per-phase commits.)
 - **Why these numbers:** 100 lines matches the existing `checkpoint.md:12` cap (which this rework removes for the diff but keeps for individual untracked files); 10 KB closes the minified-blob gap.
 
@@ -130,9 +131,9 @@ The new command takes a single optional argument (`$ARGUMENTS`):
 
 4. **Capture diff** — run `git diff --binary HEAD` and embed the verbatim output in a fenced `diff` block per the **Fence delimiter rule** above (four-backtick floor; escalate if content has four-or-more-backtick runs). No size cap. `--binary` is required so binary files are recoverable from the artifact alone (design line 124).
 
-5. **Capture untracked** — run `git ls-files --others --exclude-standard`. List each path in a fenced `untracked` block per the **Fence delimiter rule** above. For each path, check both caps (≤100 lines AND ≤10 KB):
-   - Passes both → emit a fenced `untracked-content` block (per the same fence rule) with `path: <file>` on the first line followed by the file body.
-   - Fails either → **abort** with the message from § "Untracked-file handling" listing all offending files and which cap each tripped. Do not write `tasks/checkpoint.md`. Do not commit.
+5. **Capture untracked** — run `git ls-files --others --exclude-standard`. List each path in a fenced `untracked` block per the **Fence delimiter rule** above. For each path, check both caps (≤100 lines AND ≤10 KB) and run binary detection:
+   - Passes both caps AND is non-binary → emit a fenced `untracked-content` block (per the same fence rule) with `path: <file>` on the first line followed by the file body.
+   - Fails either cap, OR is detected as binary → **abort** with the message from § "Untracked-file handling" listing all offending files and the reason each was refused (line cap, byte cap, or binary). Do not write `tasks/checkpoint.md`. Do not commit.
 
 6. **Synthesize body** — write a 2–4 line "What's next" note derived from `cursor_text` + `batch_heading` + active phase. In standalone mode (no QRSPI artifacts), write a generic "ad-hoc snapshot" line plus the most recent commit subject from `git log -1 --format=%s`. **Do not** treat `$ARGUMENTS` as a freeform user blurb — `$ARGUMENTS` is reserved for the mode keywords listed in the behavior table.
 
@@ -288,10 +289,10 @@ This phase also resolves the existing `CLAUDE.md` ↔ template drift documented 
 
 Both files end up with the same 4-check structure (mirroring what the template already has, plus a 4th check for checkpoint).
 
-**`templates/playbook-sections.md`** lines 153–159 — replace the current 3-check block with a 4-check block by appending:
+**`templates/playbook-sections.md`** lines 153–159 — replace the current 3-check block with a 4-check block. The new "Active checkpoint" check is **prepended as #1** (not appended; see the deviation note below) so the resume path always wins over the leftover-artifact prompt:
 
 ```
-4. **Active checkpoint** — If `tasks/checkpoint.md` exists, do not auto-resume. Tell the developer: "Found `tasks/checkpoint.md` from a prior session. Run `/checkpoint resume` to rehydrate, `/checkpoint discard` to drop it, or `/checkpoint replace` to overwrite with a fresh save."
+1. **Active checkpoint** — If `tasks/checkpoint.md` exists, do not auto-resume. Tell the developer: "Found `tasks/checkpoint.md` from a prior session. Run `/checkpoint resume` to rehydrate, `/checkpoint discard` to drop it, or `/checkpoint replace` to overwrite with a fresh save." If the developer chooses resume, skip the leftover-artifact check below — `/checkpoint resume` is the cleanup path.
 ```
 
 **`CLAUDE.md`** lines 198–203 — replace the current 2-check block (which is missing the leftover-artifact check that's already in the template) with the matching 4-check block in the same order:
