@@ -48,11 +48,9 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 | Command | Purpose |
 |---|---|
-| `/issue-research-codex` | Codex researches issue, Claude verifies; writes `tasks/research-issue-N.md` |
-| `/issue-plan` | Generate `tasks/plan-issue-N.md` from research |
-| `/issue-plan-review-codex` | Codex reviews plan against research and acceptance criteria |
-| `/issue-implement` | Execute approved plan step-by-step |
-| `/issue-code-review-codex` | Codex reviews implementation against issue-specific plan |
+| `/issue-research` | Codex sweeps issue, Claude synthesizes + recommends approach; writes `tasks/research-issue-N.md` |
+| `/issue-plan` | Draft plan, Codex reviews, absorb findings; writes `tasks/plan-issue-N.md` |
+| `/issue-implement` | Execute plan phase-by-phase, run Codex code review, apply triaged fixes via child process |
 | `/issue-update` | Check impact of completed issue on other open issues |
 | `/auto-issues` | Run full issue pipeline end-to-end, unattended |
 
