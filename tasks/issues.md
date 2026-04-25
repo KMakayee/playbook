@@ -43,10 +43,11 @@ Each issue uses the structure below. Copy it when adding a new issue.
 
 ## #1 — Default `/push-pr` and `/push-pr-light` to `--squash`
 
-**Status:** Draft
+**Status:** Done
 **Priority:** Low
 **Created:** 2026-04-24
 **Updated:** 2026-04-25 — re-scoped after Task 8 absorbed the catch-up + artifact-cleanup portions
+**Closed:** 2026-04-25
 
 ### Description
 
@@ -62,17 +63,19 @@ This issue was originally scoped to also bundle catch-up automation and artifact
 
 ### Acceptance Criteria
 
-- [ ] `/push-pr` defaults to `gh pr merge --squash`
-- [ ] `/push-pr-light` does the same
-- [ ] PR title is pre-set via `gh pr create --title "<descriptive>"` so the squash commit on `main` reads cleanly (not auto-generated from branch name)
-- [ ] `README.md` and `quickref.md` mention squash as the default
-- [ ] Existing PR review and conditional-merge logic preserved unchanged
+- [x] `/push-pr` defaults to `gh pr merge --squash`
+- [x] `/push-pr-light` does the same
+- [x] PR title is pre-set via `gh pr create --title "<descriptive>"` so the squash commit on `main` reads cleanly (not auto-generated from branch name)
+- [x] `README.md` and `quickref.md` mention squash as the default
+- [x] Existing PR review and conditional-merge logic preserved unchanged
 
 ### Notes
 
 Confirmed during 2026-04-24 parallel-PR session (tasks 1/2/3 in `tasks/todo.md`). Squash-default preference is also saved as feedback memory (`feedback_squash_merge_default.md`) so the agent passes the flag manually until this issue lands.
 
 **Co-located with Task 8.** Task 8 (new `/catchup` command) will need to edit `/push-pr` and `/push-pr-light` to add a staleness gate. The squash-default change is small and lives in the same surface — Task 8 should close out this issue alongside that edit rather than running this as a separate work item.
+
+**2026-04-25 — Closed by Task 8.** Task 8's `/catchup` work edited `/push-pr*` for the staleness gate; squash default + `--title` hybrid landed in the same edit.
 
 ### Impacts
 

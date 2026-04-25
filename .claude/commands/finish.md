@@ -13,8 +13,8 @@ Wrap up the current task: mark it done and commit everything including QRSPI art
    - If any are unchecked, **stop** — list the incomplete items and tell the developer the task isn't finished yet. Do not proceed.
    - If `tasks/plan.md` doesn't exist, skip the verification (the task may have been trivial with no plan).
    - Read `tasks/todo.md` fully.
-   - Find the first unchecked task (`- [ ]`) — this is the task that was just completed.
-   - Mark it as done (`- [x]`).
+   - Detect the current branch with `git rev-parse --abbrev-ref HEAD`. If it matches `worktree-todo-<N>` (e.g., `worktree-todo-8`), find task `<N>` in `tasks/todo.md` and mark it done (`- [x]`). The worktree's branch name names the task it's dedicated to, so use that directly — do **not** assume top-to-bottom sequential execution.
+   - Otherwise (regular branch, no worktree convention), find the first unchecked task (`- [ ]`) and mark it as done. This is the fallback when there's no worktree-name signal to disambiguate.
    - If `tasks/todo.md` doesn't exist, skip the todo update silently.
 
 2. **Commit all changes (including the updated todo and QRSPI artifacts):**
@@ -36,7 +36,7 @@ Wrap up the current task: mark it done and commit everything including QRSPI art
    - Show which todo task was marked complete (if any).
    - Confirm the commit hash and message for the main commit from step 2.
    - List which artifact files were committed in step 2 and which were removed in step 3's follow-up local commit.
-   - If there are remaining tasks in `tasks/todo.md`, show the next one up.
+   - If the current branch is a `worktree-todo-<N>` worktree, skip the "next up" hint — this worktree is dedicated to its task, and the next task belongs to a different worktree (or the developer's discretion). Otherwise, if there are remaining tasks in `tasks/todo.md`, show the next one up.
 
 ## Important notes:
 - This command verifies the plan is complete before proceeding. If any plan items are unchecked, it stops early.

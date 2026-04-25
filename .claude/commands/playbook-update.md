@@ -35,6 +35,7 @@ templates/deferred.md
 .claude/commands/push-pr.md
 .claude/commands/push-pr-light.md
 .claude/commands/checkpoint.md
+.claude/commands/catchup.md
 .claude/commands/finish.md
 .claude/prompts/research-guide.md
 .claude/prompts/research-patterns-guide.md

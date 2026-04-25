@@ -100,6 +100,7 @@ Offer to install reusable workflow commands to `~/.claude/commands/` (global, av
    - `.claude/commands/commit.md`
    - `.claude/commands/push-pr.md`
    - `.claude/commands/push-pr-light.md`
+   - `.claude/commands/catchup.md`
 
    a. Check if the file already exists at `~/.claude/commands/[filename]`.
    b. If it doesn't exist: ask the developer:
