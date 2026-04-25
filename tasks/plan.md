@@ -307,10 +307,10 @@ After this phase, the two files express the same instruction set, in the same or
 
 ### Success criteria
 
-- [ ] `grep -n "Active checkpoint" CLAUDE.md templates/playbook-sections.md` matches in both files.
-- [ ] Both files contain a 4-check Session-Start Validation block in the same order with the same per-check rules (verify by reading both blocks side-by-side; surrounding boilerplate may differ).
-- [ ] No other content in `CLAUDE.md` (especially the team-owned top half above the `---` boundary that precedes `# QRSPI Workflow Rules`) changes.
-- [ ] The block stays under the existing "no sub-agents, under 30 seconds" constraint — no new file reads beyond a single `[ -f tasks/checkpoint.md ]` check.
+- [x] `grep -n "Active checkpoint" CLAUDE.md templates/playbook-sections.md` matches in both files.
+- [x] Both files contain a 4-check Session-Start Validation block in the same order with the same per-check rules (verify by reading both blocks side-by-side; surrounding boilerplate may differ).
+- [x] No other content in `CLAUDE.md` (especially the team-owned top half above the `---` boundary that precedes `# QRSPI Workflow Rules`) changes.
+- [x] The block stays under the existing "no sub-agents, under 30 seconds" constraint — no new file reads beyond a single `[ -f tasks/checkpoint.md ]` check.
 
 ---
 
