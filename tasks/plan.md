@@ -421,10 +421,10 @@ After all 6 phases land, do a full smoke test of the new surface.
 1. **Manual path:** if a tractable issue exists in `tasks/issues.md`, run `/issue-research $N`, `/issue-plan $N`, `/issue-implement $N` end-to-end. Verify each produces the expected artifact, sets the expected status, and cleans up its temp files. (Do NOT run on a real issue without developer approval — this is a dry-run check.)
 2. **Auto path (developer-driven):** the developer runs `/auto-issues $N` on a real issue and confirms the 7-phase pipeline runs end-to-end and `pipeline-eval.sh` returns PASS.
 3. **Static checks (in-session):**
-   - [ ] `find .claude/commands -name 'issue-*.md' | sort` lists exactly: `issue-implement.md`, `issue-plan.md`, `issue-research.md`, `issue-update.md`.
-   - [ ] `! grep -rn '\bissue-research-codex\|\bissue-plan-review-codex\|\bissue-code-review-codex\b' .claude/ README.md quickref.md CLAUDE.md templates/ tasks/issues.md` (excludes `tasks/todo.md`, which legitimately quotes the old command names while describing Task 6).
-   - [ ] `bash -n .claude/scripts/pipeline-eval.sh` (script syntax valid).
-   - [ ] `grep -E '^### Phase [1-7]:' .claude/commands/auto-issues.md | wc -l` returns `7`.
+   - [x] `find .claude/commands -name 'issue-*.md' | sort` lists exactly: `issue-implement.md`, `issue-plan.md`, `issue-research.md`, `issue-update.md`.
+   - [x] `! grep -rn '\bissue-research-codex\|\bissue-plan-review-codex\|\bissue-code-review-codex\b' .claude/ README.md quickref.md CLAUDE.md templates/ tasks/issues.md` (excludes `tasks/todo.md`, which legitimately quotes the old command names while describing Task 6).
+   - [x] `bash -n .claude/scripts/pipeline-eval.sh` (script syntax valid).
+   - [x] `grep -E '^### Phase [1-7]:' .claude/commands/auto-issues.md | wc -l` returns `7`.
 
 ---
 
