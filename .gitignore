@@ -1,3 +1,4 @@
 .DS_Store
 lsp-benchmark/
 ref_docs/
+.claude/settings.local.json
