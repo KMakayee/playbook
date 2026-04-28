@@ -1,6 +1,6 @@
 # Agentic Engineering Playbook
 
-A workflow toolkit that orchestrates **Claude** and **Codex** for disciplined software engineering. Each phase pairs the two agents — Codex does broad codebase sweeps and independent cross-checks, Claude synthesizes, makes judgment calls, and drives implementation. Together they catch mistakes neither would catch alone: Codex surfaces what exists; Claude decides what matters.
+A workflow toolkit that pairs Claude and Codex for disciplined software engineering: Codex scans and cross-checks the codebase, while Claude synthesizes, prioritizes, and implements. Together, they catch mistakes neither would catch alone.
 
 ## Prerequisites
 
@@ -86,7 +86,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 ### Workflow rules
 
-`CLAUDE.md` includes the QRSPI (Questions, Research, Structure, Plan, Implement) workflow rules. Any task touching 2+ files or changing interfaces requires structured research, a reviewed design, an approved plan, and step-by-step implementation with verification. Every phase pairs Claude's synthesis with an independent Codex cross-check — the two-agent handshake is what separates this playbook from single-agent workflows. Trivial changes (single file, <20 lines) skip the process. See `quickref.md` for the full checklist.
+`CLAUDE.md` includes the QRSPI (Questions and Research, Structure, Plan, Implement) workflow rules. Any task touching 2+ files or changing interfaces requires structured research, a reviewed design, an approved plan, and step-by-step implementation with verification. Every phase pairs Claude's synthesis with an independent Codex cross-check — the two-agent handshake is what separates this playbook from single-agent workflows. Trivial changes (single file, <20 lines) skip the process. See `quickref.md` for the full checklist.
 
 ## Updating
 
@@ -104,7 +104,6 @@ Fetches the latest playbook, shows what changed, and lets you approve each file 
 | `quickref.md` | Human-readable QRSPI cheat sheet | No — for your reference |
 | `templates/*` | Structures for research, plans, audits, etc. | Referenced when writing artifacts |
 | `.claude/commands/*` | Slash commands | Only when invoked |
-| `.claude/settings.local.json` | Permissions config | Yes — every session |
 
 ## LSP
 
