@@ -110,6 +110,8 @@ Task 7 (port to skills) is mechanical and should land **last**, after all behavi
 
   **Sequencing.** Land before Task 7 (skill port) so the new /issue-finish and reshaped /issue-implement / /auto-issues get ported with the rest. **Land before Task 10** (background-by-default migration) — Task 10 explicitly targets `auto-issues.md` Phases 4-5 and `issue-implement.md`'s structural-mismatch / background sites, which Task 11 rewrites. Doing Task 10 first risks lost work since Task 11's rewrites would invalidate Task 10's `</dev/null` discipline edits on the same lines; Task 11 first lets Task 10 apply the discipline cleanly to the new structure. Independent of Task 5.
 
+  **Discipline preservation (Issue #2).** Preserve `</dev/null` on every `codex exec` / `claude -p` invocation in the rewritten files (per Issue #2). No automated lint exists — verify by spot-check during review and a smoke run of one backgrounded site.
+
   **Blocks:** running /auto-issues N end-to-end.
 
 ## Deferred

@@ -83,14 +83,14 @@ Confirmed during 2026-04-24 parallel-PR session (tasks 1/2/3 in `tasks/todo.md`)
 
 ## #2 — `/implement` hangs in `run_in_background` mode (codex + claude -p stdin)
 
-**Status:** Draft
+**Status:** Implemented
 **Priority:** High
 **Created:** 2026-05-02
-**Updated:** 2026-05-02 — refined acceptance criteria after second Codex review (live repro confirmed bug, foreground calls covered defensively, regression guard scoped narrowly, chained-line placement clarified)
+**Updated:** 2026-05-02 — scope broadened to uniform `</dev/null` coverage across all 19 long-running call sites (foreground-safe premise falsified by harness auto-background); regression-guard half dropped per operator direction (manual monitoring instead of an automated lint)
 
 ### Description
 
-When `/implement` (or other QRSPI commands) launches a `codex … exec` or `claude -p …` child process under the harness's `run_in_background: true` mode, the child appears to inherit an open stdin pipe with no writer. Codex (v0.125.0, also reproduced under v0.128.0) then blocks indefinitely on its `Reading additional input from stdin...` step, silently stalling the whole run. The harness implementation isn't in this repo, so the "open pipe, no writer" wording is observed behavior, not fully established — but the repro and the fix at the call site are reliable.
+When `/implement` (or other QRSPI commands) launches a `codex … exec` or `claude -p …` child process under the harness's `run_in_background: true` mode (or any long-running call the harness may auto-background — see 2026-05-02 update in `tasks/design-decision.md:9-14`), the child inherits a stdin pipe whose writer-side fd is held open by the harness. Codex (v0.125.0, also reproduced under v0.128.0) then blocks indefinitely on its `Reading additional input from stdin...` step, silently stalling the whole run. The harness implementation isn't in this repo, but POSIX `pipe(7)` semantics — `read()` blocks while any writer is open — match the observed behavior, and the fix at the call site is reliable.
 
 Failure surface (call sites missing stdin redirection):
 
@@ -109,16 +109,14 @@ Symptoms observed:
 
 ### Acceptance Criteria
 
-- [ ] Append `</dev/null` to the `codex … exec` invocation in `.claude/commands/implement.md:75-99`.
-- [ ] Append `</dev/null` to the `claude -p …` invocation at `.claude/commands/implement.md:141`. **Placement note:** in chained lines like `mkdir -p tasks/logs && TIMESTAMP=… && claude -p …`, the redirect must attach to the `claude -p` simple command — not the front of the chain. Correct: `… --dangerously-skip-permissions </dev/null > tasks/logs/…log 2>&1`. Wrong: `</dev/null mkdir -p … && …` (would apply to `mkdir`, not `claude -p`).
-- [ ] Apply the same `</dev/null` redirect to the `codex … exec` invocation in `.claude/commands/issue-implement.md:83-109`.
-- [ ] Apply the same `</dev/null` redirect to the `claude -p …` invocation at `.claude/commands/issue-implement.md:154-159` (same chained-line placement rule applies).
-- [ ] Apply the same `</dev/null` redirect to all three `claude -p …` invocations in `.claude/commands/auto-issues.md` (lines 33, 45, 57 — the ones explicitly marked `run_in_background`).
-- [ ] **Defensive coverage:** also apply `</dev/null` to the foreground `claude -p` invocations in `.claude/commands/auto-issues.md:69` (Phase 4 Update) and `:81` (Phase 5 Commit & Push). They aren't vulnerable today (timeout-only, not `run_in_background`), but uniform application keeps the pattern hang-proof if either is later switched to backgrounded mode.
-- [ ] **Regression guard:** add a smoke check (script or doc note) that greps for any **backgrounded** `codex … exec` or `claude -p …` snippet in `.claude/commands/*.md` lacking `</dev/null`. Scope the check to call sites associated with `run_in_background` — flagging every `claude -p` regardless of context creates false-positive noise that erodes trust in the guard.
-- [ ] **Verification:** the live repro on 2026-05-02 already confirmed the bug fires in the main repo and that `</dev/null` resolves it (worktree comparison no longer required). After applying the fix, re-run a representative `run_in_background` `codex exec` call and confirm completion plus the expected output artifact. **If a run still hangs after the fix, do not assume `</dev/null` is at fault** — it only addresses fd-0 reads. Inspect logs/process state for other blockers (`/dev/tty`, permission prompts, model timeouts, lock contention).
+- [x] Apply `</dev/null` to every long-running `codex exec` and `claude -p` invocation in `.claude/commands/*.md` (19 sites total: 7 originally-mandatory backgrounded + 12 added by uniform coverage).
+- [x] **Placement rule** — for chained lines like `mkdir -p tasks/logs && TIMESTAMP=… && claude -p …`, the redirect attaches to the `claude -p` simple command (between `--dangerously-skip-permissions` and `> tasks/logs/…log 2>&1`), never the front of the chain.
+- [x] **Verification** — operator-monitored smoke test: at least one representative backgrounded `codex exec` invocation completes and produces its expected output artifact. Live repro on 2026-05-02 confirmed the underlying bug fires in the main repo and that `</dev/null` resolves it. **If a run still hangs after the fix, do not assume `</dev/null` is at fault** — it only addresses fd-0 reads (`/dev/tty`, permission prompts, model timeouts, lock contention may all hang independently).
+- [x] **Regression guard deferred** — no automated lint shipping with this hotfix. Operator monitors backgrounded runs; if discipline rots, file a follow-up to add a lint or build a centralized wrapper (per `tasks/research-codebase.md:110`).
 
 ### Notes
+
+**2026-05-02 — Scope broadened, lint dropped.** During the design phase Claude observed the harness auto-background a foreground `codex exec` call (`.claude/commands/design.md:87`), which then hung indefinitely (had to be killed; exit 144). That falsified the original "foreground sites are safe" premise — the harness can choose to background any long-running call independently of how the spec is written. Scope therefore expanded from 7 mandatory + 2 defensive sites to 19 uniform sites covering every long-running `codex exec` / `claude -p` invocation in `.claude/commands/*.md` (see `tasks/design-decision.md:9-14`). The regression-guard half of the design (a marker-free lint script) was dropped on operator direction — backgrounded runs are monitored manually instead. If discipline rots, file a follow-up issue for either a lint or a centralized wrapper (Axis 2=B, deferred per `tasks/research-codebase.md:110`).
 
 **Live repro on 2026-05-02:** During the second-opinion review for this issue, the first `codex exec` call (without `</dev/null`) hung indefinitely in the main repo. The same call with `</dev/null` appended completed in normal time. End-to-end confirmation that the fix mechanism works and that worktree state is not part of the trigger.
 
@@ -130,4 +128,4 @@ Root cause is in the harness/runner that launches the backgrounded process, not 
 
 ### Impacts
 
-_None yet._
+**Task 11** (`tasks/todo.md`) — Task 11 will rewrite `auto-issues.md` Phases 4-5 and `issue-implement.md`'s background sites as part of restructuring the commit/cleanup model. Task 11 must preserve the `</dev/null` discipline on every long-running `codex exec` / `claude -p` invocation it produces. With no automated lint shipping, Task 11's reviewer is responsible for verifying the discipline was carried forward (spot-check edits + smoke run of one backgrounded site).

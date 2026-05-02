@@ -159,14 +159,14 @@ For chained `claude -p` (implement.md:146, issue-implement.md:159) — same inse
 6. **Task 11 acceptance/notes section** — locate the Task 11 entry and append a one-line bullet to its acceptance criteria or Notes: "Preserve `</dev/null` on every `codex exec` / `claude -p` invocation in the rewritten files (per Issue #2). No automated lint exists — verify by spot-check during review and a smoke run of one backgrounded site." (This satisfies the design's mitigation language at `tasks/design-decision.md:69`, adapted to the no-lint reality.)
 
 **Success criteria for Phase 2:**
-- [ ] `tasks/issues.md` Issue #2 description no longer contains the phrase "open pipe with no writer".
-- [ ] `tasks/issues.md` Issue #2 acceptance criteria reference all 19 sites and explicitly note the regression guard was deferred.
-- [ ] `tasks/issues.md` Issue #2 Notes section contains a 2026-05-02 scope-broadening entry citing the design decision.
-- [ ] `tasks/issues.md` Issue #2 status is `Implemented`.
-- [ ] `tasks/issues.md` Issue #2 Impacts section names Task 11 as the cross-coupling.
-- [ ] `tasks/todo.md` Task 11 entry contains the discipline-preservation note referencing Issue #2.
-- [ ] No other issues' bodies modified: `git diff tasks/issues.md` only touches the lines under `## #2`.
-- [ ] No other tasks' entries modified: `git diff tasks/todo.md` only touches Task 11's section.
+- [x] `tasks/issues.md` Issue #2 description no longer contains the phrase "open pipe with no writer".
+- [x] `tasks/issues.md` Issue #2 acceptance criteria reference all 19 sites and explicitly note the regression guard was deferred.
+- [x] `tasks/issues.md` Issue #2 Notes section contains a 2026-05-02 scope-broadening entry citing the design decision.
+- [x] `tasks/issues.md` Issue #2 status is `Implemented`.
+- [x] `tasks/issues.md` Issue #2 Impacts section names Task 11 as the cross-coupling.
+- [x] `tasks/todo.md` Task 11 entry contains the discipline-preservation note referencing Issue #2.
+- [x] No other issues' bodies modified: `git diff tasks/issues.md` only touches the lines under `## #2`.
+- [x] No other tasks' entries modified: `git diff tasks/todo.md` only touches Task 11's section.
 
 **Commit message:** `docs(issues): broaden #2 scope to uniform </dev/null discipline`
 
