@@ -80,3 +80,49 @@ Confirmed during 2026-04-24 parallel-PR session (tasks 1/2/3 in `tasks/todo.md`)
 ### Impacts
 
 - **Task 8** (`tasks/todo.md`): co-located. Task 8 will close this issue out as part of its `/push-pr` staleness-gate edit.
+
+## #2 — `/implement` hangs in `run_in_background` mode (codex + claude -p stdin)
+
+**Status:** Draft
+**Priority:** High
+**Created:** 2026-05-02
+**Updated:** 2026-05-02 — expanded scope and softened root-cause wording after Codex review
+
+### Description
+
+When `/implement` (or other QRSPI commands) launches a `codex … exec` or `claude -p …` child process under the harness's `run_in_background: true` mode, the child appears to inherit an open stdin pipe with no writer. Codex (v0.125.0, also reproduced under v0.128.0) then blocks indefinitely on its `Reading additional input from stdin...` step, silently stalling the whole run. The harness implementation isn't in this repo, so the "open pipe, no writer" wording is observed behavior, not fully established — but the repro and the fix at the call site are reliable.
+
+Failure surface (call sites missing stdin redirection):
+
+- `.claude/commands/implement.md:75-99` — `codex … exec` (Step 6: Run Codex code review).
+- `.claude/commands/implement.md:141` — `claude -p …` (Step 8: Apply fixes via child process).
+- `.claude/commands/issue-implement.md:83-109` — `codex … exec` (Step 6, mirror of `implement.md`).
+- `.claude/commands/issue-implement.md:154-159` — `claude -p …` (Step 8, mirror of `implement.md`).
+- `.claude/commands/auto-issues.md:33` — `claude -p …` (Phase 1 Research, header at `:30`).
+- `.claude/commands/auto-issues.md:45` — `claude -p …` (Phase 2 Plan, header at `:42`).
+- `.claude/commands/auto-issues.md:57` — `claude -p …` (Phase 3 Implement, header at `:54`).
+
+Symptoms observed:
+- Intermittent — happens sometimes, not always. High priority because when it hits, it silently stalls the run with no error.
+- Suspected correlation with running inside a worktree (anecdotal — noticed last time it occurred). Needs to be confirmed or ruled out during fix verification.
+- Manifests as a stuck "still running" background task that never produces its expected artifact (e.g. `tasks/codex-code-review.tmp` or the corresponding `tasks/logs/…log`).
+
+### Acceptance Criteria
+
+- [ ] Append `</dev/null` to the `codex … exec` invocation in `.claude/commands/implement.md:75-99`.
+- [ ] Append `</dev/null` to the `claude -p …` invocation at `.claude/commands/implement.md:141` (before the `>` redirect, e.g. `… --dangerously-skip-permissions </dev/null > tasks/logs/…`).
+- [ ] Apply the same `</dev/null` redirect to the `codex … exec` invocation in `.claude/commands/issue-implement.md:83-109`.
+- [ ] Apply the same `</dev/null` redirect to the `claude -p …` invocation at `.claude/commands/issue-implement.md:154-159`.
+- [ ] Apply the same `</dev/null` redirect to all three `claude -p …` invocations in `.claude/commands/auto-issues.md` (lines 33, 45, 57 — the ones explicitly marked `run_in_background`).
+- [ ] **Regression guard:** add a smoke check (script or doc note) that greps for any backgrounded `codex … exec` or `claude -p …` snippet in `.claude/commands/*.md` lacking `</dev/null`, so future call sites don't regress.
+- [ ] **Verification:** reproduce the hang first by running the unmodified Step 6 command via Bash with `run_in_background: true` in both a worktree and a non-worktree (to confirm or rule out the worktree correlation). Then apply the fix and re-run; confirm both contexts complete and produce the expected output artifact.
+
+### Notes
+
+**Out of scope but worth a glance:** `.claude/commands/auto-issues.md:69` (Phase 4 Update) and `:81` (Phase 5 Commit & Push) are also `claude -p` invocations but are documented with `Timeout: 600000ms` only, not `run_in_background`. They are NOT vulnerable to the same hang under their current invocation pattern, but if they are ever switched to `run_in_background`, they will need the same fix. Consider adding `</dev/null` defensively to make the pattern uniform across the file.
+
+Root cause is in the harness/runner that launches the backgrounded process, not in codex itself — codex behaves correctly given a closed stdin. The one-character fix at each call site avoids needing harness changes and is the lowest-blast-radius option. Codex CLI flags are not a clear substitute because the prompt is already passed as an argv string, not via stdin.
+
+### Impacts
+
+_None yet._
