@@ -122,7 +122,7 @@ For reference, these are the priorities for choosing an approach:
 
 ## Decision
 
-**Chosen approach:** Option B — uniform `</dev/null` coverage with marker-free, bash-fence-anchored regression guard.
+**Chosen approach:** Option B's *coverage* half — uniform `</dev/null` across all 19 long-running `codex exec` / `claude -p` sites in `.claude/commands/*.md`. The marker-free, bash-fence-anchored regression-guard half (Axis 4=B, Axis 5=A) was **dropped on operator direction** — backgrounded runs are monitored manually for now; if discipline rots, file a follow-up for either a lint or a centralized wrapper (Axis 2=B). See `tasks/plan.md:5-9`.
 
 **Rationale:**
 1. **Runtime correctness** trumps spec-level intent. The 2026-05-02 finding (and the user's report of harness non-determinism) falsifies the foreground-safe premise. Only a uniform rule survives the harness's auto-background behavior.
