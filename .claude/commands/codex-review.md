@@ -58,7 +58,7 @@ Run with a 10-minute timeout (600000ms) — Codex may take a while on larger tar
 codex exec \
   --sandbox read-only \
   -o tasks/codex-review.tmp \
-  "$(cat tasks/codex-review-prompt.tmp)"
+  "$(cat tasks/codex-review-prompt.tmp)" </dev/null
 ```
 
 If the `codex` command is not found or fails, run `rm -f tasks/codex-review.tmp tasks/codex-review-prompt.tmp`, then stop and tell the developer to fix it before proceeding. Cleanup must run before the stop so the no-persistent-artifact boundary holds even on failure.

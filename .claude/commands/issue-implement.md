@@ -52,7 +52,7 @@ c. **Handle mismatches:**
      What's actually present: {brief description of what the implementer found}.
 
      Inspect tasks/plan-issue-$ARGUMENTS.md (the original premise) and tasks/research-issue-$ARGUMENTS.md (the original sweep), then sweep the current code at the cited paths. Return: actual structure and locations, what the plan assumed, and a delta description Claude can use to update the plan. Be specific with file paths and line numbers.
-     Effort calibration: scope to the specific mismatch — do not sweep beyond the cited files unless the mismatch implicates a wider refactor."
+     Effort calibration: scope to the specific mismatch — do not sweep beyond the cited files unless the mismatch implicates a wider refactor." </dev/null
      ```
      Verify the output before reading: `bash .claude/scripts/codex-output-check.sh tasks/codex-debug-issue-$ARGUMENTS-{phase}.tmp 5`. If the check fails, stop and tell the developer.
 
@@ -106,7 +106,7 @@ PART 3 — Acceptance criteria coverage:
 - Flag any criteria that are partially met.
 
 For each finding, include: (a) the exact file path and line number(s); (b) a candidate minimal-fix sketch (raw input — Claude will triage; do not auto-apply); (c) a repro or failing-test command that demonstrates the issue, when applicable.
-Prefix each finding with \`CORRECTION:\`, \`TRADE-OFF:\`, or \`RISK:\` per the QRSPI taxonomy."
+Prefix each finding with \`CORRECTION:\`, \`TRADE-OFF:\`, or \`RISK:\` per the QRSPI taxonomy." </dev/null
 ```
 
 Use a 10-minute timeout (600000ms).
@@ -156,7 +156,7 @@ mkdir -p tasks/logs && TIMESTAMP=$(date +%Y%m%d-%H%M) && claude -p "Read tasks/c
 2. Apply the fix.
 3. Run any relevant tests to confirm the fix doesn't break anything.
 Do NOT commit — the parent session will verify and commit.
-You are running non-interactively — do not ask questions." --dangerously-skip-permissions > tasks/logs/code-review-fixes-issue-$ARGUMENTS-$TIMESTAMP.log 2>&1
+You are running non-interactively — do not ask questions." --dangerously-skip-permissions </dev/null > tasks/logs/code-review-fixes-issue-$ARGUMENTS-$TIMESTAMP.log 2>&1
 ```
 
 ### 9. Final verification

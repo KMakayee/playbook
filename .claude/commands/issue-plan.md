@@ -89,7 +89,7 @@ For each acceptance criterion in the issue body in tasks/issues.md (acceptance c
 PART 6 — Stale-reference audit:
 For every file:line reference cited in the plan, verify it exists at the cited line in the current code and matches what the plan describes. Flag stale references as CORRECTIONS — these are factual errors the implementer must fix before proceeding, not trade-offs to debate.
 
-Be specific with file paths and line numbers."
+Be specific with file paths and line numbers." </dev/null
 ```
 
 Verify the output before reading: `bash .claude/scripts/codex-output-check.sh tasks/codex-issue-plan-review-$ARGUMENTS.tmp 10`. If the check fails, stop and tell the developer.
