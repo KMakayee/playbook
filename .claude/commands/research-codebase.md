@@ -43,7 +43,7 @@ Codex leads the exploration. It maps the codebase, enumerates the solution space
    codex -c model_reasoning_effort=xhigh --search exec \
      --sandbox read-only \
      -o tasks/codex-research.tmp \
-     "$(cat tasks/codex-prompt.tmp)"
+     "$(cat tasks/codex-prompt.tmp)" </dev/null
    ```
    Use a 10-minute timeout (600000ms) — Codex may take a while on large codebases.
 7. Verify the output before reading: `bash .claude/scripts/codex-output-check.sh tasks/codex-research.tmp 20`. If the check fails, stop and tell the developer.

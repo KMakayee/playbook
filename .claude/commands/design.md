@@ -101,7 +101,7 @@ Codex works in three phases: designs independently first, then cross-checks agai
    For each item reported in this phase, prefix it with `CORRECTION:` (factual error in the proposed options or in research/design references), `TRADE-OFF:` (viable alternative the proposed options missed), or `RISK:` (something that could go wrong with the chosen approach).
 
    PHASE 3 — Recommend:
-   Recommend the best approach — a proposed option, your own, or a hybrid. Base this on technical merit, not deference to the original design."
+   Recommend the best approach — a proposed option, your own, or a hybrid. Base this on technical merit, not deference to the original design." </dev/null
    ```
 
 3. Verify the output before reading: `bash .claude/scripts/codex-output-check.sh tasks/codex-design-review.tmp 10`. If the check fails, stop and tell the developer.
@@ -141,7 +141,7 @@ codex -c model_reasoning_effort=xhigh exec \
 Effort calibration: scope to the specific blocking question — do not re-litigate axes that aren't in tension.
 Do targeted research to resolve this. Cite file paths, line numbers, or external references as evidence.
 Recommend which option to choose based on what you find.
-Prefix every claim with `CORRECTION:`, `TRADE-OFF:`, or `RISK:` per the QRSPI taxonomy."
+Prefix every claim with `CORRECTION:`, `TRADE-OFF:`, or `RISK:` per the QRSPI taxonomy." </dev/null
 ```
 
 Verify the output before reading: `bash .claude/scripts/codex-output-check.sh tasks/codex-design-tiebreaker.tmp 5`. If the check fails, stop and tell the developer.
@@ -195,7 +195,7 @@ If SKIP and a stale `tasks/research-patterns.md` exists, delete it.
    codex -c model_reasoning_effort=xhigh --search exec \
      --sandbox read-only \
      -o tasks/codex-patterns-research.tmp \
-     "$(cat tasks/patterns-prompt.tmp)"
+     "$(cat tasks/patterns-prompt.tmp)" </dev/null
    ```
 
 3. Verify the output before reading: `bash .claude/scripts/codex-output-check.sh tasks/codex-patterns-research.tmp 15`. If the check fails, stop and tell the developer.

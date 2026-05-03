@@ -30,7 +30,7 @@ Use `$TIMESTAMP` in all log filenames below so re-runs don't overwrite previous 
 **Run with `run_in_background` — Codex phase, may take 10+ minutes.**
 
 ```bash
-claude -p "Read .claude/commands/issue-research.md and follow its instructions exactly for issue #$ARGUMENTS. You are running non-interactively — do not ask questions, make reasonable choices and proceed." --dangerously-skip-permissions > tasks/logs/auto-issue-$ARGUMENTS-1-research-$TIMESTAMP.log 2>&1
+claude -p "Read .claude/commands/issue-research.md and follow its instructions exactly for issue #$ARGUMENTS. You are running non-interactively — do not ask questions, make reasonable choices and proceed." --dangerously-skip-permissions </dev/null > tasks/logs/auto-issue-$ARGUMENTS-1-research-$TIMESTAMP.log 2>&1
 ```
 
 **Check:** Verify `tasks/research-issue-$ARGUMENTS.md` exists AND issue #$ARGUMENTS status is `In Research` in `tasks/issues.md`. If either fails, report failure and stop.
@@ -42,7 +42,7 @@ Report: "Phase 1 complete — research artifact written."
 **Run with `run_in_background` — Codex phase, may take 10+ minutes.**
 
 ```bash
-claude -p "Read .claude/commands/issue-plan.md and follow its instructions exactly for issue #$ARGUMENTS. You are running non-interactively — do not ask questions or wait for approval. Make reasonable choices and proceed." --dangerously-skip-permissions > tasks/logs/auto-issue-$ARGUMENTS-2-plan-$TIMESTAMP.log 2>&1
+claude -p "Read .claude/commands/issue-plan.md and follow its instructions exactly for issue #$ARGUMENTS. You are running non-interactively — do not ask questions or wait for approval. Make reasonable choices and proceed." --dangerously-skip-permissions </dev/null > tasks/logs/auto-issue-$ARGUMENTS-2-plan-$TIMESTAMP.log 2>&1
 ```
 
 **Check:** Verify `tasks/plan-issue-$ARGUMENTS.md` exists AND issue #$ARGUMENTS status is `In Review` in `tasks/issues.md`. If either fails, report failure and stop.
@@ -54,7 +54,7 @@ Report: "Phase 2 complete — plan artifact written."
 **Run with `run_in_background` — implementation may take 10+ minutes.**
 
 ```bash
-claude -p "Read .claude/commands/issue-implement.md and follow its instructions exactly for issue #$ARGUMENTS. You are running non-interactively — the plan is approved, proceed with implementation. Do not ask questions. If you hit a structural mismatch, follow .claude/commands/issue-implement.md's structural-mismatch handling exactly (Step 4c)." --dangerously-skip-permissions > tasks/logs/auto-issue-$ARGUMENTS-3-implement-$TIMESTAMP.log 2>&1
+claude -p "Read .claude/commands/issue-implement.md and follow its instructions exactly for issue #$ARGUMENTS. You are running non-interactively — the plan is approved, proceed with implementation. Do not ask questions. If you hit a structural mismatch, follow .claude/commands/issue-implement.md's structural-mismatch handling exactly (Step 4c)." --dangerously-skip-permissions </dev/null > tasks/logs/auto-issue-$ARGUMENTS-3-implement-$TIMESTAMP.log 2>&1
 ```
 
 **Check:** Verify issue #$ARGUMENTS status is `Implemented` in `tasks/issues.md`. If not, check the log and report what happened.
@@ -66,7 +66,7 @@ Report: "Phase 3 complete — implementation done, code reviewed, fixes applied.
 **Timeout: 600000ms.**
 
 ```bash
-claude -p "Read .claude/commands/issue-update.md and follow its instructions exactly for issue #$ARGUMENTS. You are running non-interactively — do not ask questions." --dangerously-skip-permissions > tasks/logs/auto-issue-$ARGUMENTS-4-update-$TIMESTAMP.log 2>&1
+claude -p "Read .claude/commands/issue-update.md and follow its instructions exactly for issue #$ARGUMENTS. You are running non-interactively — do not ask questions." --dangerously-skip-permissions </dev/null > tasks/logs/auto-issue-$ARGUMENTS-4-update-$TIMESTAMP.log 2>&1
 ```
 
 **Check:** Verify issue #$ARGUMENTS status is `Done` in `tasks/issues.md`. If not, check the log and report what happened.
@@ -78,7 +78,7 @@ Report: "Phase 4 complete — related issues updated, issue marked Done."
 **Timeout: 600000ms.**
 
 ```bash
-claude -p "Read .claude/commands/commit.md and follow its instructions exactly. You are running non-interactively — do not ask questions. Stage all tracked changes and any new untracked files in tasks/. Draft a conventional commit message and commit. Push to the current branch." --dangerously-skip-permissions > tasks/logs/auto-issue-$ARGUMENTS-5-commit-$TIMESTAMP.log 2>&1
+claude -p "Read .claude/commands/commit.md and follow its instructions exactly. You are running non-interactively — do not ask questions. Stage all tracked changes and any new untracked files in tasks/. Draft a conventional commit message and commit. Push to the current branch." --dangerously-skip-permissions </dev/null > tasks/logs/auto-issue-$ARGUMENTS-5-commit-$TIMESTAMP.log 2>&1
 ```
 
 **Check:** Verify the working tree is clean (`git status` shows no uncommitted changes). If not, report what's left.
