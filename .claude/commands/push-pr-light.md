@@ -48,4 +48,5 @@ Review the status above. Then:
    `git fetch origin <default> && git merge origin/<default> && git push`
 
    Skip this step if the PR targeted any branch other than the default.
-8. **Reflect** — Scan the reflection prompt in `templates/error-report.md`. If anything from this session is worth logging, append a learning entry to `tasks/errors.md`.
+8. **Refresh remote refs** — Run `git fetch origin --prune`. Keeps other terminals' statuslines accurate on next render (covers non-default-base PRs that step 7 skips).
+9. **Reflect** — Scan the reflection prompt in `templates/error-report.md`. If anything from this session is worth logging, append a learning entry to `tasks/errors.md`.
