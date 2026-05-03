@@ -95,7 +95,7 @@ PART 2 — Independent code quality (evaluate on merit, regardless of what the p
 - Is the chosen approach the simplest one that solves the problem? If a simpler tool, pattern, or technique would work better than what the plan prescribed, flag it — the plan is not infallible.
 
 For each finding, include: (a) the exact file path and line number(s); (b) a candidate minimal-fix sketch (raw input — Claude will triage; do not auto-apply); (c) a repro or failing-test command that demonstrates the issue, when applicable.
-Prefix each finding with `CORRECTION:`, `TRADE-OFF:`, or `RISK:` per the QRSPI taxonomy." </dev/null
+Prefix each finding with `CORRECTION:`, `TRADE-OFF:`, or `RISK:` per the RDPI taxonomy." </dev/null
 ```
 
 **Check:** After the backgrounded Codex process completes, verify the output: `bash .claude/scripts/codex-output-check.sh tasks/codex-code-review.tmp 10`. If the check fails, stop and tell the developer.

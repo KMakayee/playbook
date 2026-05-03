@@ -37,8 +37,8 @@ Review the status above. Then:
    - Anything that looks unintentional
    Keep the review brief — a short bullet list of findings, or "No issues found". Do NOT run `/code-review`.
 6. **Conditional merge** — Evaluate the light review result:
-   - **If the review found no issues** ("No issues found"): merge the PR via `gh pr merge --squash` and confirm the merge to the developer. With `--squash`, the resulting commit on `<base>` is a single squashed commit; the work-branch ref is preserved post-merge so QRSPI artifacts stay retrievable via `git show <feature-sha>:<path>`.
-   - **If the review found issues**: list each issue clearly, do NOT merge, and suggest fixing via the QRSPI workflow (research → design → plan → implement).
+   - **If the review found no issues** ("No issues found"): merge the PR via `gh pr merge --squash` and confirm the merge to the developer. With `--squash`, the resulting commit on `<base>` is a single squashed commit; the work-branch ref is preserved post-merge so RDPI artifacts stay retrievable via `git show <feature-sha>:<path>`.
+   - **If the review found issues**: list each issue clearly, do NOT merge, and suggest fixing via the RDPI workflow (research → design → plan → implement).
    - **Merge error handling** — If `gh pr merge` fails:
      1. Wait 15 seconds and retry once.
      2. If retry fails with "merge already in progress": close the PR (`gh pr close <PR_NUMBER>`), create a fresh PR with the same base, and attempt to merge again.

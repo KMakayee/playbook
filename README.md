@@ -5,7 +5,7 @@ A workflow toolkit that pairs Claude and Codex for disciplined software engineer
 ## Prerequisites
 
 - [Claude Code](https://claude.com/claude-code) — the runtime for slash commands
-- [Codex CLI](https://github.com/openai/codex) — invoked in every QRSPI phase for independent review
+- [Codex CLI](https://github.com/openai/codex) — invoked in every RDPI phase for independent review
 
 ## Setup
 
@@ -20,7 +20,7 @@ rm -rf tasks
 
 > The `mv` command overwrites existing files. Back up your `CLAUDE.md`, `.claude/`, and `templates/` directories first if they already exist.
 >
-> `rm -rf tasks` clears the playbook maintainer's working artifacts (`todo.md`, `errors.md`, `issues.md`) that ship with the repo. QRSPI commands recreate `tasks/` as you work.
+> `rm -rf tasks` clears the playbook maintainer's working artifacts (`todo.md`, `errors.md`, `issues.md`) that ship with the repo. RDPI commands recreate `tasks/` as you work.
 
 Then open Claude Code and run:
 
@@ -34,7 +34,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 ### Commands
 
-**QRSPI workflow**
+**RDPI workflow**
 
 | Command | Purpose |
 |---|---|
@@ -86,7 +86,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 ### Workflow rules
 
-`CLAUDE.md` includes the QRSPI (Questions and Research, Structure, Plan, Implement) workflow rules. Any task touching 2+ files or changing interfaces requires structured research, a reviewed design, an approved plan, and step-by-step implementation with verification. Every phase pairs Claude's synthesis with an independent Codex cross-check — the two-agent handshake is what separates this playbook from single-agent workflows. Trivial changes (single file, <20 lines) skip the process. See `quickref.md` for the full checklist.
+`CLAUDE.md` includes the RDPI (Research, Design, Plan, Implement) workflow rules. Any task touching 2+ files or changing interfaces requires structured research, a reviewed design, an approved plan, and step-by-step implementation with verification. Every phase pairs Claude's synthesis with an independent Codex cross-check — the two-agent handshake is what separates this playbook from single-agent workflows. Trivial changes (single file, <20 lines) skip the process. See `quickref.md` for the full checklist.
 
 ## Updating
 
@@ -101,7 +101,7 @@ Fetches the latest playbook, shows what changed, and lets you approve each file 
 | File | Purpose | Loaded by Claude Code? |
 |---|---|---|
 | `CLAUDE.md` | Project context + workflow rules | Yes — every session |
-| `quickref.md` | Human-readable QRSPI cheat sheet | No — for your reference |
+| `quickref.md` | Human-readable RDPI cheat sheet | No — for your reference |
 | `templates/*` | Structures for research, plans, audits, etc. | Referenced when writing artifacts |
 | `.claude/commands/*` | Slash commands | Only when invoked |
 
@@ -116,4 +116,4 @@ Enabling LSP (Language Server Protocol) in Claude Code gives **~25% faster and c
 
 ---
 
-Built on the QRSPI workflow, evolved from the Research-Plan-Implement approach by [HumanLayer](https://github.com/humanlayer), with workflow orchestration principles from Boris Cherny. Two-agent orchestration pattern inspired by pairing human code review with an independent reviewer.
+Built on the RDPI workflow, evolved from the Research-Plan-Implement approach by [HumanLayer](https://github.com/humanlayer), with workflow orchestration principles from Boris Cherny. Two-agent orchestration pattern inspired by pairing human code review with an independent reviewer.

@@ -64,7 +64,7 @@ _No active issues._
 - Clean `main` history — one commit per PR
 - `git bisect` reliability — each commit on `main` is a complete, reviewed unit
 - Trivial reverts via `git revert <PR-merge-sha>`
-- QRSPI noise commits (`fix: apply code review revisions`, smoke-test edits, artifact cleanup) don't pollute the log
+- RDPI noise commits (`fix: apply code review revisions`, smoke-test edits, artifact cleanup) don't pollute the log
 - Artifact retrievability is preserved by keeping the work-branch ref around after merge — `git show <feature-sha>:tasks/plan.md` still works from the branch even though intermediate commits aren't reachable from `main`
 
 This issue was originally scoped to also bundle catch-up automation and artifact cleanup, but those moved to **Task 8 (`/catchup` command)** in `tasks/todo.md`. What's left for `/push-pr` is just the merge-strategy default and a small staleness-gate check (which Task 8 will also touch).
@@ -99,7 +99,7 @@ Confirmed during 2026-04-24 parallel-PR session (tasks 1/2/3 in `tasks/todo.md`)
 
 ### Description
 
-When `/implement` (or other QRSPI commands) launches a `codex … exec` or `claude -p …` child process under the harness's `run_in_background: true` mode (or any long-running call the harness may auto-background — see 2026-05-02 update in `tasks/design-decision.md:9-14`), the child inherits a stdin pipe whose writer-side fd is held open by the harness. Codex (v0.125.0, also reproduced under v0.128.0) then blocks indefinitely on its `Reading additional input from stdin...` step, silently stalling the whole run. The harness implementation isn't in this repo, but POSIX `pipe(7)` semantics — `read()` blocks while any writer is open — match the observed behavior, and the fix at the call site is reliable.
+When `/implement` (or other RDPI commands) launches a `codex … exec` or `claude -p …` child process under the harness's `run_in_background: true` mode (or any long-running call the harness may auto-background — see 2026-05-02 update in `tasks/design-decision.md:9-14`), the child inherits a stdin pipe whose writer-side fd is held open by the harness. Codex (v0.125.0, also reproduced under v0.128.0) then blocks indefinitely on its `Reading additional input from stdin...` step, silently stalling the whole run. The harness implementation isn't in this repo, but POSIX `pipe(7)` semantics — `read()` blocks while any writer is open — match the observed behavior, and the fix at the call site is reliable.
 
 Original backgrounded failure surface (before this fix — 7 mandatory sites originally enumerated):
 

@@ -1,6 +1,6 @@
 # Checkpoint
 
-Save, resume, discard, or replace a suspend-and-resume snapshot stored in `tasks/checkpoint.md`. The artifact captures QRSPI phase, plan cursor, branch state, and a recovery diff so a cold session (or a session after `/compact`) can pick up where the previous one left off.
+Save, resume, discard, or replace a suspend-and-resume snapshot stored in `tasks/checkpoint.md`. The artifact captures RDPI phase, plan cursor, branch state, and a recovery diff so a cold session (or a session after `/compact`) can pick up where the previous one left off.
 
 Takes a single optional argument (`$ARGUMENTS`):
 
@@ -83,13 +83,13 @@ For every untracked file (`git ls-files --others --exclude-standard`), check bot
 - **Under both caps and non-binary:** embed the file's contents in an `untracked-content` fenced block.
 - **Above either cap, OR detected as binary:** `/checkpoint` **refuses** — it lists every offending file, names the reason each was refused (line cap, byte cap, or binary), and tells the developer to either `git add <file>` (so the file rides on the embedded-diff path, where `git diff --binary` handles binary content correctly), `rm` it, or move it outside the worktree, then re-run. (`git rm` is for tracked files only and would error here.) This is deliberate friction: anything large enough to lose silently — or any binary that can't survive a Markdown fence — should be in the developer's hands, not the artifact.
 
-### QRSPI artifact special case
+### RDPI artifact special case
 
-If the offending list includes any of the QRSPI singleton/issue artifact paths — `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, `tasks/plan.md`, `tasks/research-issue-<N>.md`, `tasks/plan-issue-<N>.md` — the refusal message names them explicitly and recommends the `git add` path with an exact one-liner, for example:
+If the offending list includes any of the RDPI singleton/issue artifact paths — `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, `tasks/plan.md`, `tasks/research-issue-<N>.md`, `tasks/plan-issue-<N>.md` — the refusal message names them explicitly and recommends the `git add` path with an exact one-liner, for example:
 
-> *"`tasks/research-codebase.md` (33 KB, exceeds 10 KB cap) is a QRSPI artifact. Run `git add tasks/research-codebase.md tasks/design-decision.md tasks/plan.md` (whichever exist) and `git commit -m 'chore: snapshot QRSPI artifacts'`, then re-run `/checkpoint`."*
+> *"`tasks/research-codebase.md` (33 KB, exceeds 10 KB cap) is a RDPI artifact. Run `git add tasks/research-codebase.md tasks/design-decision.md tasks/plan.md` (whichever exist) and `git commit -m 'chore: snapshot RDPI artifacts'`, then re-run `/checkpoint`."*
 
-QRSPI artifacts are *meant* to be tracked; checkpoint is just surfacing the hygiene gap. (Auto-staging was considered and rejected: silently mutating the developer's index has surprising downstream effects on `/finish` and `/implement`'s per-phase commits.)
+RDPI artifacts are *meant* to be tracked; checkpoint is just surfacing the hygiene gap. (Auto-staging was considered and rejected: silently mutating the developer's index has surprising downstream effects on `/finish` and `/implement`'s per-phase commits.)
 
 ---
 
@@ -107,16 +107,16 @@ The consume step only runs after rehydration validation succeeds (frontmatter pa
 
 ## Create-mode steps
 
-1. **Inspect filesystem (no recall)** — check for presence of each QRSPI artifact. Glob `tasks/plan-issue-*.md` and `tasks/research-issue-*.md`, extract issue numbers from filenames, and take the **union** (a research-issue-only state is a valid mid-issue state where research is done but plan hasn't been created yet). Derive `mode`, `phase`, `plan_path`, and `issue` using the rules below. The singleton-QRSPI flow is derived **first**; only when no singleton artifacts are present do we fall through to issue flow.
+1. **Inspect filesystem (no recall)** — check for presence of each RDPI artifact. Glob `tasks/plan-issue-*.md` and `tasks/research-issue-*.md`, extract issue numbers from filenames, and take the **union** (a research-issue-only state is a valid mid-issue state where research is done but plan hasn't been created yet). Derive `mode`, `phase`, `plan_path`, and `issue` using the rules below. The singleton-RDPI flow is derived **first**; only when no singleton artifacts are present do we fall through to issue flow.
 
-   **Singleton-vs-issue precedence:** if any of `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, or `tasks/plan.md` exist, the developer is in singleton-QRSPI mode **regardless of any leftover `plan-issue-*.md` / `research-issue-*.md` files** (those are most likely stale from prior work). Singleton wins. Issue flow only activates when no singleton QRSPI artifacts exist.
+   **Singleton-vs-issue precedence:** if any of `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, or `tasks/plan.md` exist, the developer is in singleton-RDPI mode **regardless of any leftover `plan-issue-*.md` / `research-issue-*.md` files** (those are most likely stale from prior work). Singleton wins. Issue flow only activates when no singleton RDPI artifacts exist.
 
-   **Active-issue selection (only runs when no singleton QRSPI artifacts exist):**
+   **Active-issue selection (only runs when no singleton RDPI artifacts exist):**
    - Zero issue artifacts (no `plan-issue-*.md` AND no `research-issue-*.md`) → `issue: 0`, fall through to standalone.
    - Exactly one issue number `N` across the union → `issue: N`.
    - Multiple distinct issue numbers across the union → `issue: 0`, `mode: standalone`, `phase: none`, and add a body note: *"Active issue ambiguous — multiple issue artifacts present (`<list>`); treated as standalone snapshot. Run `/finish` or clean up stale issue plans before checkpointing in issue mode again."*
 
-   **Phase derivation (singleton-QRSPI flow):**
+   **Phase derivation (singleton-RDPI flow):**
    - `tasks/plan.md` exists with at least one `- [ ]` → `mode: qrspi`, `phase: implement`, `plan_path: "tasks/plan.md"`.
    - `tasks/plan.md` exists, all `- [x]` → `mode: qrspi`, `phase: implement`, `plan_path: "tasks/plan.md"` with an empty cursor; tell the developer the plan is fully checked (they probably want `/finish`, not `/checkpoint`).
    - `tasks/design-decision.md` exists, no `tasks/plan.md` → `mode: qrspi`, `phase: plan`, `plan_path: ""`.
@@ -142,9 +142,9 @@ The consume step only runs after rehydration validation succeeds (frontmatter pa
 
 5. **Capture untracked** — run `git ls-files --others --exclude-standard`. List each path in a four-backtick `untracked` fenced block. For each path, check both caps (≤ 100 lines AND ≤ 10 KB) and run binary detection:
    - Passes both caps AND is non-binary → emit a four-backtick `untracked-content` block with `path: <file>` on the first line followed by the file body.
-   - Fails either cap, OR is detected as binary → **abort** with the refusal message from § "Untracked-file handling", listing every offending file and the reason each was refused (line cap, byte cap, or binary). Do **not** write `tasks/checkpoint.md`. Do **not** commit. Apply the QRSPI artifact special case if any offender is a QRSPI artifact path.
+   - Fails either cap, OR is detected as binary → **abort** with the refusal message from § "Untracked-file handling", listing every offending file and the reason each was refused (line cap, byte cap, or binary). Do **not** write `tasks/checkpoint.md`. Do **not** commit. Apply the RDPI artifact special case if any offender is a RDPI artifact path.
 
-6. **Synthesize body** — write a 2–4 line "What's next" note derived from `cursor_text`, `batch_heading`, and the active phase. In standalone mode (no QRSPI artifacts), write a generic "ad-hoc snapshot" line plus the most recent commit subject from `git log -1 --format=%s`. Do **not** treat `$ARGUMENTS` as a freeform blurb.
+6. **Synthesize body** — write a 2–4 line "What's next" note derived from `cursor_text`, `batch_heading`, and the active phase. In standalone mode (no RDPI artifacts), write a generic "ad-hoc snapshot" line plus the most recent commit subject from `git log -1 --format=%s`. Do **not** treat `$ARGUMENTS` as a freeform blurb.
 
 7. **Compose commit subject** — a short imperative phrase, single-line, used in the commit message only (not stored in frontmatter). Selection rules:
    - `phase: implement` and `batch_heading` non-empty → use the heading text stripped of leading `##`/`###` markers.
@@ -184,7 +184,7 @@ The consume step only runs after rehydration validation succeeds (frontmatter pa
 
    Wait for developer confirmation. If they back out, abort *without* consuming.
 4. **`base_head` check** — compare `base_head:` against current HEAD ancestry using `git merge-base --is-ancestor <base_head> HEAD`. If `base_head` is not an ancestor of current HEAD, warn that the diff's base is no longer reachable, recommend the developer inspect the embedded diff before continuing, and then **wait for explicit confirmation to proceed**. If they back out, abort *without* consuming — `tasks/checkpoint.md` stays on disk for retry. Otherwise, if `base_head` differs from current short HEAD but is reachable, note it in the resume report (informational, no confirmation needed).
-5. **Rehydrate phase context** — read the QRSPI artifacts the `phase:` indicates, in this order: `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md` (if present), and the active plan file (`plan_path`). In issue mode, read the corresponding `tasks/research-issue-<N>.md` and `tasks/plan-issue-<N>.md` instead of the singleton plan/research.
+5. **Rehydrate phase context** — read the RDPI artifacts the `phase:` indicates, in this order: `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md` (if present), and the active plan file (`plan_path`). In issue mode, read the corresponding `tasks/research-issue-<N>.md` and `tasks/plan-issue-<N>.md` instead of the singleton plan/research.
 6. **Re-locate cursor** — if `phase: implement`, find the first `- [ ]` in `plan_path` and reconcile against the saved cursor:
    - Same line number AND same text → clean resume.
    - Different line number, same text → use the new line; note that the plan was edited.
@@ -204,7 +204,7 @@ The consume step only runs after rehydration validation succeeds (frontmatter pa
 
    > *"Rehydrated at `<phase>`, cursor `<cursor_text>` (line `<cursor_line>` in `<plan_path>`). Run `/implement` to continue from here."*
 
-   In `phase: research` / `design` / `plan` modes, replace the `/implement` recommendation with the appropriate next phase command (`/design`, `/create-plan`). In standalone mode, replace it with "proceed normally — no QRSPI phase active."
+   In `phase: research` / `design` / `plan` modes, replace the `/implement` recommendation with the appropriate next phase command (`/design`, `/create-plan`). In standalone mode, replace it with "proceed normally — no RDPI phase active."
 
 ---
 

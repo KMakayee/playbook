@@ -2,3 +2,4 @@
 lsp-benchmark/
 ref_docs/
 .claude/settings.local.json
+.claude/worktrees/

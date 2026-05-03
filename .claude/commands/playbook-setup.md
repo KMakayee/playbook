@@ -1,6 +1,6 @@
 # Setup Assistant
 
-You are setting up the QRSPI playbook for this codebase. Start by asking the developer whether this is a new project (playbook template already in CLAUDE.md) or an existing project (their own CLAUDE.md that needs playbook sections added). Then follow the appropriate path.
+You are setting up the RDPI playbook for this codebase. Start by asking the developer whether this is a new project (playbook template already in CLAUDE.md) or an existing project (their own CLAUDE.md that needs playbook sections added). Then follow the appropriate path.
 
 ---
 
@@ -20,7 +20,7 @@ Ask the developer:
 For existing projects only:
 
 1. Read their existing CLAUDE.md and summarize what's there (1-2 sentences) so the developer can confirm it's the right file.
-2. Explain: "I'll append 7 new sections (Codebase Overview, Architecture, Conventions, Testing, Build & Run, Critical Paths, Dependencies) and the QRSPI Workflow Rules to your file. Your existing content will not be touched."
+2. Explain: "I'll append 7 new sections (Codebase Overview, Architecture, Conventions, Testing, Build & Run, Critical Paths, Dependencies) and the RDPI Workflow Rules to your file. Your existing content will not be touched."
 3. Wait for developer confirmation.
 4. Read `templates/playbook-sections.md` and append its full contents to the end of CLAUDE.md using the Edit tool.
 5. After appending, proceed to Step 1 — CLAUDE.md now has markers.
@@ -141,7 +141,7 @@ After all sections are filled:
 2. Remind the developer: *"Review the full CLAUDE.md to make sure everything reads well together. You can always edit it manually later."*
 3. If the project doesn't have the `templates/` directory or `quickref.md`, mention that they should copy those from the playbook repo as well
 4. **Verify maintainer artifacts were removed.** Check whether `tasks/todo.md`, `tasks/errors.md`, `tasks/issues.md`, or `tasks/checkpoint.md` exist. These ship with the playbook repo as the maintainer's working artifacts and should have been cleared by `rm -rf tasks` in the README install flow. If any are present, warn the developer: *"Found `tasks/[filename]` — this may be a leftover from the playbook maintainer's working state. Review the contents; if they're not yours, remove them before starting your own work."* Do not exit setup without surfacing this check.
-5. Mention that QRSPI commands will create artifacts in `tasks/` as you work (`research-codebase.md`, `design-decision.md`, `research-patterns.md`, `plan.md`). The `tasks/` directory is tracked in git so working state is versioned — add it to `.gitignore` if you prefer to keep it local only.
+5. Mention that RDPI commands will create artifacts in `tasks/` as you work (`research-codebase.md`, `design-decision.md`, `research-patterns.md`, `plan.md`). The `tasks/` directory is tracked in git so working state is versioned — add it to `.gitignore` if you prefer to keep it local only.
 
 ---
 

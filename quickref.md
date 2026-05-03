@@ -1,4 +1,4 @@
-# QRSPI Quick Reference
+# RDPI Quick Reference
 
 > Scan in 60 seconds. Keep this open while working.
 
@@ -14,7 +14,7 @@
 | `/playbook-update`  | Fetch and apply latest playbook version                          |
 | `/playbook-audit`   | Health check — stale config, leftover artifacts                  |
 
-**QRSPI Workflow**
+**RDPI Workflow**
 
 | Command                  | What it does                                                                   |
 |--------------------------|--------------------------------------------------------------------------------|
@@ -38,12 +38,12 @@
 
 | Command         | What it does                                                                     |
 |-----------------|----------------------------------------------------------------------------------|
-| `/finish`       | Wrap up task: mark done, commit everything including QRSPI artifacts             |
+| `/finish`       | Wrap up task: mark done, commit everything including RDPI artifacts             |
 | `/commit`       | Stage, commit, and push to current branch                                        |
 | `/push-pr`      | Push, open PR, code review, squash-merge if passing                              |
 | `/push-pr-light`| Push, open PR, light diff review, squash-merge if passing                        |
 | `/catchup`      | Catch a feature branch up to its default base — fetch, merge, surface conflicts  |
-| `/checkpoint`   | Save / resume / discard work state in `tasks/checkpoint.md` (auto-detects QRSPI phase + cursor) |
+| `/checkpoint`   | Save / resume / discard work state in `tasks/checkpoint.md` (auto-detects RDPI phase + cursor) |
 | `/codex-review` | One-shot Codex second-opinion pass over a file, diff, artifact, or freeform target |
 | `/simplify`     | Review changed code for reuse, quality, and efficiency (built-in)                |
 | `/batch`        | Decompose large changes into parallel sub-agents in isolated worktrees (built-in)|
@@ -88,11 +88,11 @@ LSP gives Claude instant, accurate code navigation — definitions, references, 
 **Before calling Edit or Write, classify the task:**
 
 - **Trivial:** single file, under ~20 changed lines, no new abstractions, no changed interfaces → implement directly
-- **Non-trivial:** 2+ files, OR new/changed abstractions, OR modified interfaces/contracts → **full QRSPI required**
+- **Non-trivial:** 2+ files, OR new/changed abstractions, OR modified interfaces/contracts → **full RDPI required**
 
 If uncertain, it is non-trivial. Do not Edit/Write source files until the task is trivial OR the design is finalized and `plan.md` is approved.
 
-**Bug fix mode:** Diagnose autonomously — don't ask the user to identify root cause. Non-trivial bug fixes still require full QRSPI.
+**Bug fix mode:** Diagnose autonomously — don't ask the user to identify root cause. Non-trivial bug fixes still require full RDPI.
 
 ---
 
@@ -179,7 +179,7 @@ Track these to know if the workflow is actually helping:
 ```
 1. Fresh context window (or compact fully)
 2. Define the task: input, output, success criteria
-3. If non-trivial (see Pre-Edit Gate) → begin QRSPI
+3. If non-trivial (see Pre-Edit Gate) → begin RDPI
 ```
 
 ---

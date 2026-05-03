@@ -2,7 +2,7 @@
 
 > These instructions are loaded automatically in every Claude Code session.
 > **Top half:** team-specific context (fill in the bracketed sections).
-> **Bottom half:** fixed QRSPI workflow rules (do not modify).
+> **Bottom half:** fixed RDPI workflow rules (do not modify).
 
 ---
 
@@ -71,7 +71,7 @@ Use `/issue-research`, `/issue-plan`, `/issue-implement`, `/issue-update` to mov
 
 ---
 
-# QRSPI Workflow Rules
+# RDPI Workflow Rules
 
 **These rules are fixed. Do not modify them.**
 
@@ -85,19 +85,19 @@ Use `/issue-research`, `/issue-plan`, `/issue-implement`, `/issue-update` to mov
 TRIVIAL
   Criteria: Single file, under ~20 changed lines,
             no new abstractions, no changed interfaces
-  Workflow: Implement directly — no QRSPI needed
+  Workflow: Implement directly — no RDPI needed
 
 NON-TRIVIAL
   Criteria: 2+ files, OR new/changed abstractions,
             OR modified interfaces/contracts,
             OR changed control flow across modules
-  Workflow: Full QRSPI required — all phases,
+  Workflow: Full RDPI required — all phases,
             no skipping
 ```
 
 If uncertain, it is non-trivial. Do not call Edit or Write on source files until either (a) the task is trivial, or (b) `tasks/research-codebase.md` exists, the design in `tasks/design-decision.md` is finalized, and `tasks/plan.md` is approved.
 
-**Bug fix mode:** When given a bug report, error log, or failing test — diagnose it autonomously. Do not ask the user to identify the root cause. The autonomy is about initiative and diagnosis, not about skipping process. A bug fix that meets the non-trivial criteria above still requires full QRSPI. Arrive at the plan on your own, then present it for approval as usual.
+**Bug fix mode:** When given a bug report, error log, or failing test — diagnose it autonomously. Do not ask the user to identify the root cause. The autonomy is about initiative and diagnosis, not about skipping process. A bug fix that meets the non-trivial criteria above still requires full RDPI. Arrive at the plan on your own, then present it for approval as usual.
 
 </important>
 
@@ -142,7 +142,7 @@ Execute the approved plan. Do not improvise.
 When a plan contains multiple independent batches (e.g., a code review with 6 fix batches), do NOT implement them all in one pass. Each batch is a separate unit of work in its own prompt.
 
 1. During Phase 3 (Plan): `/create-plan`, identify and list independent batches in `tasks/plan.md`, and flag at the top that the plan runs one batch per `/implement` cycle.
-2. Execute one batch per prompt. The pre-edit gate applies per-batch — trivial batches can skip QRSPI, non-trivial batches get full QRSPI.
+2. Execute one batch per prompt. The pre-edit gate applies per-batch — trivial batches can skip RDPI, non-trivial batches get full RDPI.
 3. Compact between batches to keep context low.
 
 ---
@@ -175,11 +175,11 @@ When compacting:
 
 # Sub-Agent Behaviors
 
-**Recursion guard:** Sub-agents MUST NOT spawn further sub-agents or follow QRSPI. They are leaf tasks: read, search, and report.
+**Recursion guard:** Sub-agents MUST NOT spawn further sub-agents or follow RDPI. They are leaf tasks: read, search, and report.
 
 ## Sub-Agent Use
 
-When spawning sub-agents in QRSPI commands:
+When spawning sub-agents in RDPI commands:
 
 - **Split test:** Spawn N sub-agents only if you can write N independent prompts where each result is usable without the others. If a gap can't be split this way, use one sub-agent.
 - **Batch parallel calls:** When spawning ≥2 sub-agents, send all `Agent` calls in a single message (one tool-use batch). "In parallel" alone is not enough — explicit batching is the steering signal.
@@ -198,7 +198,7 @@ When spawning sub-agents in QRSPI commands:
 - **Surgical changes** — every changed line needs a reason traceable to the plan. No features, refactoring, or "improvements" beyond what the plan specifies. If you can't explain why a line changed, revert it.
 - **Demand elegance for non-trivial changes** — before implementing, ask "is there a simpler way?" Skip for mechanical or single-line fixes.
 - **Self-assess** — before marking any step complete, ask: "Would a staff engineer approve this?" If the answer is no, revise.
-- If a task seems too large, break it into sub-tasks that each follow QRSPI independently.
+- If a task seems too large, break it into sub-tasks that each follow RDPI independently.
 
 </important>
 

@@ -1,6 +1,6 @@
 # Playbook Audit
 
-You are running a periodic health check on the QRSPI playbook configuration. Walk through each step below, interacting with the developer at each decision point.
+You are running a periodic health check on the RDPI playbook configuration. Walk through each step below, interacting with the developer at each decision point.
 
 ---
 

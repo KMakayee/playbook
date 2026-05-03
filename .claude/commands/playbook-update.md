@@ -1,8 +1,8 @@
 # Playbook Update
 
-You are updating the QRSPI playbook to the latest version. Walk through each step below, interacting with the developer at each decision point.
+You are updating the RDPI playbook to the latest version. Walk through each step below, interacting with the developer at each decision point.
 
-**Key principle:** The top half of CLAUDE.md (team-specific sections) is never touched. Only playbook-managed files and the QRSPI rules section are updated.
+**Key principle:** The top half of CLAUDE.md (team-specific sections) is never touched. Only playbook-managed files and the RDPI rules section are updated.
 
 ---
 
@@ -52,8 +52,8 @@ templates/error-report.md
 2. The default playbook source is `https://github.com/KMakayee/playbook.git`. If `.playbook-version` has a `source` field, use that instead. Ask the developer to confirm the source URL:
    > "Playbook source: `[URL]` — is this correct?"
 
-3. Read CLAUDE.md and check whether it contains the `# QRSPI Workflow Rules` marker (or the legacy `# RPI Workflow Rules` marker).
-   - If neither marker is found, warn: "CLAUDE.md does not contain the `# QRSPI Workflow Rules` section — the CLAUDE.md partial merge (Category B) will be skipped. Run `/playbook-setup` to install the playbook structure."
+3. Read CLAUDE.md and check whether it contains the `# RDPI Workflow Rules` marker (or the legacy `# QRSPI Workflow Rules` / `# RPI Workflow Rules` markers).
+   - If none of the markers are found, warn: "CLAUDE.md does not contain the `# RDPI Workflow Rules` section — the CLAUDE.md partial merge (Category B) will be skipped. Run `/playbook-setup` to install the playbook structure."
    - Continue with the rest of the update (managed files can still be updated).
 
 ---
@@ -111,14 +111,14 @@ For each file in the managed files list above:
 CLAUDE.md requires special handling because the top half is team-owned and the bottom half is playbook-owned.
 
 1. Read the project's current CLAUDE.md.
-2. Find the boundary: locate the `---` line that immediately precedes `# QRSPI Workflow Rules` (or the legacy `# RPI Workflow Rules`). This is the split point.
+2. Find the boundary: locate the `---` line that immediately precedes `# RDPI Workflow Rules` (or the legacy `# QRSPI Workflow Rules` / `# RPI Workflow Rules`). This is the split point.
    - Everything above that `---` line (inclusive) is the **team-owned top half** — do not touch it.
    - Everything from the workflow rules heading onward is the **playbook-owned bottom half**.
 3. Read the latest CLAUDE.md from the temp directory. Extract its bottom half using the same boundary logic.
 4. Compare the current bottom half against the latest bottom half:
-   - If identical → skip silently, report "QRSPI rules section is up to date."
+   - If identical → skip silently, report "RDPI rules section is up to date."
    - If different → summarize the changes and ask:
-     > "The QRSPI rules section of CLAUDE.md has changed. Update? (yes / skip / show diff)"
+     > "The RDPI rules section of CLAUDE.md has changed. Update? (yes / skip / show diff)"
      - **yes** → Merge the latest version into the bottom half. Do NOT wholesale-replace. Instead:
        1. Identify which differences are **upstream playbook updates** (new rules, formatting changes, restructured sections, removed content that was in the old upstream) vs **project-specific customizations** the user added (extra rules, extended bullets, custom checks not present in any upstream version).
        2. Apply the upstream changes while preserving project-specific customizations in their logical locations.
@@ -164,7 +164,7 @@ Tell the developer: "Version tracking updated. Consider adding `.playbook-versio
    | quickref.md | Updated / Skipped / Already current / New — installed |
    | templates/playbook-sections.md | Updated / Skipped / Already current |
    | ... | ... |
-   | CLAUDE.md (QRSPI rules) | Updated / Skipped / Already current |
+   | CLAUDE.md (RDPI rules) | Updated / Skipped / Already current |
    | .playbook-version | Written |
 
    **Previous version:** [old commit or "none"]
@@ -182,7 +182,7 @@ Tell the developer: "Version tracking updated. Consider adding `.playbook-versio
 ## Edge cases
 
 - **No network / clone fails:** Report the error clearly: "Could not reach the playbook source at `[URL]`. Check your network connection and the source URL, then try again." Clean up any partial temp directory.
-- **`# QRSPI Workflow Rules` marker missing from CLAUDE.md (and no legacy `# RPI Workflow Rules`):** Abort the CLAUDE.md update only (not the whole command). Update other managed files normally. Suggest running `/playbook-setup` to fix the structure.
+- **`# RDPI Workflow Rules` marker missing from CLAUDE.md (and no legacy `# QRSPI Workflow Rules` / `# RPI Workflow Rules`):** Abort the CLAUDE.md update only (not the whole command). Update other managed files normally. Suggest running `/playbook-setup` to fix the structure.
 - **Old commit not in history:** Skip the targeted changelog. Show the latest 10 commits instead and note: "The previously installed commit is no longer in the source history (possibly due to a force-push). Showing recent commits instead."
 - **Developer has modified a managed file:** The diff will show their changes. They can choose to skip that file to preserve their modifications, or overwrite with the latest.
 - **Self-update:** `playbook-update.md` is in the managed files list. If it updates itself, note: "The update command itself was updated. The changes will take effect next time you run `/playbook-update`."

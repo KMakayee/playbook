@@ -141,7 +141,7 @@ codex -c model_reasoning_effort=xhigh exec \
 Effort calibration: scope to the specific blocking question — do not re-litigate axes that aren't in tension.
 Do targeted research to resolve this. Cite file paths, line numbers, or external references as evidence.
 Recommend which option to choose based on what you find.
-Prefix every claim with `CORRECTION:`, `TRADE-OFF:`, or `RISK:` per the QRSPI taxonomy." </dev/null
+Prefix every claim with `CORRECTION:`, `TRADE-OFF:`, or `RISK:` per the RDPI taxonomy." </dev/null
 ```
 
 Verify the output before reading: `bash .claude/scripts/codex-output-check.sh tasks/codex-design-tiebreaker.tmp 5`. If the check fails, stop and tell the developer.
@@ -189,7 +189,7 @@ If SKIP and a stale `tasks/research-patterns.md` exists, delete it.
 **If RUN:**
 
 1. Fill `.claude/prompts/research-patterns-guide.md` — replace `{RESEARCH_TOPIC}` with a short description of what external patterns to study (derived from the chosen approach in `## Decision`). Write to `tasks/patterns-prompt.tmp`.
-2. Run Codex with `--search` (foreground, 10-minute timeout / 600000ms — matches the other QRSPI Codex calls):
+2. Run Codex with `--search` (foreground, 10-minute timeout / 600000ms — matches the other RDPI Codex calls):
 
    ```bash
    codex -c model_reasoning_effort=xhigh --search exec \

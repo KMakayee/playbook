@@ -1,6 +1,6 @@
 # Create Todo
 
-Break down a design document into a numbered task list. Tasks are work items, not steps in a recipe — each one becomes a unit of work that goes through its own QRSPI cycle (research-codebase → design → plan → implement).
+Break down a design document into a numbered task list. Tasks are work items, not steps in a recipe — each one becomes a unit of work that goes through its own RDPI cycle (research-codebase → design → plan → implement).
 
 **Usage:** `/create-todo <path-to-design-doc>`
 
@@ -20,7 +20,7 @@ If no path is provided, ask the developer which design document to use.
 
 3. **Assess granularity and decompose into tasks:**
    - Understand how broad or specific the design is — this determines task size.
-   - **Broad design** (high-level goals, minimal implementation detail): Create coarser tasks that each cover a logical area. These tasks will need heavier research and design phases in QRSPI.
+   - **Broad design** (high-level goals, minimal implementation detail): Create coarser tasks that each cover a logical area. These tasks will need heavier research and design phases in RDPI.
    - **Detailed design** (specific components, interfaces, data flows): Create finer tasks that map closely to the design's own structure. These tasks may have lighter research phases.
    - Each task should be a meaningful unit of change.
    - Group related changes into the same task.

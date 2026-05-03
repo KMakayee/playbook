@@ -106,7 +106,7 @@ PART 3 — Acceptance criteria coverage:
 - Flag any criteria that are partially met.
 
 For each finding, include: (a) the exact file path and line number(s); (b) a candidate minimal-fix sketch (raw input — Claude will triage; do not auto-apply); (c) a repro or failing-test command that demonstrates the issue, when applicable.
-Prefix each finding with \`CORRECTION:\`, \`TRADE-OFF:\`, or \`RISK:\` per the QRSPI taxonomy." </dev/null
+Prefix each finding with \`CORRECTION:\`, \`TRADE-OFF:\`, or \`RISK:\` per the RDPI taxonomy." </dev/null
 ```
 
 Use a 10-minute timeout (600000ms).
