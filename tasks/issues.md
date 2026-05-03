@@ -41,6 +41,14 @@ Each issue uses the structure below. Copy it when adding a new issue.
 
 <!-- Add new issues below. Number sequentially. -->
 
+_No active issues._
+
+---
+
+## Completed Issues
+
+> Brief closure record. Full bodies of completed issues stay below (or are findable in git via `git log --grep="#N"`). Move new issues here on transition to `Done`.
+
 ## #1 — Default `/push-pr` and `/push-pr-light` to `--squash`
 
 **Status:** Done
@@ -83,10 +91,11 @@ Confirmed during 2026-04-24 parallel-PR session (tasks 1/2/3 in `tasks/todo.md`)
 
 ## #2 — `/implement` hangs in `run_in_background` mode (codex + claude -p stdin)
 
-**Status:** Implemented
+**Status:** Done
 **Priority:** High
 **Created:** 2026-05-02
-**Updated:** 2026-05-02 — scope broadened to uniform `</dev/null` coverage across all 19 long-running call sites (foreground-safe premise falsified by harness auto-background); regression-guard half dropped per operator direction (manual monitoring instead of an automated lint)
+**Closed:** 2026-05-03
+**Updated:** 2026-05-03 — closed; uniform `</dev/null` discipline shipped across 19 sites in `.claude/commands/*.md`; regression-guard lint dropped per operator direction; commits `5656ba2`, `b879c7d`, `d029f54` on branch `worktree-issue-2`
 
 ### Description
 
@@ -117,6 +126,8 @@ Symptoms observed:
 - [x] **Regression guard deferred** — no automated lint shipping with this hotfix. Operator monitors backgrounded runs; if discipline rots, file a follow-up to add a lint or build a centralized wrapper (per `tasks/research-codebase.md:110`).
 
 ### Notes
+
+**2026-05-03 — Closed.** Uniform `</dev/null` shipped on every long-running `codex exec` / `claude -p` call across 9 files in `.claude/commands/` (19 sites). Branch `worktree-issue-2`; commits `5656ba2` (fix), `b879c7d` (issue board update), `d029f54` (Codex review revisions). The Step 6 Codex review during implementation served as the operator-monitored smoke test — it ran backgrounded against the post-fix tree and completed normally, empirically confirming the fix on the most-trafficked site (`implement.md:76`). Regression-guard lint dropped on operator direction; if discipline rots, file a follow-up.
 
 **2026-05-02 — Scope broadened, lint dropped.** During the design phase Claude observed the harness auto-background a foreground `codex exec` call (`.claude/commands/design.md:87`), which then hung indefinitely (had to be killed; exit 144). That falsified the original "foreground sites are safe" premise — the harness can choose to background any long-running call independently of how the spec is written. Scope therefore expanded from 7 mandatory + 2 defensive sites to 19 uniform sites covering every long-running `codex exec` / `claude -p` invocation in `.claude/commands/*.md` (see `tasks/design-decision.md:9-14`). The regression-guard half of the design (a marker-free lint script) was dropped on operator direction — backgrounded runs are monitored manually instead. If discipline rots, file a follow-up issue for either a lint or a centralized wrapper (Axis 2=B, deferred per `tasks/research-codebase.md:110`).
 
