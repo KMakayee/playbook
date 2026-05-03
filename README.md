@@ -116,4 +116,4 @@ Enabling LSP (Language Server Protocol) in Claude Code gives **~25% faster and c
 
 ---
 
-Built on the RDPI workflow, evolved from the Research-Plan-Implement approach by [HumanLayer](https://github.com/humanlayer), with workflow orchestration principles from Boris Cherny. Two-agent orchestration pattern inspired by pairing human code review with an independent reviewer.
+Credits to [HumanLayer](https://github.com/humanlayer) for the workflow foundation and to Boris Cherny for orchestration principles. Two-agent orchestration pattern inspired by pairing human code review with an independent reviewer.
