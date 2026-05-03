@@ -116,4 +116,4 @@ Enabling LSP (Language Server Protocol) in Claude Code gives **~25% faster and c
 
 ---
 
-Credits to [HumanLayer](https://github.com/humanlayer) for the workflow foundation and to Boris Cherny for orchestration principles. Two-agent orchestration pattern inspired by pairing human code review with an independent reviewer.
+Credits to [HumanLayer](https://github.com/humanlayer) for the workflow foundation and to [Boris Cherny](https://x.com/bcherny) for orchestration principles. Two-agent orchestration pattern inspired by pairing human code review with an independent reviewer.
