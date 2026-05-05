@@ -21,6 +21,7 @@ templates/playbook-sections.md
 .claude/commands/design.md
 .claude/commands/create-plan.md
 .claude/commands/implement.md
+.claude/commands/implement-codex.md
 .claude/commands/codex-review.md
 .claude/commands/create-todo.md
 .claude/commands/issue-research.md
@@ -38,6 +39,7 @@ templates/deferred.md
 .claude/commands/finish.md
 .claude/prompts/research-guide.md
 .claude/prompts/research-patterns-guide.md
+.claude/prompts/implement-codex-phase-brief.md
 .claude/scripts/pipeline-eval.sh
 .claude/scripts/codex-output-check.sh
 templates/error-report.md

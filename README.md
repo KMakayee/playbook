@@ -42,6 +42,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 | `/design` | Evaluate options, run Codex cross-check, pick a winner; writes `tasks/design-decision.md`. Includes inline pattern research with RUN/SKIP gate. |
 | `/create-plan` | Draft plan, Codex reviews, absorb findings; writes `tasks/plan.md` |
 | `/implement` | Execute plan phase-by-phase, run Codex code review, apply triaged fixes via child process |
+| `/implement-codex` | *Experimental.* Codex drives implementation, Claude verifies per-phase. `/implement` remains the production path |
 | `/create-todo` | Create standalone `tasks/todo.md` for ad-hoc tracking |
 
 **Issue workflow**
