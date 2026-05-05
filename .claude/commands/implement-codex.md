@@ -31,8 +31,15 @@ Experimental sibling of `/implement`. Codex writes the code phase-by-phase under
 - **Pre-delete signal tmps for ALL phases at session start** — a leftover `tasks/codex-mismatch-{N}.tmp` from a prior aborted run could poison the state check on a clean retry:
 
   ```bash
-  rm -f tasks/codex-mismatch-*.tmp tasks/codex-blocked-*.tmp tasks/codex-implement-phase-*-prompt.tmp tasks/codex-implement-phase-*.tmp
+  find tasks -maxdepth 1 \( \
+    -name 'codex-mismatch-*.tmp' -o \
+    -name 'codex-blocked-*.tmp' -o \
+    -name 'codex-implement-phase-*-prompt.tmp' -o \
+    -name 'codex-implement-phase-*.tmp' \
+  \) -delete
   ```
+
+  `find -delete` (not `rm -f <glob>`) so an empty glob doesn't abort the chain under zsh's default `NOMATCH` behavior.
 
   Do NOT delete `tasks/codex-debug-*.tmp` here — those are produced by structural-mismatch re-research and are cleaned in Step 10.
 
@@ -376,6 +383,8 @@ PART 1 — Plan adherence:
 - Were any files changed that the plan didn't call for? (Note: \`tasks/plan.md\` may be updated during implementation — checkmarks, deviation notes — do not flag this as scope drift.)
 - Are tests present and do they cover the acceptance criteria?
 
+In-flight scope: this review fires after phase commits but before final cleanup. Do not flag (a) the presence of command-owned tmp artifacts under \`tasks/\` matching \`codex-implement-phase-*.tmp\`, \`codex-implement-phase-*-prompt.tmp\`, \`codex-mismatch-*.tmp\`, \`codex-blocked-*.tmp\`, \`codex-debug-*.tmp\`, or \`codex-implement-code-review.tmp\` — these are cleaned by Step 10 after this review runs; or (b) plan acceptance criteria that explicitly depend on Step 10 cleanup. Treat such observations as expected mid-flow state, not findings.
+
 PART 2 — Independent code quality (evaluate on merit, regardless of what the plan says):
 - Are there bugs, edge cases, or missing error handling?
 - Can any of the code be simplified? Look for unnecessary abstractions, over-engineering, redundant logic, or verbose patterns that could be cleaner.
@@ -386,7 +395,7 @@ For each finding, include: (a) the exact file path and line number(s); (b) a can
 Prefix each finding with `CORRECTION:`, `TRADE-OFF:`, or `RISK:` per the RDPI taxonomy." </dev/null
 ```
 
-The `-a never` flag is added per the design's cross-cutting constraint (every backgrounded `codex exec` runs with `-a never`). The prompt body itself is byte-for-byte identical to `/implement`'s — Option 4 = choice A on independence mitigation; no prelude, no findings injection, no model_reasoning_effort change.
+The `-a never` flag is added per the design's cross-cutting constraint (every backgrounded `codex exec` runs with `-a never`). The prompt body mirrors `/implement`'s — Option 4 = choice A on independence mitigation; no prelude, no findings injection, no model_reasoning_effort change. The one targeted divergence is the "In-flight scope" paragraph in PART 1, which scopes the reviewer past command-owned tmp artifacts that the review observes mid-flow before Step 10 cleanup runs (`/implement` has no equivalent mid-flow artifact pattern, so this paragraph would be dead weight there).
 
 **Check:** After the backgrounded Codex process completes, verify the output: `bash .claude/scripts/codex-output-check.sh tasks/codex-implement-code-review.tmp 10`. If the check fails, stop and tell the developer.
 
@@ -449,13 +458,24 @@ Once verified and any issues fixed, commit. Two commit shapes:
 
 ### 10. Clean up
 
-Delete:
-- `tasks/codex-implement-code-review.tmp`
-- `tasks/code-review-fixes-implement.tmp`
-- All `tasks/codex-debug-*.tmp` files (one per structural-mismatch Codex call, if any fired during phases)
-- All `tasks/codex-implement-phase-*.tmp` files (per-phase Codex `-o` outputs)
-- All `tasks/codex-implement-phase-*-prompt.tmp` files (per-phase composed briefs)
-- All `tasks/codex-mismatch-*.tmp` and `tasks/codex-blocked-*.tmp` files (signals — already deleted on success but listed for safety after partial runs)
+Delete the per-run tmps. Use `find -delete` (not `rm -f <glob>`) so empty globs don't abort the chain under zsh's default `NOMATCH` behavior:
+
+```bash
+rm -f tasks/codex-implement-code-review.tmp tasks/code-review-fixes-implement.tmp
+find tasks -maxdepth 1 \( \
+  -name 'codex-debug-*.tmp' -o \
+  -name 'codex-implement-phase-*.tmp' -o \
+  -name 'codex-implement-phase-*-prompt.tmp' -o \
+  -name 'codex-mismatch-*.tmp' -o \
+  -name 'codex-blocked-*.tmp' \
+\) -delete
+```
+
+What this covers:
+- `tasks/codex-implement-code-review.tmp` (Step 6 output) and `tasks/code-review-fixes-implement.tmp` (Step 7 fix instructions) — fixed names, safe with `rm -f`.
+- `tasks/codex-debug-*.tmp` (one per structural-mismatch Codex call, if any fired during phases).
+- `tasks/codex-implement-phase-*.tmp` (per-phase Codex `-o` outputs) and `tasks/codex-implement-phase-*-prompt.tmp` (per-phase composed briefs).
+- `tasks/codex-mismatch-*.tmp` and `tasks/codex-blocked-*.tmp` (signals — already deleted on success but covered for safety after partial runs).
 
 **Do NOT delete:**
 - `tasks/implement-codex-metrics.md` (persistent — promotion evidence).
