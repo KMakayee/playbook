@@ -166,9 +166,29 @@ The MISMATCH / BLOCKED / CRASHED branches are documented in §4f.MISMATCH / §4f
    The result is the authoritative "what Codex actually edited" set. This set is the input for 4j (diff-scope check) and 4n (commit staging).
 5. **Cross-check.** Every file in `FILES_MODIFIED + FILES_CREATED` (Codex's claim) must appear in the real diff, AND every file in the real diff must appear in Codex's enumeration. Mismatches are findings — record in metrics (4m's Notes column) but do not auto-block.
 
-#### 4h. JSON-log audit
+#### 4h. JSON-log audit (parseability + test-execution violations)
 
-(Filled in by Phase 4 of the plan.)
+After every DONE-path completion (whether direct or via crash-recovery), audit the phase's JSON event log.
+
+**Audit 1 — parseability** (per `tasks/design-decision.md:32`):
+
+```bash
+jq -c . tasks/logs/codex-implement-phase-{N}-*-attempt*.log > /dev/null 2>&1
+```
+
+If `jq` exits non-zero, log a parseability finding in metrics Notes (`json-log-unparseable`). Do not block — the textual log is still inspectable for the test-execution audit. (`jq` is a standard developer-environment tool; if absent, fall back to `python3 -c "import json,sys; [json.loads(l) for l in open('<log>')]"` or skip the check with a metrics note.)
+
+**Audit 2 — test-execution violations** (per `tasks/design-decision.md:31` test-ownership rule):
+
+```bash
+grep -E '"name":"(bash|shell)"|"command":"(npm test|pytest|cargo test|jest|vitest|tsc|eslint|prettier|go test|make|bash)' tasks/logs/codex-implement-phase-{N}-*-attempt*.log
+```
+
+If any match, Codex ran a verification command despite the brief. Record `Test-violation: yes` in metrics; add a note identifying the offending command. **Do not block the commit** — the violation already happened; the metrics gate (zero violations in last 5 runs per `tasks/design-decision.md:193`) tracks recurrence.
+
+If no match, `Test-violation: no`.
+
+The audit grep pattern is best-effort. The actual JSON event schema may differ — refine the pattern empirically against real `/implement-codex` runs.
 
 #### 4i. Run plan-specified success criteria
 
@@ -241,6 +261,87 @@ git commit -m "<conventional message describing this phase>"
 
 Use the same conventional-commit style as `/implement` Step 4f. Include `tasks/plan.md` (checkmarks updated) and `tasks/implement-codex-metrics.md` (new metrics row). **Do not stage** `tasks/codex-implement-phase-*.tmp`, `tasks/codex-implement-phase-*-prompt.tmp`, `tasks/logs/codex-implement-phase-*.log`, signal tmps, or debug tmps — these are command-owned and either cleaned in Step 10 or kept untracked per the open log-retention question.
 
+#### 4f.MISMATCH branch
+
+**Trigger:** state classified as MISMATCH per 4f's order — only `tasks/codex-mismatch-{N}.tmp` present non-empty, OR the `-o` STATUS line says `mismatch`.
+
+**Pre-retry sanity check.** The MISMATCH branch assumes Codex made no source edits (the pre-edit stop contract). Before proceeding, compute the real diff (4g item 4) — files Codex touched, filtered to exclude command-owned artifacts. If the real diff is non-empty, **STOP and escalate to the developer** with the file list — do not auto-retry, the working tree is dirty.
+
+Sub-flow (real diff is empty — pre-edit stop contract held):
+
+1. Read `tasks/codex-mismatch-{N}.tmp` FULLY. Expect (a) what the plan assumed, (b) what Codex found, (c) file:line evidence, (d) the smallest delta needed.
+2. Append a metrics row (4m) with State=`mismatch`, Codex LOC=0, Files written=0, Claude patch lines=0, Drift caught=`no`, Test-violation=`no`, Step 6 severe (Codex-attrib)=`pending`, Notes=Codex's mismatch summary truncated to 80 chars.
+3. Run a top-level Codex re-research, mirroring `/implement` Step 4c (read-only) but adding `-a never` per the cross-cutting constraint:
+
+   ```bash
+   codex -c model_reasoning_effort=xhigh -a never exec \
+     --sandbox read-only \
+     -o tasks/codex-debug-{N}.tmp \
+     "Re-research a structural mismatch encountered while implementing tasks/plan.md.
+
+   The plan assumed: {brief description of the plan's premise}.
+   What's actually present: {brief description of what Codex found}.
+
+   Inspect tasks/plan.md (the original premise) and tasks/research-codebase.md (the original sweep), then sweep the current code at the cited paths. Return: actual structure and locations, what the plan assumed, and a delta description Claude can use to update the plan. Be specific with file paths and line numbers.
+   Effort calibration: scope to the specific mismatch — do not sweep beyond the cited files unless the mismatch implicates a wider refactor." </dev/null
+   ```
+
+   Use a 10-minute timeout (600000ms). Run with `run_in_background: true`. Verify: `bash .claude/scripts/codex-output-check.sh tasks/codex-debug-{N}.tmp 5`. If the check fails, stop and tell the developer.
+
+4. Read `tasks/codex-debug-{N}.tmp`; update `tasks/plan.md` to reflect the actual structure (the plan's premise was wrong, not Codex's edit).
+5. Delete the mismatch signal: `rm -f tasks/codex-mismatch-{N}.tmp`.
+6. Increment the outer-loop `ATTEMPT` (cap = 2 across MISMATCH and partial-recoverable retries combined) and **retry the phase from 4c** (recompose the brief — the file_allow_list and plan_lines may have changed).
+7. If the retry also returns `mismatch`, stop and report to the developer. Do not auto-restore the working tree.
+
+#### 4f.BLOCKED branch
+
+**Trigger:** state classified as BLOCKED per 4f's order — only `tasks/codex-blocked-{N}.tmp` present non-empty, OR the `-o` STATUS line says `blocked`.
+
+**Pre-takeover sanity check.** Codex's blocked contract says "exit without making source edits." Compute the real diff (4g item 4); if non-empty, escalate to the developer (working tree is dirty, partial Codex edits compromise Claude's clean takeover).
+
+Sub-flow (real diff is empty):
+
+1. Read `tasks/codex-blocked-{N}.tmp` FULLY.
+2. Append a metrics row (4m) with State=`blocked`, Codex LOC=0, Files written=0, Claude patch lines=`<placeholder, updated below>`, Drift caught=`no`, Test-violation=`no`, Step 6 severe (Codex-attrib)=`n/a` (no Codex code), Notes=Codex's blocked summary truncated to 80 chars.
+3. **Claude takes over the phase.** Use normal Edit/Write tools to apply the surgical edits the plan specified, exactly as `/implement` Step 4 would handle the phase. Run the success criteria. Mark plan checkmarks. Commit (using 4n's explicit-add discipline).
+4. After commit, update the metrics row in-place: Claude patch lines = `git diff --shortstat HEAD~1` line count for the takeover commit.
+5. Delete the blocked signal: `rm -f tasks/codex-blocked-{N}.tmp`.
+6. **Do NOT retry Codex on this phase.** Blocked = "Codex hit a wall, hand back to Claude" — the phase is finished by Claude, not retried under Codex. ATTEMPT does NOT increment.
+
+#### 4f.CRASHED branch
+
+**Trigger:** state classified as CRASHED per 4f's order — output-check fail AND no signal tmps; OR both signal tmps present; OR any signal file zero-bytes; OR `-o` STATUS line missing or unrecognized.
+
+Sub-flow — three diagnosis steps before involving the developer:
+
+**Diagnosis step 1 — Read the JSON event log.**
+- Path: the most recent `tasks/logs/codex-implement-phase-{N}-*-attempt{ATTEMPT}.log` (the file 4e wrote).
+- Verify non-empty: `test -s tasks/logs/codex-implement-phase-{N}-*-attempt{ATTEMPT}.log`.
+- **Parseability check** (per `tasks/design-decision.md:32`): each line should be parseable JSON when `--json` is enabled. Run `jq -c . <log-file> > /dev/null 2>&1`. If it fails, record a parseability finding in metrics Notes (`json-log-unparseable`) but do not block — the textual content is still inspectable.
+- If empty (process died before any event): record as `crashed` ambiguous, escalate.
+- Otherwise, read the last ~50 lines (`tail -n 50`) to identify Codex's last action. Look for `tool_use` events (file edits) and any `error` events.
+
+**Diagnosis step 2 — Read git state.**
+- `git status --porcelain` — captures both modified-tracked and untracked files.
+- `git diff` — full content, not `--name-only` (semantic content matters).
+- Enumerate untracked AND ignored files explicitly with `git ls-files --others` (no `--exclude-standard` — ignored files matter; Codex may have created a file matching a `.gitignore` pattern that would otherwise be invisible). Also run `git ls-files --others --exclude-standard` separately to distinguish "untracked-not-ignored" from "untracked-but-ignored."
+
+**Diagnosis step 3 — Classify into one of three sub-states:**
+
+- **(a) Effectively done** — all plan-cited files are in the diff, edits look coherent (compared against the plan), AND Claude-run success criteria pass.
+  - **Action:** treat as DONE. Run 4g onwards (using the post-Codex git state as the "real diff" input — the baseline subtraction still works). Commit with a message noting "Codex crashed post-edits but pre-summary; verified manually."
+  - **Metrics row:** State=`done` (the work is done); Notes=`crash-recovered (effectively-done)`.
+
+- **(b) Partial but recoverable** — log shows Codex got partway through the file list before dying (transient: network blip, model timeout); OR success criteria fail with a coherent partial diff.
+  - **Action:** retry with a *resume brief*. Increment ATTEMPT (outer-loop variable) to 2 — cap is 2 (one retry total per phase across mismatch + partial-recoverable; if ATTEMPT is already 2, escalate to (c)). The resume brief is the same template + slot block, with an additional appended note: "Files X, Y already edited and look correct based on the prior attempt. Please complete Z only."
+  - Re-run 4e (now ATTEMPT=2; the log filename suffix updates accordingly).
+  - If the retry also crashes, escalate to (c).
+  - **Metrics rows:** original attempt → State=`crashed`, Notes=`partial-recoverable, attempt 1`. Retry on success → State=`done`, Notes=`crash-recovered (resumed, attempt 2)`.
+
+- **(c) Ambiguous or repeated crash** — diff doesn't match the plan cleanly; untracked/ignored files don't fit the phase scope; both signal tmps present; or this is the second crash on the same phase (ATTEMPT == 2).
+  - **Action:** STOP. Report to the developer with: log excerpt (last 50 lines), `git status --porcelain` output, summary of the diff, untracked+ignored file list, and one paragraph of Claude's diagnosis. **No auto-restore of the working tree** — the developer decides whether to roll back, patch, or drop the phase.
+  - **Metrics row:** State=`crashed`, Notes=`ambiguous` or `repeated`.
+
 ### 5. Post-implementation verification
 
 After all phases are complete, run the full test/lint suite one final time to confirm everything works together. Apply the same scoping rule from Step 4d: failures in files your plan touched must be fixed; pre-existing drift in unrelated files gets noted for Step 11, not fixed.
@@ -258,7 +359,7 @@ codex -c model_reasoning_effort=xhigh -a never exec \
 Effort calibration: light review for ≤50 LOC changed; standard review for 50–300 LOC; exhaustive review for >300 LOC or any change touching critical paths flagged in tasks/research-codebase.md.
 
 PRELUDE — Cross-batch coherence (only if multi-batch):
-If tasks/plan.md flags itself as a multi-batch plan (per CLAUDE.md's \"Multi-Batch Plans\" section), inspect the prior batches' progress in plan.md (checked-off items) and the recent git log on this branch for cross-batch coherence. Evaluate whether this batch's changes contradict, duplicate, or undo prior batches' work. If the plan is single-batch, skip this section.
+If tasks/plan.md flags itself as a multi-batch plan (per CLAUDE.md's "Multi-Batch Plans" section), inspect the prior batches' progress in plan.md (checked-off items) and the recent git log on this branch for cross-batch coherence. Evaluate whether this batch's changes contradict, duplicate, or undo prior batches' work. If the plan is single-batch, skip this section.
 
 PART 1 — Plan adherence:
 - Does the implementation match what the plan specified? Flag any deviations.
@@ -272,7 +373,7 @@ PART 2 — Independent code quality (evaluate on merit, regardless of what the p
 - Is the chosen approach the simplest one that solves the problem? If a simpler tool, pattern, or technique would work better than what the plan prescribed, flag it — the plan is not infallible.
 
 For each finding, include: (a) the exact file path and line number(s); (b) a candidate minimal-fix sketch (raw input — Claude will triage; do not auto-apply); (c) a repro or failing-test command that demonstrates the issue, when applicable.
-Prefix each finding with \`CORRECTION:\`, \`TRADE-OFF:\`, or \`RISK:\` per the RDPI taxonomy." </dev/null
+Prefix each finding with `CORRECTION:`, `TRADE-OFF:`, or `RISK:` per the RDPI taxonomy." </dev/null
 ```
 
 The `-a never` flag is added per the design's cross-cutting constraint (every backgrounded `codex exec` runs with `-a never`). The prompt body itself is byte-for-byte identical to `/implement`'s — Option 4 = choice A on independence mitigation; no prelude, no findings injection, no model_reasoning_effort change.

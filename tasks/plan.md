@@ -485,14 +485,14 @@ If no match: Test-violation=`no`.
 The audit grep pattern is best-effort. The actual JSON event schema may differ — refine the pattern empirically against the first real `/implement-codex` runs (subsequent dogfood task; out of scope here).
 
 **Verification (Phase 4 success criteria):**
-1. Step 4f's MISMATCH / BLOCKED / CRASHED arms are all present in `.claude/commands/implement-codex.md` with concrete sub-flows (not stubs).
-2. `grep -q "Effectively done\|partial-recoverable\|ambiguous" .claude/commands/implement-codex.md` — three crash sub-states are documented.
-3. `grep -q "JSON-log audit\|grep.*npm test\|test-execution\|jq -c" .claude/commands/implement-codex.md` — JSON audit logic (parseability + test-execution) is documented.
-4. `grep -q "tasks/codex-debug-{N}.tmp\|tasks/codex-debug-" .claude/commands/implement-codex.md` — Step 4c structural re-research output path present.
-5. `grep -q "git ls-files --others" .claude/commands/implement-codex.md` AND the line that does NOT include `--exclude-standard` (or includes both forms — see crash diagnosis step 2) — ignored-file enumeration is present per design.
-6. `grep -c "\-a never" .claude/commands/implement-codex.md` — at least 2 occurrences (the per-phase Codex invoke + the structural-mismatch re-research; Step 6 is a third).
-7. Manual end-to-end read of `.claude/commands/implement-codex.md` from line 1 to end: every state branch returns to a consistent end (commit + metrics row + plan checkmark, or escalation+stop). No orphan branches.
-8. Manual diff against `.claude/commands/implement.md`: Steps 1-3 differ only in the new prereq (`codex` on PATH check) and the new pre-delete signals; Steps 5, 9 are identical except for renamed artifact paths; Steps 6-8 are identical in semantics, with renamed artifact paths AND `-a never` added per cross-cutting constraint (deviation documented as design-required); Step 10 is extended; Step 11 has the new metrics-summary section. All diffs are intentional and traceable to the design.
+- [x] Step 4f's MISMATCH / BLOCKED / CRASHED arms are all present in `.claude/commands/implement-codex.md` with concrete sub-flows (not stubs).
+- [x] `grep -q "Effectively done\|partial-recoverable\|ambiguous" .claude/commands/implement-codex.md` — three crash sub-states are documented.
+- [x] `grep -q "JSON-log audit\|grep.*npm test\|test-execution\|jq -c" .claude/commands/implement-codex.md` — JSON audit logic (parseability + test-execution) is documented.
+- [x] `grep -q "tasks/codex-debug-{N}.tmp\|tasks/codex-debug-" .claude/commands/implement-codex.md` — Step 4c structural re-research output path present.
+- [x] `grep -q "git ls-files --others" .claude/commands/implement-codex.md` AND the line that does NOT include `--exclude-standard` (or includes both forms — see crash diagnosis step 2) — ignored-file enumeration is present per design.
+- [x] `grep -c "\-a never" .claude/commands/implement-codex.md` — at least 2 occurrences (the per-phase Codex invoke + the structural-mismatch re-research; Step 6 is a third). *(Returns 6 — well above the threshold.)*
+- [x] Manual end-to-end read of `.claude/commands/implement-codex.md` from line 1 to end: every state branch returns to a consistent end (commit + metrics row + plan checkmark, or escalation+stop). No orphan branches.
+- [x] Manual diff against `.claude/commands/implement.md`: Steps 1-3 differ only in the new prereq (`codex` on PATH check) and the new pre-delete signals; Steps 5, 9 are identical except for renamed artifact paths; Steps 6-8 are identical in semantics, with renamed artifact paths AND `-a never` added per cross-cutting constraint (deviation documented as design-required); Step 10 is extended; Step 11 has the new metrics-summary section. All diffs are intentional and traceable to the design. *(Step 6 and Step 8 prompt bodies verified byte-for-byte identical to `/implement.md` via diff after path normalization.)*
 
 **Commit:** `feat(implement-codex): add unhappy-path branches and JSON-log audit`.
 
