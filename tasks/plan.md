@@ -61,18 +61,18 @@ The final file should read:
 Do not add any other content.
 
 **Verification (Phase 2 success criteria):**
-- [ ] `grep -q '^- \[ \] first task' tasks/mock-target.md` returns 0.
-- [ ] The file's first line is still `# Mock target` (`head -n 1 tasks/mock-target.md` outputs `# Mock target`).
-- [ ] `wc -l tasks/mock-target.md` reports 2 lines (or 3 with trailing newline).
+- [x] `grep -q '^- \[ \] first task' tasks/mock-target.md` returns 0.
+- [x] The file's first line is still `# Mock target` (`head -n 1 tasks/mock-target.md` outputs `# Mock target`).
+- [x] `wc -l tasks/mock-target.md` reports 2 lines (or 3 with trailing newline).
 
 **Commit:** `feat(mock): append checklist item to tasks/mock-target.md (Phase 2)`.
 
 ## End-to-end success criteria (cross-phase)
 
 After both phases:
-- [ ] `tasks/mock-target.md` exists with two content lines: the heading and the checklist item.
-- [ ] Two phase commits in `git log` (one per phase, conventional-commit style).
-- [ ] `tasks/implement-codex-metrics.md` exists and contains 2 rows (one per phase) with `State=done` and `Files written=1`.
+- [x] `tasks/mock-target.md` exists with two content lines: the heading and the checklist item.
+- [x] Two phase commits in `git log` (one per phase, conventional-commit style).
+- [x] `tasks/implement-codex-metrics.md` exists and contains 2 rows (one per phase) with `State=done` and `Files written=1`.
 - [ ] No leftover `tasks/codex-implement-phase-*.tmp`, `tasks/codex-mismatch-*.tmp`, or `tasks/codex-blocked-*.tmp` artifacts (Step 10 cleanup).
 
 ## Artifact references
