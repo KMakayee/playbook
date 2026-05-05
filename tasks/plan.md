@@ -384,15 +384,15 @@ git commit -m "<conventional message describing this phase>"
 Use the same conventional-commit style as `/implement` Step 4f. Include `tasks/plan.md` (checkmarks updated) and `tasks/implement-codex-metrics.md` (new metrics row). **Do not stage** `tasks/codex-implement-phase-*.tmp`, `tasks/codex-implement-phase-*-prompt.tmp`, `tasks/logs/codex-implement-phase-*.log`, signal tmps, or debug tmps — these are command-owned and either cleaned in Step 10 or kept untracked per the open log-retention question.
 
 **Verification (Phase 3 success criteria):**
-1. `.claude/commands/implement-codex.md` Step 4 contains substeps 4a-4g and 4i-4n with concrete bash commands and prose. (4h is a stub.)
-2. `grep -q "rm -f tasks/codex-mismatch-{N}.tmp" .claude/commands/implement-codex.md` (or equivalent placeholder convention) — pre-delete present.
-3. `grep -q "codex -c model_reasoning_effort=xhigh -a never exec" .claude/commands/implement-codex.md` — Codex invocation present with correct flags.
-4. `grep -q "\-\-sandbox workspace-write" .claude/commands/implement-codex.md` — sandbox flag present.
-5. `grep -q "\-\-json" .claude/commands/implement-codex.md` — JSON event log enabled.
-6. `grep -q "</dev/null" .claude/commands/implement-codex.md` — Issue #2 discipline preserved (verify it appears on the Codex invocation line).
-7. `grep -q "run_in_background" .claude/commands/implement-codex.md` — Task 10 pattern applied manually (the directive comment, since Task 10 hasn't shipped).
-8. `grep -q "tasks/implement-codex-metrics.md" .claude/commands/implement-codex.md` — metrics file referenced.
-9. Manual review: the DONE-path commit happens before any STUB pointer to MISMATCH/BLOCKED/CRASHED — the rhythm is whole even if the unhappy branches are unimplemented.
+- [x] `.claude/commands/implement-codex.md` Step 4 contains substeps 4a-4g and 4i-4n with concrete bash commands and prose. (4h is a stub.)
+- [x] `grep -q "rm -f tasks/codex-mismatch-{N}.tmp" .claude/commands/implement-codex.md` (or equivalent placeholder convention) — pre-delete present.
+- [x] `grep -q "codex -c model_reasoning_effort=xhigh -a never exec" .claude/commands/implement-codex.md` — Codex invocation present with correct flags.
+- [x] `grep -q "\-\-sandbox workspace-write" .claude/commands/implement-codex.md` — sandbox flag present.
+- [x] `grep -q "\-\-json" .claude/commands/implement-codex.md` — JSON event log enabled.
+- [x] `grep -q "</dev/null" .claude/commands/implement-codex.md` — Issue #2 discipline preserved (verify it appears on the Codex invocation line).
+- [x] `grep -q "run_in_background" .claude/commands/implement-codex.md` — Task 10 pattern applied manually (the directive comment, since Task 10 hasn't shipped).
+- [x] `grep -q "tasks/implement-codex-metrics.md" .claude/commands/implement-codex.md` — metrics file referenced.
+- [x] Manual review: the DONE-path commit happens before any STUB pointer to MISMATCH/BLOCKED/CRASHED — the rhythm is whole even if the unhappy branches are unimplemented.
 
 **Commit:** `feat(implement-codex): add Step 4 phase loop done-path with metrics + per-phase commit`.
 
