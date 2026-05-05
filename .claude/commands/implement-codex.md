@@ -104,7 +104,7 @@ This guards against leftover signals from a prior aborted attempt at the same ph
 #### 4e. Capture baseline + invoke Codex
 
 **Capture pre-Codex baseline** so post-Codex enumeration in 4g is a delta, not an absolute. Snapshot in conversation context (no persistent file):
-- `git status --porcelain` — modified-tracked + untracked + ignored files
+- `git status --porcelain --ignored` — modified-tracked + untracked + ignored files (the `--ignored` flag is required so a file Codex creates that matches a `.gitignore` pattern is captured rather than silently excluded from the real-diff computation)
 - `git diff --name-only` — tracked-only diff against HEAD
 
 These baselines are the "before" state. Step 4g computes "after − before" and filters out command-owned artifacts.
@@ -143,8 +143,8 @@ codex -c model_reasoning_effort=xhigh -a never exec \
    - Check fails → **CRASHED** branch (Phase 4).
    - Check passes → read the `STATUS:` line from the `-o` tmp:
      - `STATUS: done` → **DONE** path (continue with 4g).
-     - `STATUS: mismatch` → treat as if mismatch signal were present → **MISMATCH** branch.
-     - `STATUS: blocked` → treat as if blocked signal were present → **BLOCKED** branch.
+     - `STATUS: mismatch` → if `tasks/codex-mismatch-{N}.tmp` exists and is non-empty, route to **MISMATCH** branch; else **CRASHED** branch (output contract violated — STATUS claims mismatch but no signal file was written).
+     - `STATUS: blocked` → if `tasks/codex-blocked-{N}.tmp` exists and is non-empty, route to **BLOCKED** branch; else **CRASHED** branch (output contract violated — STATUS claims blocked but no signal file was written).
      - STATUS line missing or unrecognized → **CRASHED** branch (output contract violated).
 
 The MISMATCH / BLOCKED / CRASHED branches are documented in §4f.MISMATCH / §4f.BLOCKED / §4f.CRASHED below.
@@ -153,7 +153,7 @@ The MISMATCH / BLOCKED / CRASHED branches are documented in §4f.MISMATCH / §4f
 
 1. `bash .claude/scripts/codex-output-check.sh tasks/codex-implement-phase-{N}.tmp 5` — already run in 4f's STATUS check; the output schema is at least 5 lines (STATUS / FILES_MODIFIED / FILES_CREATED / SUMMARY / NOTES).
 2. Read `tasks/codex-implement-phase-{N}.tmp` FULLY. Parse the `FILES_MODIFIED` and `FILES_CREATED` lists.
-3. Run `git status --porcelain` and `git diff --name-only` (post-Codex state).
+3. Run `git status --porcelain --ignored` and `git diff --name-only` (post-Codex state). The `--ignored` flag must match the baseline form from 4e — otherwise an ignored-pattern file Codex created would slip through the path-set subtraction.
 4. **Compute the "real diff" set** — files Codex actually changed = (post-state) minus (pre-Codex baseline from 4e), filtered to exclude command-owned artifacts:
    - `tasks/codex-implement-phase-*.tmp`
    - `tasks/codex-implement-phase-*-prompt.tmp`
@@ -164,6 +164,8 @@ The MISMATCH / BLOCKED / CRASHED branches are documented in §4f.MISMATCH / §4f
    - `tasks/implement-codex-metrics.md`
 
    The result is the authoritative "what Codex actually edited" set. This set is the input for 4j (diff-scope check) and 4n (commit staging).
+
+   **Known limitation:** the subtraction is path-set based, so a file that was already dirty in the pre-Codex baseline AND further modified by Codex will not be detected by the path subtraction alone (the path is in both sets, so it cancels out). The JSON-event log audit (4h) and Codex's `FILES_MODIFIED` enumeration (4g item 5) provide the secondary signals for that case.
 5. **Cross-check.** Every file in `FILES_MODIFIED + FILES_CREATED` (Codex's claim) must appear in the real diff, AND every file in the real diff must appear in Codex's enumeration. Mismatches are findings — record in metrics (4m's Notes column) but do not auto-block.
 
 #### 4h. JSON-log audit (parseability + test-execution violations)
@@ -172,20 +174,24 @@ After every DONE-path completion (whether direct or via crash-recovery), audit t
 
 **Audit 1 — parseability** (per `tasks/design-decision.md:32`):
 
-The log's first line is a non-JSON `Reading additional input from stdin...` notice (Codex emits it when stdin is piped via `</dev/null`). Filter to JSON-only lines before parseability checking:
+The log's first line is a non-JSON `Reading additional input from stdin...` notice (Codex emits it when stdin is piped via `</dev/null`). Filter to JSON-only lines before parseability checking. The audit must reject both unparseable lines AND a log with no JSON content at all (a bare `grep '^{' <log> | jq -c .` exits 0 on empty input, silently passing logs that have zero JSON events):
 
 ```bash
-grep '^{' tasks/logs/codex-implement-phase-{N}-*-attempt*.log | jq -c . > /dev/null 2>&1
+tmp_json=$(mktemp)
+grep -h '^{' tasks/logs/codex-implement-phase-{N}-*-attempt*.log > "$tmp_json"
+test -s "$tmp_json" && jq -c . "$tmp_json" > /dev/null
 ```
 
-If this fails, log a parseability finding in metrics Notes (`json-log-unparseable`). Do not block — the textual log is still inspectable for the test-execution audit. (`jq` is a standard developer-environment tool; if absent, fall back to `python3 -c "import json,sys; [json.loads(l) for l in open('<log>') if l.startswith('{')]"` or skip the check with a metrics note.)
+`-h` suppresses the per-file filename prefix when the glob matches multiple attempt logs (otherwise `<filename>:` is prepended to each line and breaks `jq`). `test -s` rejects an empty filtered output (no JSON lines = parseability finding).
+
+If the audit fails, log a parseability finding in metrics Notes (`json-log-unparseable`). Do not block — the textual log is still inspectable for the test-execution audit. (`jq` is a standard developer-environment tool; if absent, fall back to `python3 -c "import json,sys; lines=[l for l in open('<log>') if l.startswith('{')]; assert lines; [json.loads(l) for l in lines]"` or skip the check with a metrics note.)
 
 **Audit 2 — test-execution violations** (per `tasks/design-decision.md:31` test-ownership rule):
 
 The Codex JSON event schema for shell commands is `{"type":"item.started","item":{"type":"command_execution","command":"/bin/zsh -lc ..."}}` (verified empirically in Phase 5 dry-run). Grep matches `command_execution` events whose command contains a test/lint/build runner:
 
 ```bash
-grep -E '"type":"command_execution".*(npm test|pytest|cargo test|jest|vitest|tsc|eslint|prettier|go test|make test|make check)' tasks/logs/codex-implement-phase-{N}-*-attempt*.log
+grep -E '"type":"command_execution".*(npm (run )?test|pnpm( run)? test|yarn (run )?test|bun test|pytest|python -m pytest|cargo test|jest|vitest|tsc|eslint|prettier|ruff|mypy|go test|make test|make check)' tasks/logs/codex-implement-phase-{N}-*-attempt*.log
 ```
 
 If any match, Codex ran a verification command despite the brief. Record `Test-violation: yes` in metrics; add a note identifying the offending command. **Do not block the commit** — the violation already happened; the metrics gate (zero violations in last 5 runs per `tasks/design-decision.md:193`) tracks recurrence.
@@ -267,7 +273,7 @@ Use the same conventional-commit style as `/implement` Step 4f. Include `tasks/p
 
 #### 4f.MISMATCH branch
 
-**Trigger:** state classified as MISMATCH per 4f's order — only `tasks/codex-mismatch-{N}.tmp` present non-empty, OR the `-o` STATUS line says `mismatch`.
+**Trigger:** state classified as MISMATCH per 4f's order — `tasks/codex-mismatch-{N}.tmp` is present and non-empty (either reached via the "only mismatch signal present" rule, or via the STATUS=mismatch path which also requires the signal file to exist; STATUS=mismatch without the signal file routes to CRASHED).
 
 **Pre-retry sanity check.** The MISMATCH branch assumes Codex made no source edits (the pre-edit stop contract). Before proceeding, compute the real diff (4g item 4) — files Codex touched, filtered to exclude command-owned artifacts. If the real diff is non-empty, **STOP and escalate to the developer** with the file list — do not auto-retry, the working tree is dirty.
 
@@ -299,7 +305,7 @@ Sub-flow (real diff is empty — pre-edit stop contract held):
 
 #### 4f.BLOCKED branch
 
-**Trigger:** state classified as BLOCKED per 4f's order — only `tasks/codex-blocked-{N}.tmp` present non-empty, OR the `-o` STATUS line says `blocked`.
+**Trigger:** state classified as BLOCKED per 4f's order — `tasks/codex-blocked-{N}.tmp` is present and non-empty (either reached via the "only blocked signal present" rule, or via the STATUS=blocked path which also requires the signal file to exist; STATUS=blocked without the signal file routes to CRASHED).
 
 **Pre-takeover sanity check.** Codex's blocked contract says "exit without making source edits." Compute the real diff (4g item 4); if non-empty, escalate to the developer (working tree is dirty, partial Codex edits compromise Claude's clean takeover).
 
@@ -321,7 +327,7 @@ Sub-flow — three diagnosis steps before involving the developer:
 **Diagnosis step 1 — Read the JSON event log.**
 - Path: the most recent `tasks/logs/codex-implement-phase-{N}-*-attempt{ATTEMPT}.log` (the file 4e wrote).
 - Verify non-empty: `test -s tasks/logs/codex-implement-phase-{N}-*-attempt{ATTEMPT}.log`.
-- **Parseability check** (per `tasks/design-decision.md:32`): each JSON line should be parseable when `--json` is enabled. Filter to JSON-only lines (the log's first line is a `Reading additional input from stdin...` notice from Codex when stdin is piped): `grep '^{' <log-file> | jq -c . > /dev/null 2>&1`. If it fails, record a parseability finding in metrics Notes (`json-log-unparseable`) but do not block — the textual content is still inspectable.
+- **Parseability check** (per `tasks/design-decision.md:32`): each JSON line should be parseable when `--json` is enabled. Filter to JSON-only lines first (the log's first line is a `Reading additional input from stdin...` notice from Codex when stdin is piped) and also reject a log with zero JSON content: `tmp_json=$(mktemp); grep -h '^{' <log-file> > "$tmp_json"; test -s "$tmp_json" && jq -c . "$tmp_json" > /dev/null 2>&1`. The `-h` flag suppresses the `<filename>:` prefix when the glob matches multiple attempt logs; `test -s` rejects an empty filtered output. If the check fails, record a parseability finding in metrics Notes (`json-log-unparseable`) but do not block — the textual content is still inspectable.
 - If empty (process died before any event): record as `crashed` ambiguous, escalate.
 - Otherwise, read the last ~50 lines (`tail -n 50`) to identify Codex's last action. Look for `tool_use` events (file edits) and any `error` events.
 
@@ -413,9 +419,9 @@ Read `tasks/codex-implement-code-review.tmp` FULLY.
 - [Finding] — [Why it was deferred]
 ```
 
-If there are no fixes to apply (all findings were skipped or flagged), skip directly to Step 10.
+**Severe-finding attribution.** When triaging severe Step 6 findings, identify which phase introduced the offending code (read `git log --oneline` since the plan started, then `git show <commit>` to confirm). Tag each severe finding with its source phase. After triage, update the corresponding metrics row's "Step 6 severe (Codex-attrib)" column in `tasks/implement-codex-metrics.md` from `pending` to the integer count of severe findings attributable to Codex's edits in that phase. Findings attributable to Claude's takeover edits (blocked-state) get `n/a` — they're not Codex-attributable. **This attribution must run regardless of how findings were triaged** — runs with only-flagged or only-skipped findings still need the metrics column resolved from `pending`.
 
-**Severe-finding attribution.** When triaging severe Step 6 findings, identify which phase introduced the offending code (read `git log --oneline` since the plan started, then `git show <commit>` to confirm). Tag each severe finding with its source phase. After triage, update the corresponding metrics row's "Step 6 severe (Codex-attrib)" column in `tasks/implement-codex-metrics.md` from `pending` to the integer count of severe findings attributable to Codex's edits in that phase. Findings attributable to Claude's takeover edits (blocked-state) get `n/a` — they're not Codex-attributable.
+If there are no fixes to apply (all findings were skipped or flagged), skip Step 8 (no child process to run) and proceed to Step 9 — the severe-finding attribution above may have modified `tasks/implement-codex-metrics.md`, and Step 9's no-fixes branch handles that metrics-only commit before Step 10.
 
 ### 8. Apply fixes via child process
 
@@ -436,7 +442,10 @@ You are running non-interactively — do not ask questions." --dangerously-skip-
 
 After the child process completes, verify that the code review fixes were applied correctly and that the full plan was implemented — all success criteria in `tasks/plan.md` should be met. Run the test/lint suite one final time, applying the same scoping rule from Step 4d (scoped failures must pass; inherited drift is noted, not fixed).
 
-Once verified and any issues fixed, commit with message: `fix: apply code review revisions`.
+Once verified and any issues fixed, commit. Two commit shapes:
+
+- **Fixes were applied** (the child process from Step 8 ran and produced source-file changes): stage the fixed source files alongside `tasks/implement-codex-metrics.md` (so the Step 7 severe-attribution update folds into the same commit) and commit with message `fix: apply code review revisions`.
+- **No fixes were applied** (Step 7's no-fixes branch took us straight here, but Step 7's severe-attribution may still have modified `tasks/implement-codex-metrics.md`): if `tasks/implement-codex-metrics.md` is the only modified file, commit it alone with message `chore(implement-codex): update Step 6 severe-finding attribution`. If nothing was modified, skip the commit and proceed to Step 10.
 
 ### 10. Clean up
 
