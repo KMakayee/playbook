@@ -172,23 +172,27 @@ After every DONE-path completion (whether direct or via crash-recovery), audit t
 
 **Audit 1 — parseability** (per `tasks/design-decision.md:32`):
 
+The log's first line is a non-JSON `Reading additional input from stdin...` notice (Codex emits it when stdin is piped via `</dev/null`). Filter to JSON-only lines before parseability checking:
+
 ```bash
-jq -c . tasks/logs/codex-implement-phase-{N}-*-attempt*.log > /dev/null 2>&1
+grep '^{' tasks/logs/codex-implement-phase-{N}-*-attempt*.log | jq -c . > /dev/null 2>&1
 ```
 
-If `jq` exits non-zero, log a parseability finding in metrics Notes (`json-log-unparseable`). Do not block — the textual log is still inspectable for the test-execution audit. (`jq` is a standard developer-environment tool; if absent, fall back to `python3 -c "import json,sys; [json.loads(l) for l in open('<log>')]"` or skip the check with a metrics note.)
+If this fails, log a parseability finding in metrics Notes (`json-log-unparseable`). Do not block — the textual log is still inspectable for the test-execution audit. (`jq` is a standard developer-environment tool; if absent, fall back to `python3 -c "import json,sys; [json.loads(l) for l in open('<log>') if l.startswith('{')]"` or skip the check with a metrics note.)
 
 **Audit 2 — test-execution violations** (per `tasks/design-decision.md:31` test-ownership rule):
 
+The Codex JSON event schema for shell commands is `{"type":"item.started","item":{"type":"command_execution","command":"/bin/zsh -lc ..."}}` (verified empirically in Phase 5 dry-run). Grep matches `command_execution` events whose command contains a test/lint/build runner:
+
 ```bash
-grep -E '"name":"(bash|shell)"|"command":"(npm test|pytest|cargo test|jest|vitest|tsc|eslint|prettier|go test|make|bash)' tasks/logs/codex-implement-phase-{N}-*-attempt*.log
+grep -E '"type":"command_execution".*(npm test|pytest|cargo test|jest|vitest|tsc|eslint|prettier|go test|make test|make check)' tasks/logs/codex-implement-phase-{N}-*-attempt*.log
 ```
 
 If any match, Codex ran a verification command despite the brief. Record `Test-violation: yes` in metrics; add a note identifying the offending command. **Do not block the commit** — the violation already happened; the metrics gate (zero violations in last 5 runs per `tasks/design-decision.md:193`) tracks recurrence.
 
 If no match, `Test-violation: no`.
 
-The audit grep pattern is best-effort. The actual JSON event schema may differ — refine the pattern empirically against real `/implement-codex` runs.
+The audit grep pattern is best-effort and matches the schema observed at the time `/implement-codex` was authored. If Codex CLI ships a schema change, refine the pattern against the offending log.
 
 #### 4i. Run plan-specified success criteria
 
@@ -317,7 +321,7 @@ Sub-flow — three diagnosis steps before involving the developer:
 **Diagnosis step 1 — Read the JSON event log.**
 - Path: the most recent `tasks/logs/codex-implement-phase-{N}-*-attempt{ATTEMPT}.log` (the file 4e wrote).
 - Verify non-empty: `test -s tasks/logs/codex-implement-phase-{N}-*-attempt{ATTEMPT}.log`.
-- **Parseability check** (per `tasks/design-decision.md:32`): each line should be parseable JSON when `--json` is enabled. Run `jq -c . <log-file> > /dev/null 2>&1`. If it fails, record a parseability finding in metrics Notes (`json-log-unparseable`) but do not block — the textual content is still inspectable.
+- **Parseability check** (per `tasks/design-decision.md:32`): each JSON line should be parseable when `--json` is enabled. Filter to JSON-only lines (the log's first line is a `Reading additional input from stdin...` notice from Codex when stdin is piped): `grep '^{' <log-file> | jq -c . > /dev/null 2>&1`. If it fails, record a parseability finding in metrics Notes (`json-log-unparseable`) but do not block — the textual content is still inspectable.
 - If empty (process died before any event): record as `crashed` ambiguous, escalate.
 - Otherwise, read the last ~50 lines (`tail -n 50`) to identify Codex's last action. Look for `tool_use` events (file edits) and any `error` events.
 

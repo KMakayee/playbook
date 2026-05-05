@@ -562,10 +562,10 @@ If any surface, fix in `.claude/commands/implement-codex.md` (or `.claude/prompt
 7. **Commit refinements (if any).** If Step 5 surfaced needed fixes in `.claude/commands/implement-codex.md` or `.claude/prompts/implement-codex-phase-brief.md`, commit them: `fix(implement-codex): refine <what> based on dry-run`. If no refinements were needed, Phase 5 produces only the two scaffold commits (add + drop), which net-zero the working tree.
 
 **Verification (Phase 5 success criteria):**
-1. The Codex invocation completed and produced `tasks/codex-smoke.tmp` matching the output schema.
-2. JSON log is parseable AND its event shape matches the Step 4h audit grep pattern (or the grep was refined to match — committed under Step 7 of this phase).
-3. `git status --porcelain` after revert + cleanup shows clean tree (no leftover smoke artifacts).
-4. If any refinements were committed, they're traceable to specific Step 5 findings.
+- [x] The Codex invocation completed and produced `tasks/codex-smoke.tmp` matching the output schema.
+- [x] JSON log is parseable AND its event shape matches the Step 4h audit grep pattern (or the grep was refined to match — committed under Step 7 of this phase). *(Required two refinements: (1) skip the leading `Reading additional input from stdin...` notice line via `grep '^{' | jq -c .`, (2) match `"type":"command_execution"` instead of the assumed `"name":"bash"` schema.)*
+- [x] `git status --porcelain` after revert + cleanup shows clean tree (no leftover smoke artifacts).
+- [x] If any refinements were committed, they're traceable to specific Step 5 findings. *(Two refinements committed; both surfaced from the dry-run JSON log content.)*
 
 **Failure handling.** If Step 4 (Codex invocation) fails with a CLI error before producing any output, Phase 5 produces a finding: the assumed flag set is wrong. Fix in `.claude/commands/implement-codex.md` Step 4e and Step 6 (which uses the same invocation pattern) and re-run Phase 5. If Codex returns but emits a malformed schema, fix the template wording in `.claude/prompts/implement-codex-phase-brief.md` and re-run. Cap at 2 dry-run iterations — if the third iteration still fails, stop and report to the developer; something deeper is wrong with the design's CLI assumptions.
 
