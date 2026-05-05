@@ -23,6 +23,7 @@
 | `/design`            | Options + Codex cross-check; inline pattern research → `tasks/design-decision.md` |
 | `/create-plan`       | Claude drafts + Codex reviews → `tasks/plan.md`                                |
 | `/implement`         | Execute plan + Codex code review + child-process fixes                         |
+| `/implement-codex`   | *Experimental.* Codex writes phases, Claude verifies; `/implement` stays production |
 
 **Issue Board**
 
