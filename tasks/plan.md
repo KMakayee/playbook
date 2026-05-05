@@ -173,15 +173,15 @@ Established up-front so every phase references the same names. Names follow the 
 - **New: Experiment metrics** — one-paragraph summary derived from the metrics rows appended this run: total phases, clean-pass count, mismatch count, blocked count, crashed/retried count, observed Claude rewrite ratio, prompt-contract violations (test-execution findings from JSON-log audit). Cross-link to `tasks/implement-codex-metrics.md` for the full table.
 
 **Verification (Phase 2 success criteria):**
-1. `test -f .claude/commands/implement-codex.md` returns 0.
-2. `grep -q "Step 1 — Check prerequisites\|Check prerequisites" .claude/commands/implement-codex.md` (header pattern).
-3. `grep -c "^### " .claude/commands/implement-codex.md` returns 11 (one per Step + preamble = 11 H3s, depending on heading depth — adjust per chosen markdown structure; key invariant is 11 step-level sections plus the preamble).
-4. `grep -q "tasks/codex-implement-code-review.tmp" .claude/commands/implement-codex.md` returns 0 (renamed Step 6 output present).
-5. `grep -q "tasks/code-review-fixes-implement.tmp" .claude/commands/implement-codex.md` returns 0 (renamed Step 7 output present).
-6. `! grep -q "tasks/codex-code-review.tmp" .claude/commands/implement-codex.md` returns 0 (the un-renamed `/implement` artifact is NOT referenced — collision-safety).
-7. `grep -E "tasks/code-review-fixes\.tmp(\b|[^-])" .claude/commands/implement-codex.md` returns non-zero (no bare `code-review-fixes.tmp` references — only `code-review-fixes-implement.tmp`, the renamed form, should appear).
-8. Manual diff: open `.claude/commands/implement.md` and the new file side-by-side; Steps 5, 9, 11 should be near-identical except for the renamed artifact references and the new "Experiment metrics" sub-bullet in Step 11.
-9. Step 4 contains a stub pointer to the phase-loop sections that Phases 3 and 4 will fill.
+- [x] `test -f .claude/commands/implement-codex.md` returns 0.
+- [x] `grep -q "Step 1 — Check prerequisites\|Check prerequisites" .claude/commands/implement-codex.md` (header pattern).
+- [x] `grep -c "^### " .claude/commands/implement-codex.md` returns 11 (one per Step + preamble = 11 H3s, depending on heading depth — adjust per chosen markdown structure; key invariant is 11 step-level sections plus the preamble). *(Returns 13, matching `/implement.md`'s 13 — both files include `### Fix 1` / `### Fix 2` inside a fenced markdown code-block example, which grep counts. 11 step-level sections is the structural invariant and is met.)*
+- [x] `grep -q "tasks/codex-implement-code-review.tmp" .claude/commands/implement-codex.md` returns 0 (renamed Step 6 output present).
+- [x] `grep -q "tasks/code-review-fixes-implement.tmp" .claude/commands/implement-codex.md` returns 0 (renamed Step 7 output present).
+- [x] `! grep -q "tasks/codex-code-review.tmp" .claude/commands/implement-codex.md` returns 0 (the un-renamed `/implement` artifact is NOT referenced — collision-safety).
+- [x] `grep -E "tasks/code-review-fixes\.tmp(\b|[^-])" .claude/commands/implement-codex.md` returns non-zero (no bare `code-review-fixes.tmp` references — only `code-review-fixes-implement.tmp`, the renamed form, should appear).
+- [x] Manual diff: open `.claude/commands/implement.md` and the new file side-by-side; Steps 5, 9, 11 should be near-identical except for the renamed artifact references and the new "Experiment metrics" sub-bullet in Step 11.
+- [x] Step 4 contains a stub pointer to the phase-loop sections that Phases 3 and 4 will fill.
 
 **Commit:** `feat(implement-codex): add command skeleton with Steps 1-3 and 5-11 mirroring /implement` (or similar conventional message).
 
