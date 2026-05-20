@@ -51,8 +51,10 @@ derived from the branch.
 3. **Cleanup commit — local, no push:**
    - After Step 2, `git rm` whichever issue artifacts exist:
      `tasks/research-issue-N.md`, `tasks/plan-issue-N.md`.
-   - If `tasks/pipeline-eval-index.md` shows as modified (`/auto-issues` Phase 6 appends
-     to it after Phase 5's commit), `git add` it into this same commit.
+   - If `git status --porcelain -- tasks/pipeline-eval-index.md` prints any line (the
+     index shows as modified, or — on the first-ever run — untracked; `/auto-issues`
+     Phase 6 writes it after Phase 5's commit), `git add tasks/pipeline-eval-index.md`
+     into this same commit.
    - Defensively `rm -f` any leftover temp files (untracked — not committed):
      `tasks/codex-issue-prompt-N.tmp`, `tasks/codex-issue-research-N.tmp`,
      `tasks/codex-issue-plan-review-N.tmp`, `tasks/codex-issue-code-review-N.tmp`,
@@ -61,7 +63,7 @@ derived from the branch.
      `chore: clean up issue #N artifacts`.
    - **Do not push this commit.** It rides on the next push (`/push-pr` / `/push-pr-light`),
      keeping `/issue-finish` to a single push.
-   - If no artifacts exist and the index is unmodified, skip this step entirely.
+   - If no artifacts exist and the index has no pending changes, skip this step entirely.
 
 4. **Report:**
    - Show which issue number was finished.

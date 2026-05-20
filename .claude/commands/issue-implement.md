@@ -123,7 +123,7 @@ Read `tasks/codex-issue-code-review-$ARGUMENTS.tmp` FULLY.
 - **Skip:** False positives, claims that didn't survive spot-checking, subjective style preferences.
 - **Flag for developer:** Architectural concerns, changes that would alter behavior beyond the plan's intent, anything ambiguous.
 
-**Write fix instructions** to `tasks/code-review-fixes-issue-$ARGUMENTS.tmp` — a precise, actionable list for the child process:
+**Write fix instructions** to `tasks/code-review-fixes-issue-$ARGUMENTS.tmp` — a precise, actionable list for inline application:
 
 ```markdown
 ## Code Review Fixes
@@ -183,7 +183,7 @@ Suggest next step: "Run `/issue-update $ARGUMENTS` next."
 ## Important notes
 
 - **Sub-agents are optional**: Use them sparingly for targeted debugging, never for broad exploration during implementation. Sub-agents MUST NOT spawn further sub-agents (recursion guard).
-- **Triage is the key step.** The parent session decides *what* to fix. The child process decides *how*. Write precise fix instructions — vague instructions produce vague fixes.
-- Codex reviews, Claude triages, child fixes. Not everything Codex flags needs fixing — use judgment. When in doubt, flag rather than fix.
+- **Triage is the key step.** Decide *what* to fix deliberately, then apply each fix inline. Write precise fix instructions — vague instructions produce vague fixes.
+- Codex reviews, Claude triages and applies fixes inline. Not everything Codex flags needs fixing — use judgment. When in doubt, flag rather than fix.
 - Do NOT remove `tasks/research-issue-$ARGUMENTS.md`, `tasks/plan-issue-$ARGUMENTS.md`, or `tasks/deferred.md` — those persist beyond this command.
-- If `codex` or `claude` is not found or fails, stop and tell the developer to fix it before proceeding.
+- If `codex` is not found or fails, stop and tell the developer to fix it before proceeding.
