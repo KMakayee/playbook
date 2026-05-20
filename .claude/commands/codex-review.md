@@ -52,10 +52,10 @@ Format findings under the lens names as section headers (e.g., `## Factual / cor
 
 ### 3. Invoke Codex
 
-Run with a 10-minute timeout (600000ms) — Codex may take a while on larger targets:
+**Run with `run_in_background: true` — this is a Bash-tool parameter (set it when you call the Bash tool), not shell syntax. Codex phase, may take 10+ minutes.**
 
 ```bash
-codex exec \
+codex -a never exec \
   --sandbox read-only \
   -o tasks/codex-review.tmp \
   "$(cat tasks/codex-review-prompt.tmp)" </dev/null
@@ -64,6 +64,8 @@ codex exec \
 If the `codex` command is not found or fails, run `rm -f tasks/codex-review.tmp tasks/codex-review-prompt.tmp`, then stop and tell the developer to fix it before proceeding. Cleanup must run before the stop so the no-persistent-artifact boundary holds even on failure.
 
 ### 4. Spot-check Codex's claims
+
+Verify the output first: `bash .claude/scripts/codex-output-check.sh tasks/codex-review.tmp 5`. If the check fails, run `rm -f tasks/codex-review.tmp tasks/codex-review-prompt.tmp`, then stop and tell the developer — the cleanup must run before the stop so the no-persistent-artifact boundary holds even on failure.
 
 Read `tasks/codex-review.tmp` FULLY (no limit/offset). Verify a sample of the file paths and line numbers Codex cited — do they exist and match what Codex described? Flag any that don't hold up; carry the caveats forward into Step 6.
 
