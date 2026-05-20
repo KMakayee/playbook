@@ -8,6 +8,7 @@ Wrap up the current task: mark it done and commit everything including RDPI arti
 ## Steps:
 
 1. **Verify the plan is complete, then mark the todo task done:**
+   - First, detect the current branch with `git rev-parse --abbrev-ref HEAD`. If it matches `worktree-issue-<N>`, **stop** — this is an issue-flow worktree, not an RDPI todo worktree. Tell the developer to run `/issue-finish` instead. `/finish` is for the RDPI todo flow only.
    - Read `tasks/plan.md` fully.
    - Check that all success criteria / checkboxes are marked done (`- [x]`).
    - If any are unchecked, **stop** — list the incomplete items and tell the developer the task isn't finished yet. Do not proceed.
