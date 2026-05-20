@@ -1,0 +1,71 @@
+# Issue Board
+
+> **Purpose:** Track issues through the playbook workflow. Each issue progresses through statuses as slash commands are run against it.
+> **Status flow:** `Draft` → `In Research` → `In Planning` → `In Review` → `In Progress` → `Implemented` → `Done` | `Deferred`
+> **Commands:** `/issue-research`, `/issue-plan`, `/issue-implement`, `/issue-update`, `/issue-finish`
+
+---
+
+## Issue Format
+
+Each issue uses the structure below. Copy it when adding a new issue.
+
+```
+## #N — [Title]
+
+**Status:** Draft
+**Priority:** High | Medium | Low
+**Created:** YYYY-MM-DD
+
+### Description
+
+[What needs to happen and why. Be specific enough that research can begin without further clarification.]
+
+### Acceptance Criteria
+
+- [ ] [Observable, testable outcome]
+- [ ] [Another outcome]
+
+### Notes
+
+[Accumulates during workflow — research findings, plan decisions, implementation notes. Newest entries first.]
+
+### Impacts
+
+[Filled by `/issue-update` after a related issue completes. Describes how other issues' changes affect this one.]
+```
+
+---
+
+## Issues
+
+<!-- Add new issues below. Number sequentially. -->
+
+## #3 — /playbook-setup should install the permission rules the playbook's commands require
+
+**Status:** Draft
+**Priority:** Medium
+**Created:** 2026-05-20
+
+### Description
+
+The RDPI commands shell out to `codex exec` and `claude -p` (both now backgrounded after Task 10). On a fresh playbook install these invocations have no matching permission rules, so Claude Code's auto-mode classifier denies them on first use — the developer hits a hard stop mid-workflow (e.g. the first `/research-codebase` Codex sweep, or `/auto-issues` Phase 4's `claude -p` child).
+
+Observed during Task 10 verification testing: `Bash(codex *)` happened to already be present in this repo's `.claude/settings.local.json`, but `Bash(claude -p *)` was missing and had to be added ad hoc to run the test. `/playbook-setup` has no step that establishes these permissions, so every new playbook adopter rediscovers the gap one denial at a time.
+
+The fix should audit the complete set of permissions the playbook's commands depend on — at minimum `codex` and `claude -p`, but likely also the `.claude/scripts/*.sh` helpers, git operations, and `gh` — and add a `/playbook-setup` step that installs them. The target settings file (project `.claude/settings.json` for team-wide rules vs. `.claude/settings.local.json`) is an open design question for the research/plan phase.
+
+### Acceptance Criteria
+
+- [ ] The full set of permission rules the playbook's commands require is enumerated (`codex`, `claude -p`, `.claude/scripts/*.sh`, git, `gh`, etc.)
+- [ ] `/playbook-setup` (`.claude/commands/playbook-setup.md`) gains a step that installs the required permission rules, merging with any existing rules rather than overwriting them
+- [ ] The step is idempotent — re-running `/playbook-setup` does not duplicate rules
+- [ ] A fresh playbook install can run the Codex/`claude -p` commands without hitting an auto-mode permission denial
+
+### Notes
+
+Surfaced 2026-05-20 during Task 10 (background-by-default migration) verification testing.
+
+### Impacts
+
+[Filled by `/issue-update` after a related issue completes.]
