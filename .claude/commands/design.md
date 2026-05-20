@@ -81,10 +81,12 @@ Codex works in three phases: designs independently first, then cross-checks agai
 
 1. Extract the problem statement from `tasks/design-decision.md` — just the problem/goal and requirements (before the options). Pass this to Codex — NOT the options themselves. Withholding the options prevents anchoring during Phase 1.
 
-2. Run Codex. Use a 10-minute timeout (600000ms) — Codex may take a while on large codebases:
+2. Run Codex:
+
+   **Run with `run_in_background: true` — this is a Bash-tool parameter (set it when you call the Bash tool), not shell syntax. Codex phase, may take 10+ minutes.**
 
    ```bash
-   codex -c model_reasoning_effort=xhigh exec \
+   codex -c model_reasoning_effort=xhigh -a never exec \
      --sandbox read-only \
      -o tasks/codex-design-review.tmp \
      "PHASE 1 — Independent design (do this BEFORE reading tasks/design-decision.md):
@@ -189,10 +191,12 @@ If SKIP and a stale `tasks/research-patterns.md` exists, delete it.
 **If RUN:**
 
 1. Fill `.claude/prompts/research-patterns-guide.md` — replace `{RESEARCH_TOPIC}` with a short description of what external patterns to study (derived from the chosen approach in `## Decision`). Write to `tasks/patterns-prompt.tmp`.
-2. Run Codex with `--search` (foreground, 10-minute timeout / 600000ms — matches the other RDPI Codex calls):
+2. Run Codex with `--search`:
+
+   **Run with `run_in_background: true` — this is a Bash-tool parameter (set it when you call the Bash tool), not shell syntax. Codex phase, may take 10+ minutes.**
 
    ```bash
-   codex -c model_reasoning_effort=xhigh --search exec \
+   codex -c model_reasoning_effort=xhigh --search -a never exec \
      --sandbox read-only \
      -o tasks/codex-patterns-research.tmp \
      "$(cat tasks/patterns-prompt.tmp)" </dev/null

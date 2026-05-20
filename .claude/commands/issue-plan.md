@@ -55,10 +55,12 @@ Claude leads the synthesis step — translates the research's recommended approa
    - **Artifact references** — pointer to `tasks/research-issue-$ARGUMENTS.md`
 
 ### 3. Run Codex review
-Run Codex against the drafted plan. Use a 10-minute timeout (600000ms) — Codex may take a while on large codebases:
+Run Codex against the drafted plan:
+
+**Run with `run_in_background: true` — this is a Bash-tool parameter (set it when you call the Bash tool), not shell syntax. Codex phase, may take 10+ minutes.**
 
 ```bash
-codex -c model_reasoning_effort=xhigh exec \
+codex -c model_reasoning_effort=xhigh -a never exec \
   --sandbox read-only \
   -o tasks/codex-issue-plan-review-$ARGUMENTS.tmp \
   "Review the implementation plan in tasks/plan-issue-$ARGUMENTS.md against the research in tasks/research-issue-$ARGUMENTS.md and the issue body in tasks/issues.md (acceptance criteria are in the issue, not a separate design doc). The recommendation the plan implements lives in the research artifact's ## Recommended Approach section.
