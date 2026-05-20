@@ -7,19 +7,23 @@ set -euo pipefail
 ISSUE="$1"
 TIMESTAMP="$2"
 
+# Phases that produce a child log. Phase 5 (commit) runs inline in the
+# orchestrator session and produces no child log, so it is not listed here.
+EXPECTED_PHASES=(1-research 2-plan 3-implement 4-update)
+
 VERDICT="PASS"
 ISSUES=""
 
-# 1. Log completeness — all 5 logs exist; every phase produces substantive Claude output
-for phase in 1-research 2-plan 3-implement 4-update 5-commit; do
+# 1. Log completeness — all 4 logs exist; every phase produces substantive Claude output
+for phase in "${EXPECTED_PHASES[@]}"; do
   f="tasks/logs/auto-issue-$ISSUE-$phase-$TIMESTAMP.log"
   if [ ! -f "$f" ]; then
     ISSUES="$ISSUES\nMISSING LOG: $f"
     VERDICT="FAIL"
   fi
 done
-# All 5 phases produce substantive Claude output
-for phase in 1-research 2-plan 3-implement 4-update 5-commit; do
+# All 4 phases produce substantive Claude output
+for phase in "${EXPECTED_PHASES[@]}"; do
   f="tasks/logs/auto-issue-$ISSUE-$phase-$TIMESTAMP.log"
   if [ -f "$f" ] && [ "$(wc -l < "$f")" -lt 10 ]; then
     ISSUES="$ISSUES\nTINY LOG: $f ($(wc -l < "$f") lines)"
@@ -39,7 +43,7 @@ for f in tasks/research-issue-$ISSUE.md tasks/plan-issue-$ISSUE.md; do
 done
 
 # 3. Append to eval index
-INDEX="tasks/logs/pipeline-eval-index.md"
+INDEX="tasks/pipeline-eval-index.md"
 if [ ! -f "$INDEX" ]; then
   echo "| Issue | Timestamp | Verdict | Notes |" > "$INDEX"
   echo "|---|---|---|---|" >> "$INDEX"

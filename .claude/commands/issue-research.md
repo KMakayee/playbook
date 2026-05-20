@@ -14,7 +14,7 @@ This command uses a two-stage research process:
 
 ### 1. Check prerequisites
 - Read `tasks/issues.md` and locate issue `#$ARGUMENTS`. If the issue doesn't exist, stop and tell the developer.
-- If `tasks/research-issue-$ARGUMENTS.md` already exists, **stop. Do not overwrite.** Tell the developer to manually remove the existing artifact (or rename it) before re-running. Do NOT prompt for confirmation — `/auto-issues` runs children with `--dangerously-skip-permissions`, and a non-interactive child instructed to "ask" may interpret the failure to ask as license to proceed. Hard stop.
+- If `tasks/research-issue-$ARGUMENTS.md` already exists, **stop. Do not overwrite.** Tell the developer to manually remove the existing artifact (or rename it) before re-running. Do NOT prompt for confirmation — `/auto-issues` runs children with `--permission-mode auto`, and a non-interactive child instructed to "ask" may interpret the failure to ask as license to proceed. Hard stop.
 
 ### 2. Read issue context and any directly mentioned files
 - Read the issue's `### Description`, `### Acceptance Criteria`, and `### Notes` sections from `tasks/issues.md`. These scope the research.

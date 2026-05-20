@@ -15,7 +15,7 @@ Review the status above. Then:
    - **Fetch + count.** `git fetch origin <base> && git rev-list --count HEAD..origin/<base>`.
    - **If non-zero:** stop. Tell the developer: "Branch is N commits behind `<base>`. Run `/catchup <base>`, then re-run `/push-pr-light <base>` (omit `<base>` if it matches the default)." Do not proceed. (Cannot programmatically invoke `/catchup` — see `/checkpoint`'s `/compact` recommendation pattern.)
    - **If zero:** continue.
-3. Verify the current branch has been pushed to the remote. If not (no upstream tracking branch, or local is ahead of remote), push it now.
+3. Verify the current branch has been pushed to the remote. If not (no upstream tracking branch, or local is ahead of remote), push it now: when no upstream tracking branch exists, push with `git push -u origin HEAD`; when tracking already exists, a plain `git push`.
 4. Check whether an open PR already exists for this branch:
    `!gh pr list --head $(git branch --show-current) --state open 2>/dev/null`
    - **If no open PR and `gh` is installed:**

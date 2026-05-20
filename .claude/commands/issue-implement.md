@@ -1,6 +1,6 @@
 # Issue Implement
 
-Execute the approved plan for issue **#$ARGUMENTS** phase-by-phase, then review and fix. Implementation stays in this session for full control. Codex code review and fix application are offloaded to keep context quality high.
+Execute the approved plan for issue **#$ARGUMENTS** phase-by-phase, then review and fix. Implementation stays in this session for full control. Codex runs the code review; Claude triages the findings and applies the fixes inline. `/issue-implement` makes no commits — the single commit for the issue is owned by `/auto-issues` Phase 5 (pipeline path) or `/issue-finish` (standalone path).
 
 If `$ARGUMENTS` is empty or blank, stop and tell the developer to re-invoke with an issue number (e.g., `/issue-implement 12`).
 
@@ -66,10 +66,7 @@ d. **Run automated verification** — execute the automated success criteria lis
 
 e. **Check off completed items** — update the plan file to mark success criteria as done (`- [x]`).
 
-f. **Commit the phase:**
-   - Commit with a conventional message that references the issue number (e.g., `feat(#$ARGUMENTS): add validation layer for user input` / `fix(#$ARGUMENTS): correct boundary check`).
-   - Each phase should be a separate commit so changes are reviewable.
-   - If you modified `tasks/plan-issue-$ARGUMENTS.md` during the phase (checkmarks, deviation notes from 4c), include it in the phase's commit — the updates are part of the work record.
+`/issue-implement` does not commit. Phase work — including `tasks/plan-issue-$ARGUMENTS.md` checkmark and deviation edits — stays on disk uncommitted; the eventual single commit (`/auto-issues` Phase 5 or `/issue-finish` Step 2) picks it up via explicit staging of `tasks/plan-issue-$ARGUMENTS.md`.
 
 ### 5. Post-implementation verification
 
@@ -83,12 +80,12 @@ After all phases are complete, run the full test/lint suite one final time to co
 codex -c model_reasoning_effort=xhigh exec \
   --sandbox read-only \
   -o tasks/codex-issue-code-review-$ARGUMENTS.tmp \
-  "Review the recent implementation against the plan in tasks/plan-issue-$ARGUMENTS.md and the research in tasks/research-issue-$ARGUMENTS.md for issue #$ARGUMENTS in tasks/issues.md.
+  "Review the working-tree diff for this issue — \`git diff\` (tracked changes) plus any untracked files from \`git status --porcelain --untracked-files=all\` — against the plan in tasks/plan-issue-$ARGUMENTS.md and the research in tasks/research-issue-$ARGUMENTS.md for issue #$ARGUMENTS in tasks/issues.md. The implementation makes no per-phase commits, so the entire issue is uncommitted — the working tree is the change set to review.
 
 Effort calibration: light review for ≤50 LOC changed; standard review for 50–300 LOC; exhaustive review for >300 LOC or any change touching critical paths flagged in tasks/research-issue-$ARGUMENTS.md.
 
 PRELUDE — Cross-batch coherence (only if multi-batch):
-If tasks/plan-issue-$ARGUMENTS.md flags itself as a multi-batch plan (per CLAUDE.md's 'Multi-Batch Plans' section), inspect the prior batches' progress in plan-issue-$ARGUMENTS.md (checked-off items) and the recent git log on this branch for cross-batch coherence. Evaluate whether this batch's changes contradict, duplicate, or undo prior batches' work. If the plan is single-batch, skip this section.
+If tasks/plan-issue-$ARGUMENTS.md flags itself as a multi-batch plan (per CLAUDE.md's 'Multi-Batch Plans' section), inspect the prior batches' progress in plan-issue-$ARGUMENTS.md (checked-off items) and the working-tree diff for cross-batch coherence (no per-batch commits exist). Evaluate whether this batch's changes contradict, duplicate, or undo prior batches' work. If the plan is single-batch, skip this section.
 
 PART 1 — Plan adherence:
 - Does the implementation match what the plan specified? Flag any deviations.
@@ -126,7 +123,7 @@ Read `tasks/codex-issue-code-review-$ARGUMENTS.tmp` FULLY.
 - **Skip:** False positives, claims that didn't survive spot-checking, subjective style preferences.
 - **Flag for developer:** Architectural concerns, changes that would alter behavior beyond the plan's intent, anything ambiguous.
 
-**Write fix instructions** to `tasks/code-review-fixes-issue-$ARGUMENTS.tmp` — a precise, actionable list for the child process:
+**Write fix instructions** to `tasks/code-review-fixes-issue-$ARGUMENTS.tmp` — a precise, actionable list for inline application:
 
 ```markdown
 ## Code Review Fixes
@@ -144,26 +141,21 @@ Read `tasks/codex-issue-code-review-$ARGUMENTS.tmp` FULLY.
 
 If there are no fixes to apply (all findings were skipped or flagged), skip directly to Step 10.
 
-### 8. Apply fixes via child process
+### 8. Apply fixes
 
-**Run with `run_in_background` — may take a few minutes.**
+Apply each fix from `tasks/code-review-fixes-issue-$ARGUMENTS.tmp` **inline in this session** — no child process. For each fix listed under `## Code Review Fixes`:
 
-Compute the timestamp inline — shell state doesn't persist between calls:
-
-```bash
-mkdir -p tasks/logs && TIMESTAMP=$(date +%Y%m%d-%H%M) && claude -p "Read tasks/code-review-fixes-issue-$ARGUMENTS.tmp. Apply each fix listed under '## Code Review Fixes' exactly as described. For each fix:
 1. Read the file FULLY before modifying it.
 2. Apply the fix.
 3. Run any relevant tests to confirm the fix doesn't break anything.
-Do NOT commit — the parent session will verify and commit.
-You are running non-interactively — do not ask questions." --dangerously-skip-permissions </dev/null > tasks/logs/code-review-fixes-issue-$ARGUMENTS-$TIMESTAMP.log 2>&1
-```
+
+Do not commit — `/issue-implement` makes no commits.
 
 ### 9. Final verification
 
-After the child process completes, verify that the code review fixes were applied correctly and that the full plan was implemented — all success criteria in `tasks/plan-issue-$ARGUMENTS.md` should be met. Run the test/lint suite one final time, applying the same scoping rule from Step 4d (scoped failures must pass; inherited drift is noted, not fixed). Confirm every acceptance criterion in issue #$ARGUMENTS is met.
+Verify that the code review fixes were applied correctly and that the full plan was implemented — all success criteria in `tasks/plan-issue-$ARGUMENTS.md` should be met. Run the test/lint suite one final time, applying the same scoping rule from Step 4d (scoped failures must pass; inherited drift is noted, not fixed). Confirm every acceptance criterion in issue #$ARGUMENTS is met.
 
-Once verified and any issues fixed, commit with message: `fix(#$ARGUMENTS): apply code review revisions`.
+The working tree is left uncommitted — a later `/auto-issues` Phase 5 or `/issue-finish` makes the single commit.
 
 ### 10. Clean up
 
@@ -179,8 +171,8 @@ In `tasks/issues.md`, change issue #$ARGUMENTS status to `Implemented`.
 ### 11. Present results
 
 Report with these sections:
-- **Implemented:** Phases completed and commits made
-- **Fixed:** What Codex found and the child process fixed (with file:line references)
+- **Implemented:** Phases completed (no commits — the working tree is left uncommitted)
+- **Fixed:** What Codex found and Claude applied inline (with file:line references)
 - **Flagged for review:** Findings that need human judgment (with reasoning for why they were deferred). Include any repo-wide check failures outside your plan's scope (from Step 4d).
 - **How to test:** Commands to run and manual steps to verify the implementation (e.g., test commands, endpoints to hit, UI flows to walk through)
 
@@ -191,7 +183,7 @@ Suggest next step: "Run `/issue-update $ARGUMENTS` next."
 ## Important notes
 
 - **Sub-agents are optional**: Use them sparingly for targeted debugging, never for broad exploration during implementation. Sub-agents MUST NOT spawn further sub-agents (recursion guard).
-- **Triage is the key step.** The parent session decides *what* to fix. The child process decides *how*. Write precise fix instructions — vague instructions produce vague fixes.
-- Codex reviews, Claude triages, child fixes. Not everything Codex flags needs fixing — use judgment. When in doubt, flag rather than fix.
+- **Triage is the key step.** Decide *what* to fix deliberately, then apply each fix inline. Write precise fix instructions — vague instructions produce vague fixes.
+- Codex reviews, Claude triages and applies fixes inline. Not everything Codex flags needs fixing — use judgment. When in doubt, flag rather than fix.
 - Do NOT remove `tasks/research-issue-$ARGUMENTS.md`, `tasks/plan-issue-$ARGUMENTS.md`, or `tasks/deferred.md` — those persist beyond this command.
-- If `codex` or `claude` is not found or fails, stop and tell the developer to fix it before proceeding.
+- If `codex` is not found or fails, stop and tell the developer to fix it before proceeding.

@@ -31,9 +31,10 @@
 |----------------------------------|-----------------------------------------------------------|
 | `/issue-research N`    | Codex sweeps + Claude synthesizes + recommends → `tasks/research-issue-N.md` |
 | `/issue-plan N`        | Draft plan, Codex reviews, absorb findings → `tasks/plan-issue-N.md`         |
-| `/issue-implement N`   | Execute plan + Codex code review + child-process fixes                       |
+| `/issue-implement N`   | Execute plan + Codex code review + inline fixes                              |
 | `/issue-update N`      | After completion, check impact on other open issues                          |
-| `/auto-issues N`       | Run full issue pipeline end-to-end, unattended                               |
+| `/auto-issues`         | Run full pipeline end-to-end (derives N from the `worktree-issue-N` branch)   |
+| `/issue-finish [N]`    | Commit remaining work + clean up issue artifacts (N optional — overrides branch) |
 
 **Code Quality**
 
