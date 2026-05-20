@@ -51,9 +51,10 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 |---|---|
 | `/issue-research` | Codex sweeps issue, Claude synthesizes + recommends approach; writes `tasks/research-issue-N.md` |
 | `/issue-plan` | Draft plan, Codex reviews, absorb findings; writes `tasks/plan-issue-N.md` |
-| `/issue-implement` | Execute plan phase-by-phase, run Codex code review, apply triaged fixes via child process |
+| `/issue-implement` | Execute plan phase-by-phase, run Codex code review, apply triaged fixes inline |
 | `/issue-update` | Check impact of completed issue on other open issues |
-| `/auto-issues` | Run full issue pipeline end-to-end, unattended |
+| `/auto-issues` | Run the full pipeline for one issue end-to-end, unattended, inside its `worktree-issue-N` worktree |
+| `/issue-finish` | Commit remaining issue work, then clean up issue artifacts |
 
 **Setup & maintenance**
 

@@ -29,6 +29,7 @@ templates/playbook-sections.md
 .claude/commands/issue-implement.md
 .claude/commands/issue-update.md
 .claude/commands/auto-issues.md
+.claude/commands/issue-finish.md
 templates/new-issues.md
 templates/deferred.md
 .claude/commands/commit.md

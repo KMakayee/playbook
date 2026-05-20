@@ -18,7 +18,7 @@ The issue flow has no `/design` step, so the recommended approach lives in `task
 ### 1. Check prerequisites
 - Verify `tasks/research-issue-$ARGUMENTS.md` exists. If not, stop and tell the developer to run `/issue-research $ARGUMENTS` first.
 - Locate issue `#$ARGUMENTS` in `tasks/issues.md`. If the issue doesn't exist, stop and tell the developer.
-- If `tasks/plan-issue-$ARGUMENTS.md` already exists, **stop. Do not overwrite.** Tell the developer to manually remove the existing artifact (or rename it) before re-running. Do NOT prompt for confirmation — `/auto-issues` runs children with `--dangerously-skip-permissions`, and a non-interactive child instructed to "ask" may interpret the failure to ask as license to proceed. Hard stop.
+- If `tasks/plan-issue-$ARGUMENTS.md` already exists, **stop. Do not overwrite.** Tell the developer to manually remove the existing artifact (or rename it) before re-running. Do NOT prompt for confirmation — `/auto-issues` runs children with `--permission-mode auto`, and a non-interactive child instructed to "ask" may interpret the failure to ask as license to proceed. Hard stop.
 - Read `tasks/research-issue-$ARGUMENTS.md` and the issue body in `tasks/issues.md` FULLY — use the Read tool WITHOUT limit/offset parameters.
 
 ### 1.5. Update issue status to In Planning
