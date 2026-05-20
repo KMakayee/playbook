@@ -80,7 +80,7 @@ After all phases are complete, run the full test/lint suite one final time to co
 **Run with `run_in_background` — Codex phase, may take 10+ minutes.**
 
 ```bash
-codex -c model_reasoning_effort=xhigh exec \
+codex -c model_reasoning_effort=xhigh -a never exec \
   --sandbox read-only \
   -o tasks/codex-issue-code-review-$ARGUMENTS.tmp \
   "Review the working-tree diff for this issue — \`git diff\` (tracked changes) plus any untracked files from \`git status --porcelain --untracked-files=all\` — against the plan in tasks/plan-issue-$ARGUMENTS.md and the research in tasks/research-issue-$ARGUMENTS.md for issue #$ARGUMENTS in tasks/issues.md. The implementation makes no per-phase commits, so the entire issue is uncommitted — the working tree is the change set to review.
@@ -108,8 +108,6 @@ PART 3 — Acceptance criteria coverage:
 For each finding, include: (a) the exact file path and line number(s); (b) a candidate minimal-fix sketch (raw input — Claude will triage; do not auto-apply); (c) a repro or failing-test command that demonstrates the issue, when applicable.
 Prefix each finding with \`CORRECTION:\`, \`TRADE-OFF:\`, or \`RISK:\` per the RDPI taxonomy." </dev/null
 ```
-
-Use a 10-minute timeout (600000ms).
 
 **Check:** After the backgrounded Codex process completes, verify the output: `bash .claude/scripts/codex-output-check.sh tasks/codex-issue-code-review-$ARGUMENTS.tmp 10`. If the check fails, stop and tell the developer.
 

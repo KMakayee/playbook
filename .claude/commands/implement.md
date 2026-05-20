@@ -76,7 +76,7 @@ After all phases are complete, run the full test/lint suite one final time to co
 **Run with `run_in_background` — Codex phase, may take 10+ minutes.**
 
 ```bash
-codex -c model_reasoning_effort=xhigh exec \
+codex -c model_reasoning_effort=xhigh -a never exec \
   --sandbox read-only \
   -o tasks/codex-code-review.tmp \
   "Review the recent implementation against the plan in tasks/plan.md.
