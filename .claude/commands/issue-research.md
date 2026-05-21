@@ -39,13 +39,15 @@ Codex leads the exploration. It maps the codebase, enumerates the solution space
 4. Replace `{TASK}` and `{SEARCH_HINTS}` in the template. Do NOT modify the investigation sections — they stay generic.
 5. Write the composed prompt to `tasks/codex-issue-prompt-$ARGUMENTS.tmp`.
 6. Run:
+
+   **Run with `run_in_background: true` — this is a Bash-tool parameter (set it when you call the Bash tool), not shell syntax. Codex phase, may take 10+ minutes.**
+
    ```bash
-   codex -c model_reasoning_effort=xhigh --search exec \
+   codex -c model_reasoning_effort=xhigh --search -a never exec \
      --sandbox read-only \
      -o tasks/codex-issue-research-$ARGUMENTS.tmp \
      "$(cat tasks/codex-issue-prompt-$ARGUMENTS.tmp)" </dev/null
    ```
-   Use a 10-minute timeout (600000ms) — Codex may take a while on large codebases.
 7. Verify the output before reading: `bash .claude/scripts/codex-output-check.sh tasks/codex-issue-research-$ARGUMENTS.tmp 20`. If the check fails, stop and tell the developer.
 8. After Codex finishes, read `tasks/codex-issue-research-$ARGUMENTS.tmp` FULLY.
 

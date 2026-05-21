@@ -83,7 +83,7 @@ Report: "Phase 3 complete — implementation done, code reviewed, fixes applied.
 
 ### Phase 4: Update
 
-**Timeout: 600000ms.**
+**Run with `run_in_background: true` — this is a Bash-tool parameter (set it when you call the Bash tool), not shell syntax. May take 10+ minutes.**
 
 ```bash
 claude -p "Read .claude/commands/issue-update.md and follow its instructions exactly for issue #N. You are running non-interactively — do not ask questions." --permission-mode auto </dev/null > tasks/logs/auto-issue-N-4-update-$TIMESTAMP.log 2>&1

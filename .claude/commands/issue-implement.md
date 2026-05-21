@@ -42,8 +42,11 @@ b. **Implement the changes** specified for this phase. Keep changes minimal — 
 c. **Handle mismatches:**
    - **Minor** (function moved a few lines, variable renamed): adapt and continue.
    - **Structural** (module reorganized, interface changed, file deleted): STOP. Run a top-level Codex call to re-research the mismatch (replace `{phase}` with the current phase number, e.g. `tasks/codex-debug-issue-$ARGUMENTS-3.tmp`):
+
+     **Run with `run_in_background: true` — this is a Bash-tool parameter (set it when you call the Bash tool), not shell syntax. Codex phase, may take 10+ minutes. This fires mid-loop: wait for the completion notification and finish the output check below before resuming.**
+
      ```bash
-     codex -c model_reasoning_effort=xhigh exec \
+     codex -c model_reasoning_effort=xhigh -a never exec \
        --sandbox read-only \
        -o tasks/codex-debug-issue-$ARGUMENTS-{phase}.tmp \
        "Re-research a structural mismatch encountered while implementing tasks/plan-issue-$ARGUMENTS.md.
@@ -56,7 +59,7 @@ c. **Handle mismatches:**
      ```
      Verify the output before reading: `bash .claude/scripts/codex-output-check.sh tasks/codex-debug-issue-$ARGUMENTS-{phase}.tmp 5`. If the check fails, stop and tell the developer.
 
-     Use a 10-minute timeout (600000ms). Read the output, adapt the plan, and continue. (Sub-agents are no longer used here — Codex sweeps faster on read-only structural questions, and the recursion guard at `CLAUDE.md` foreclosed Codex-from-inside-sub-agents anyway.)
+     Read the output, adapt the plan, and continue. (Sub-agents are no longer used here — Codex sweeps faster on read-only structural questions, and the recursion guard at `CLAUDE.md` foreclosed Codex-from-inside-sub-agents anyway.)
    - **Plan premise invalidated** (the mechanism the plan specified doesn't actually work as described): document the deviation in `tasks/plan-issue-$ARGUMENTS.md`, adapt while preserving the step's intent, and continue. If the deviation affects the recommended approach — not just the mechanism — STOP and revisit the plan.
    - **Tests fail after 2 fix attempts:** STOP and ask the developer for guidance.
 
@@ -77,7 +80,7 @@ After all phases are complete, run the full test/lint suite one final time to co
 **Run with `run_in_background` — Codex phase, may take 10+ minutes.**
 
 ```bash
-codex -c model_reasoning_effort=xhigh exec \
+codex -c model_reasoning_effort=xhigh -a never exec \
   --sandbox read-only \
   -o tasks/codex-issue-code-review-$ARGUMENTS.tmp \
   "Review the working-tree diff for this issue — \`git diff\` (tracked changes) plus any untracked files from \`git status --porcelain --untracked-files=all\` — against the plan in tasks/plan-issue-$ARGUMENTS.md and the research in tasks/research-issue-$ARGUMENTS.md for issue #$ARGUMENTS in tasks/issues.md. The implementation makes no per-phase commits, so the entire issue is uncommitted — the working tree is the change set to review.
@@ -105,8 +108,6 @@ PART 3 — Acceptance criteria coverage:
 For each finding, include: (a) the exact file path and line number(s); (b) a candidate minimal-fix sketch (raw input — Claude will triage; do not auto-apply); (c) a repro or failing-test command that demonstrates the issue, when applicable.
 Prefix each finding with \`CORRECTION:\`, \`TRADE-OFF:\`, or \`RISK:\` per the RDPI taxonomy." </dev/null
 ```
-
-Use a 10-minute timeout (600000ms).
 
 **Check:** After the backgrounded Codex process completes, verify the output: `bash .claude/scripts/codex-output-check.sh tasks/codex-issue-code-review-$ARGUMENTS.tmp 10`. If the check fails, stop and tell the developer.
 

@@ -116,7 +116,7 @@ This guards against leftover signals from a prior aborted attempt at the same ph
 
 These baselines are the "before" state. Step 4g computes "after − before" and filters out command-owned artifacts.
 
-**Invoke Codex.** Run with `run_in_background: true` (the Bash tool's parameter — required by the design's cross-cutting constraint). Use a 30-minute timeout (1800000ms) for safety on larger phases:
+**Invoke Codex.** Run with `run_in_background: true` (the Bash tool's parameter — required by the design's cross-cutting constraint):
 
 ```bash
 mkdir -p tasks/logs && \
@@ -303,7 +303,7 @@ Sub-flow (real diff is empty — pre-edit stop contract held):
    Effort calibration: scope to the specific mismatch — do not sweep beyond the cited files unless the mismatch implicates a wider refactor." </dev/null
    ```
 
-   Use a 10-minute timeout (600000ms). Run with `run_in_background: true`. Verify: `bash .claude/scripts/codex-output-check.sh tasks/codex-debug-{N}.tmp 5`. If the check fails, stop and tell the developer.
+   Run with `run_in_background: true`. Verify: `bash .claude/scripts/codex-output-check.sh tasks/codex-debug-{N}.tmp 5`. If the check fails, stop and tell the developer.
 
 4. Read `tasks/codex-debug-{N}.tmp`; update `tasks/plan.md` to reflect the actual structure (the plan's premise was wrong, not Codex's edit).
 5. Delete the mismatch signal: `rm -f tasks/codex-mismatch-{N}.tmp`.
