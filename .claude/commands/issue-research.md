@@ -89,7 +89,7 @@ Claude reads Codex's raw findings and adds the analytical layer. Do NOT duplicat
 
 **Pick the Recommended Approach** (issue flow's substitute for `/design`):
 - The issue workflow has no `/design` phase, so Claude's synthesis layer must close the loop and pick a winner.
-- Walk every axis in the synthesized artifact. For each axis, choose the highest-merit option grounded in the codebase, the issue's acceptance criteria, and any external research surfaced above.
+- Walk every axis in the synthesized artifact. For each axis, choose the highest-merit option grounded in the codebase, the issue's acceptance criteria, the issue's `### Constraints` section when present, and any external research surfaced above.
 - Write a `## Recommended Approach` section that names the chosen axis-choice combination the implementer should follow, with one short paragraph of rationale per axis.
 - Honor any axis couplings — the recommended combination must be internally consistent.
 
@@ -100,7 +100,7 @@ Write the synthesized research to `tasks/research-issue-$ARGUMENTS.md` (max 1000
 # Research: Issue #$ARGUMENTS — [Title]
 
 ## Research Question
-[Issue description, acceptance criteria, and notes from tasks/issues.md]
+[Issue description, acceptance criteria, constraints when present, and notes from tasks/issues.md]
 
 ## Summary
 [High-level synthesis — the "so what" layer. What did we learn and what does it mean for implementation?]

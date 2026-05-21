@@ -23,7 +23,7 @@ This command uses a two-stage research process:
 - **IMPORTANT**: Use the Read tool WITHOUT limit/offset parameters to read entire files.
 - **CRITICAL**: Read these files yourself in the main context before proceeding.
 
-### 2.5. Capture the four-field upfront spec
+### 2.5. Capture the four-field Upfront spec
 
 Before composing any Codex input, confirm the task carries four mandatory fields: **intent, constraints, acceptance criteria, relevant paths**. This is a **separate check** from the top-of-file Readiness preflight — they cannot merge, because this step must run *after* the §2 file reads (referenced docs can supply fields) and *before* any §3 side effect (temp-file write, Codex run).
 
@@ -108,7 +108,7 @@ Write the synthesized research to `tasks/research-codebase.md` (max 1000 lines):
 # Research: [Task/Question]
 
 ## Research Question
-[Task description from $ARGUMENTS]
+[The composed {TASK} block from Step 3 — including the labeled "Upfront spec" sub-block with the confirmed intent, constraints, acceptance criteria, and relevant paths.]
 
 ## Summary
 [High-level synthesis — the "so what" layer. What did we learn and what does it mean for implementation?]
