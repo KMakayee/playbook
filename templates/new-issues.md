@@ -26,6 +26,14 @@ Each issue uses the structure below. Copy it when adding a new issue.
 - [ ] [Observable, testable outcome]
 - [ ] [Another outcome]
 
+### Constraints
+
+[Optional. Scope boundaries, locked decisions, behavior the implementation must not break. Omit if none.]
+
+### Relevant paths
+
+[Optional. Files, globs, or docs likely relevant — discovery accelerators, not scope. May go stale on the board; omit if unsure.]
+
 ### Notes
 
 [Accumulates during workflow — research findings, plan decisions, implementation notes. Newest entries first.]

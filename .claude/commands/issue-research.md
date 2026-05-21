@@ -17,7 +17,7 @@ This command uses a two-stage research process:
 - If `tasks/research-issue-$ARGUMENTS.md` already exists, **stop. Do not overwrite.** Tell the developer to manually remove the existing artifact (or rename it) before re-running. Do NOT prompt for confirmation — `/auto-issues` runs children with `--permission-mode auto`, and a non-interactive child instructed to "ask" may interpret the failure to ask as license to proceed. Hard stop.
 
 ### 2. Read issue context and any directly mentioned files
-- Read the issue's `### Description`, `### Acceptance Criteria`, and `### Notes` sections from `tasks/issues.md`. These scope the research.
+- Read the issue's `### Description`, `### Acceptance Criteria`, and `### Notes` sections from `tasks/issues.md`. These scope the research. Also read `### Constraints` and `### Relevant paths` **when present** — both are optional sections; absence is valid and is not flagged.
 - If the issue body references specific files, tickets, docs, or configs, read them FULLY first.
 - **IMPORTANT**: Use the Read tool WITHOUT limit/offset parameters to read entire files.
 - **CRITICAL**: Read these files yourself in the main context before proceeding — they give Claude the context to verify Codex's findings later.
@@ -29,10 +29,11 @@ Codex leads the exploration. It maps the codebase, enumerates the solution space
 2. Compose the `{TASK}` block from the issue body:
    - The issue description (the goal and why it matters)
    - The acceptance criteria (what the implementation must achieve)
+   - The `### Constraints` section, when present (scope boundaries, locked decisions)
    - The Notes section (prior context, decisions, links)
    - Do NOT decompose the task into sub-steps or list implementation approaches — Codex forms its own understanding from the issue and the codebase.
 3. Compose the `{SEARCH_HINTS}` block with three sub-sections, populated from concrete references in the issue body:
-   - **Key files to start from:** file paths and glob patterns named in the issue (or implied by acceptance criteria)
+   - **Key files to start from:** file paths and glob patterns named in the issue (or implied by acceptance criteria); also seed from the `### Relevant paths` section when present
    - **Known interfaces/APIs involved:** type names, function signatures, external APIs the issue mentions
    - **Fixed params/constraints from prior work:** locked values, version pins, or decisions referenced in the issue's Notes
    Only include concrete facts (paths, names, values). Do not include analysis, opinions, or suggested approaches.
