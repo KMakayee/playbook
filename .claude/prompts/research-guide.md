@@ -24,7 +24,11 @@ Find ALL files, functions, classes, and modules relevant to the task. For each, 
 ### 2. Current Behavior
 Trace how the system currently handles the area in question:
 - Entry points (where does the flow start?)
-- Data flow (what gets passed where?)
+- Data flow — trace how data moves through the area:
+  - Payloads/arguments entering each entry point
+  - Call handoffs between components (call boundaries, return values)
+  - State writes and artifacts produced along the way
+  - Failure paths — where the flow errors or short-circuits, and what happens to in-flight data
 - Side effects (what gets written, sent, or mutated?)
 - Edge cases and error handling
 

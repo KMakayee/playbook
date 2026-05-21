@@ -17,7 +17,7 @@ This command uses a two-stage research process:
 - If `tasks/research-issue-$ARGUMENTS.md` already exists, **stop. Do not overwrite.** Tell the developer to manually remove the existing artifact (or rename it) before re-running. Do NOT prompt for confirmation — `/auto-issues` runs children with `--permission-mode auto`, and a non-interactive child instructed to "ask" may interpret the failure to ask as license to proceed. Hard stop.
 
 ### 2. Read issue context and any directly mentioned files
-- Read the issue's `### Description`, `### Acceptance Criteria`, and `### Notes` sections from `tasks/issues.md`. These scope the research.
+- Read the issue's `### Description`, `### Acceptance Criteria`, and `### Notes` sections from `tasks/issues.md`. These scope the research. Also read `### Constraints` and `### Relevant paths` **when present** — both are optional sections; absence is valid and is not flagged.
 - If the issue body references specific files, tickets, docs, or configs, read them FULLY first.
 - **IMPORTANT**: Use the Read tool WITHOUT limit/offset parameters to read entire files.
 - **CRITICAL**: Read these files yourself in the main context before proceeding — they give Claude the context to verify Codex's findings later.
@@ -29,10 +29,11 @@ Codex leads the exploration. It maps the codebase, enumerates the solution space
 2. Compose the `{TASK}` block from the issue body:
    - The issue description (the goal and why it matters)
    - The acceptance criteria (what the implementation must achieve)
+   - The `### Constraints` section, when present (scope boundaries, locked decisions)
    - The Notes section (prior context, decisions, links)
    - Do NOT decompose the task into sub-steps or list implementation approaches — Codex forms its own understanding from the issue and the codebase.
 3. Compose the `{SEARCH_HINTS}` block with three sub-sections, populated from concrete references in the issue body:
-   - **Key files to start from:** file paths and glob patterns named in the issue (or implied by acceptance criteria)
+   - **Key files to start from:** file paths and glob patterns named in the issue (or implied by acceptance criteria); also seed from the `### Relevant paths` section when present
    - **Known interfaces/APIs involved:** type names, function signatures, external APIs the issue mentions
    - **Fixed params/constraints from prior work:** locked values, version pins, or decisions referenced in the issue's Notes
    Only include concrete facts (paths, names, values). Do not include analysis, opinions, or suggested approaches.
@@ -88,7 +89,7 @@ Claude reads Codex's raw findings and adds the analytical layer. Do NOT duplicat
 
 **Pick the Recommended Approach** (issue flow's substitute for `/design`):
 - The issue workflow has no `/design` phase, so Claude's synthesis layer must close the loop and pick a winner.
-- Walk every axis in the synthesized artifact. For each axis, choose the highest-merit option grounded in the codebase, the issue's acceptance criteria, and any external research surfaced above.
+- Walk every axis in the synthesized artifact. For each axis, choose the highest-merit option grounded in the codebase, the issue's acceptance criteria, the issue's `### Constraints` section when present, and any external research surfaced above.
 - Write a `## Recommended Approach` section that names the chosen axis-choice combination the implementer should follow, with one short paragraph of rationale per axis.
 - Honor any axis couplings — the recommended combination must be internally consistent.
 
@@ -99,7 +100,7 @@ Write the synthesized research to `tasks/research-issue-$ARGUMENTS.md` (max 1000
 # Research: Issue #$ARGUMENTS — [Title]
 
 ## Research Question
-[Issue description, acceptance criteria, and notes from tasks/issues.md]
+[Issue description, acceptance criteria, constraints when present, and notes from tasks/issues.md]
 
 ## Summary
 [High-level synthesis — the "so what" layer. What did we learn and what does it mean for implementation?]

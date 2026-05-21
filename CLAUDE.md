@@ -97,6 +97,8 @@ NON-TRIVIAL
 
 If uncertain, it is non-trivial. Do not call Edit or Write on source files until either (a) the task is trivial, or (b) `tasks/research-codebase.md` exists, the design in `tasks/design-decision.md` is finalized, and `tasks/plan.md` is approved.
 
+**Four-field intake (non-trivial tasks).** Before a non-trivial task enters Research it must carry four fields: **intent, constraints, acceptance criteria, relevant paths**. In the singleton flow, `/research-codebase` Step 2.5 captures and confirms them. In the issue workflow, intake is satisfied by the issue board: `### Description` (intent) and `### Acceptance Criteria` are mandatory, while `### Constraints` and `### Relevant paths` are optional — a missing optional section does not block `/issue-implement` or `/auto-issues`. For a bug fix, `intent` (the reported symptom) and `acceptance criteria` (expected correct behavior) are always required; `constraints` and `relevant paths` may be `unknown — discover during diagnosis`.
+
 **Bug fix mode:** When given a bug report, error log, or failing test — diagnose it autonomously. Do not ask the user to identify the root cause. The autonomy is about initiative and diagnosis, not about skipping process. A bug fix that meets the non-trivial criteria above still requires full RDPI. Arrive at the plan on your own, then present it for approval as usual.
 
 </important>

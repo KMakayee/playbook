@@ -23,6 +23,16 @@ This command uses a two-stage research process:
 - **IMPORTANT**: Use the Read tool WITHOUT limit/offset parameters to read entire files.
 - **CRITICAL**: Read these files yourself in the main context before proceeding.
 
+### 2.5. Capture the four-field Upfront spec
+
+Before composing any Codex input, confirm the task carries four mandatory fields: **intent, constraints, acceptance criteria, relevant paths**. This is a **separate check** from the top-of-file Readiness preflight — they cannot merge, because this step must run *after* the §2 file reads (referenced docs can supply fields) and *before* any §3 side effect (temp-file write, Codex run).
+
+- **What counts as supplied:** a field is satisfied if it appears under an explicit label OR as an obvious prose/doc equivalent in `$ARGUMENTS` or the §2 referenced-doc reads. An explicit "none" / "no constraints" counts as satisfied — do not loop on legitimately-empty fields.
+- **Infer, don't blank-ask:** for any field not clearly supplied, infer it from the prompt and the §2 files. Where there is genuinely no signal, say so explicitly rather than guessing. For bug fixes, `unknown — discover during diagnosis` is a legitimate inferred value for `constraints` / `relevant paths`.
+- **Confirm once, batched:** if at least one field was missing or had to be inferred, present all four fields to the developer in a single message — each labeled *supplied* or *inferred (not provided)* — and ask them to approve or revise. Ask once, batched — never field-by-field.
+- **No-prompt path:** if all four fields are clearly supplied (explicit labels or obvious equivalents in `$ARGUMENTS` / §2 docs), skip the confirmation message and proceed straight to Step 3.
+- Only the developer's confirmed or revised values are carried into Step 3.
+
 ### 3. Run Codex research
 Codex leads the exploration. It maps the codebase, enumerates the solution space, and establishes constraints.
 
@@ -30,9 +40,10 @@ Codex leads the exploration. It maps the codebase, enumerates the solution space
 2. Compose the `{TASK}` block:
    - Describe the goal and why it matters (1-2 paragraphs)
    - Reference key docs the task depends on (strategy files, specs, checkpoints)
+   - Include a labeled **"Upfront spec"** sub-block holding the four confirmed fields from Step 2.5 verbatim — intent, constraints, acceptance criteria, relevant paths. This makes the research artifact's `## Research Question` echo the four fields as a recognizable block.
    - Do NOT decompose the task into sub-steps or list implementation approaches — Codex forms its own understanding from the docs
 3. Compose the `{SEARCH_HINTS}` block with three sub-sections:
-   - **Key files to start from:** file paths and glob patterns relevant to the task (found by reading the task description and referenced docs)
+   - **Key files to start from:** file paths and glob patterns relevant to the task (found by reading the task description and referenced docs). When the Upfront spec's `relevant paths` field names concrete files, globs, or docs, additionally seed them here as discovery accelerators — kept non-scoping (see `research-guide.md`).
    - **Known interfaces/APIs involved:** type names, function signatures, external APIs the task touches
    - **Fixed params/constraints from prior work:** locked values, version pins, or decisions from earlier phases that the task inherits
    Only include concrete facts (paths, names, values). Do not include analysis, opinions, or suggested approaches.
@@ -97,7 +108,7 @@ Write the synthesized research to `tasks/research-codebase.md` (max 1000 lines):
 # Research: [Task/Question]
 
 ## Research Question
-[Task description from $ARGUMENTS]
+[The composed {TASK} block from Step 3 — including the labeled "Upfront spec" sub-block with the confirmed intent, constraints, acceptance criteria, and relevant paths.]
 
 ## Summary
 [High-level synthesis — the "so what" layer. What did we learn and what does it mean for implementation?]
