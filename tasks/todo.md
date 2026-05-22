@@ -6,14 +6,14 @@ Freehand — no design document. Derived from (a) the decision to convert playbo
 
 ## Upstream constraints
 
-- Skills default to `disable-model-invocation: true` — playbook workflow skills stay manual-invoke only until the artifact layout supports auto-fire (see Deferred)
+- ~~Skills default to `disable-model-invocation: true` — playbook workflow skills stay manual-invoke only until the artifact layout supports auto-fire (see Deferred)~~ **SUPERSEDED (Task 7, 2026-05-22):** the real default is `false` — skills are auto-invocable unless the flag is set. Task 7's Axis 3 decision = split by weight: the 21 side-effect skills now explicitly carry `disable-model-invocation: true` (their permanent posture, not a temporary block); `codex-review` stays auto-invocable.
 - Original `.claude/commands/<name>.md` files stay in place until all skills are verified; deletion is a separate cleanup pass
 - No behavioral changes beyond the blog-driven spec improvements called out per-task
 
 ## Out of scope
 
 - Deleting `.claude/commands/*.md` files (separate cleanup pass after all skills verified)
-- Flipping `disable-model-invocation` to `false` (blocked on artifact restructure — see Deferred)
+- ~~Flipping `disable-model-invocation` to `false` (blocked on artifact restructure — see Deferred)~~ **SUPERSEDED (Task 7, 2026-05-22):** not blocked — and not wanted. Axis 3 = split by weight; side-effect skills should stay manual-invoke permanently, so no flip to `false` is pending. The Axis 6 artifact restructure (Deferred) is resolved NO.
 
 ## Open questions / blockers
 
@@ -141,4 +141,4 @@ Task 7 (port to skills) is mechanical and should land **last**, after all behavi
 
 ## Deferred
 
-- [ ] **Enable skill auto-invocation** — Prerequisite: restructure RDPI artifacts from static singleton files (`tasks/research-codebase.md`, `tasks/plan.md`, etc.) to task-scoped directories. Needed before flipping `disable-model-invocation` to `false`. Investigate naming, active-task tracking, cleanup lifecycle, and reference sites across commands/skills/CLAUDE.md. **Merge into Task 7 research:** this investigation should be folded into Task 7's research phase so the skill port and (if feasible) the artifact restructure can land together.
+- [x] **Enable skill auto-invocation — RESOLVED: NO (Task 7, 2026-05-22).** Side-effect / singleton-artifact-writing workflow skills should stay manual-invoke (`disable-model-invocation: true`) as their permanent posture — the docs recommend it for side-effect workflows, so the Axis 6 artifact restructure's only payoff (safe broad auto-invocation) is something these skills should not have anyway. The restructure was investigated in Task 7 research and not pursued. _Original item:_ Prerequisite: restructure RDPI artifacts from static singleton files (`tasks/research-codebase.md`, `tasks/plan.md`, etc.) to task-scoped directories. Needed before flipping `disable-model-invocation` to `false`. Investigate naming, active-task tracking, cleanup lifecycle, and reference sites across commands/skills/CLAUDE.md.

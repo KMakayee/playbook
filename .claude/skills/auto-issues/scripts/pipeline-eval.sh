@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Pipeline integrity evaluation for auto-issues.
-# Usage: bash .claude/scripts/pipeline-eval.sh <issue-number> <timestamp>
+# Usage: bash .claude/skills/auto-issues/scripts/pipeline-eval.sh <issue-number> <timestamp>
 
 set -euo pipefail
 

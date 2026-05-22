@@ -1,0 +1,244 @@
+---
+name: design
+description: Evaluate design options from research and pick a winner using Codex as an independent cross-check.
+disable-model-invocation: true
+---
+
+# Design
+
+Evaluate design options based on the research in `tasks/research-codebase.md`, then pick a winner using Codex as an independent cross-check.
+
+This command uses a three-stage design process:
+1. **Claude proposes** — 2-3 options grounded in research (the creative/judgment step)
+2. **Codex independently proposes + cross-checks** — catches missed alternatives, flags weaknesses
+3. **Claude synthesizes** — reconciles, picks winner, writes final artifact
+
+---
+
+## Steps
+
+### 1. Check prerequisites
+- Verify `tasks/research-codebase.md` exists. If not, stop and tell the developer to run `/research-codebase` first.
+- If `tasks/design-decision.md` already exists, stop and ask the developer whether to overwrite or keep.
+- Read `tasks/research-codebase.md` FULLY — use the Read tool WITHOUT limit/offset parameters.
+
+### 2. Claude proposes options
+Claude leads the creative step — proposes 2-3 viable approaches grounded in research findings.
+
+1. **Extract the decision structure from research:**
+   - Design axes (the independent decision dimensions) and the viable choices on each
+   - Per-axis constraints and cited evidence
+   - Axis coupling (how a choice on one axis constrains another)
+   - External findings that establish or rule out axis choices (check the "Unblocks: Axis N, choice X" links)
+   - Cross-cutting constraints, risks, and open questions
+
+2. **Identify viable approaches as axis-choice combinations:**
+   - Each approach is an explicit combination of axis choices drawn from research — for each option, name which choice it picks on every axis
+   - Confirm the combination respects documented axis coupling; if it violates coupling, either justify why the coupling doesn't apply here or drop the combination
+   - Do NOT introduce axes or choices that aren't in the research artifact; if the task needs one that's missing, stop and notify the developer that further research is needed
+   - If only one combination is viable, explain why alternatives were ruled out (by coupling, by constraint, or by heuristics)
+   - If more than 3 combinations are viable, narrow to the strongest 3 and briefly note what was excluded; if only 2 are genuinely distinct, stop at 2 — do not pad with strawmen to hit a count
+   - Keep options genuinely distinct — they must differ on at least one axis choice that meaningfully changes behavior, complexity, or risk
+
+3. **Evaluate each approach against these criteria:**
+   - **Complexity** — Fewer moving parts, fewer files changed, fewer new abstractions
+   - **Consistency** — How well it matches existing codebase patterns and conventions
+   - **Risk** — Blast radius, reversibility, what could go wrong
+   - **Testability** — How easy it is to verify the approach works
+
+4. **Surface open questions:**
+   - Blocking (must resolve before implementation)
+   - Non-blocking (can resolve during implementation)
+
+5. **Write the initial design artifact** to `tasks/design-decision.md`:
+
+   ```markdown
+   # Design: [Task/Question Title]
+
+   ## Context
+   [What problem is being solved and what constraints exist. Reference the research artifact.]
+
+   **Research:** `tasks/research-codebase.md`
+
+   ## Options Considered
+   [Present each viable option with its trade-offs. Structure each option however best fits the problem — there's no rigid format. Each option must name its axis-choice combination (one choice per axis from research), cite any coupling that constrains or justifies the combination, and clearly describe how it works, what's good about it, and what's not.]
+
+   ## Decision Heuristics
+
+   For reference, these are the priorities for choosing an approach:
+   1. Match existing codebase patterns over introducing novel approaches
+   2. Simpler is better — fewer files, fewer abstractions, fewer moving parts
+   3. Reversible over optimal — prefer approaches that can be easily changed later
+
+   ## Open Questions
+
+   ### Blocking (must resolve before implementation)
+   - [ ] [Question that affects which option to choose]
+
+   ### Non-blocking (can resolve during implementation)
+   - [ ] [Question that affects implementation details but not the overall approach]
+
+   ## What We're NOT Doing
+   [Explicit scope boundaries — what's out of scope for this task]
+   ```
+
+### 3. Run Codex independent design + cross-check
+Codex works in three phases: designs independently first, then cross-checks against Claude's options, then recommends.
+
+1. Extract the problem statement from `tasks/design-decision.md` — just the problem/goal and requirements (before the options). Pass this to Codex — NOT the options themselves. Withholding the options prevents anchoring during Phase 1.
+
+2. Run Codex:
+
+   **Run with `run_in_background: true` — this is a Bash-tool parameter (set it when you call the Bash tool), not shell syntax. Codex phase, may take 10+ minutes.**
+
+   ```bash
+   codex -c model_reasoning_effort=xhigh -a never exec \
+     --sandbox read-only \
+     -o tasks/codex-design-review.tmp \
+     "PHASE 1 — Independent design (do this BEFORE reading tasks/design-decision.md):
+   Effort calibration: light evaluation when research surfaces ≤3 axes; thorough when 4–9 axes; exhaustive when ≥10 axes or any axis has ≥4 viable choices.
+   Read tasks/research-codebase.md for full codebase context. The Design Axes, Axis Coupling, Cross-Cutting Constraints, and External Research sections are factual — inherit them as given. External findings establish which axis choices are viable (look for 'Unblocks: Axis N, choice X' labels). Your independence is on how to combine axis choices into an approach, NOT on redefining the axes or re-litigating their viability. If you believe an axis or choice is missing, flag it but do not invent one. Then, given this problem: {PROBLEM_STATEMENT}
+   Propose your own approach as an explicit combination of axis choices that respects documented coupling. Prioritize simplicity and fewest moving parts. Be specific with file paths and line numbers.
+
+   PHASE 2 — Cross-check (now read tasks/design-decision.md):
+   Compare your approach against the proposed options. Report:
+   - Which proposed option (if any) aligns with your independent approach
+   - Trade-offs or risks the proposed options missed
+   - Whether your independent approach is better than all proposed options
+   - Open question answers (evidence for any unresolved questions)
+   For each item reported in this phase, prefix it with `CORRECTION:` (factual error in the proposed options or in research/design references), `TRADE-OFF:` (viable alternative the proposed options missed), or `RISK:` (something that could go wrong with the chosen approach).
+
+   PHASE 3 — Recommend:
+   Recommend the best approach — a proposed option, your own, or a hybrid. Base this on technical merit, not deference to the original design." </dev/null
+   ```
+
+3. Verify the output before reading: `bash .claude/scripts/codex-output-check.sh tasks/codex-design-review.tmp 10`. If the check fails, stop and tell the developer.
+4. After Codex finishes, read `tasks/codex-design-review.tmp` FULLY.
+
+If the `codex` command is not found or fails, stop and tell the developer to fix it before proceeding.
+
+### 4. Claude synthesizes
+Reconcile Codex's independent approach with Claude's options and write a unified final artifact. Do NOT preserve Codex's work as a parallel section — absorb it into the options and decision. Do NOT defer to Codex automatically — weigh the evidence on technical merit.
+
+**Spot-check Codex's work:**
+- Verify a sample of file paths and line numbers Codex reported — do they exist and match?
+- Discard any claims that don't hold up.
+
+**Absorb Codex's findings in place:**
+- If Codex surfaced a trade-off or risk an option missed → edit that option's description to include it.
+- If Codex answered an open question with evidence → remove it from Open Questions and fold the answer into the relevant option.
+- If Codex proposed a genuinely new option Claude missed → add it as a new option under "Options Considered".
+- If Codex just converged on an existing option → no edits needed, but note the convergence in the Decision rationale.
+
+**Pick the winner and write the Decision:**
+- A proposed option, Codex's approach (now added as an option), or a hybrid — whichever has the strongest technical merit after the updates.
+- Anchor on decision heuristics: codebase patterns > simplicity > reversibility.
+- Where Codex's cross-check materially reinforced or shifted the decision, note it briefly in the rationale.
+- **Codex's confidence is not evidence.** Phase 3 prompts it to recommend assertively, so confident phrasing ("I do think my approach is better") is expected output, not signal. Weigh technical merit independently of tone. Deference to Codex's confidence is the failure mode here.
+
+**Tiebreaker (rare, runs ONLY once):**
+If the winner is still unclear after absorbing Codex's findings — e.g., two options are technically equivalent on the heuristics, or a load-bearing question remains unresolved and is blocking the choice — run Codex one more time with a focused tiebreaker prompt. Never run it a second time, even if the decision is still unclear afterward.
+
+**Before running, replace `{SPECIFIC_QUESTION}` in the prompt below with the actual blocking question** (a concrete sentence naming the options in tension or the unresolved fact). Do NOT run the command with the literal `{SPECIFIC_QUESTION}` placeholder.
+
+**Run with `run_in_background: true` — this is a Bash-tool parameter (set it when you call the Bash tool), not shell syntax. Codex phase, may take 10+ minutes. This fires mid-loop: wait for the completion notification and finish the output check below before resuming.**
+
+```bash
+codex -c model_reasoning_effort=xhigh -a never exec \
+  --sandbox read-only \
+  -o tasks/codex-design-tiebreaker.tmp \
+  "Read tasks/design-decision.md. The decision is blocked on: {SPECIFIC_QUESTION}.
+Effort calibration: scope to the specific blocking question — do not re-litigate axes that aren't in tension.
+Do targeted research to resolve this. Cite file paths, line numbers, or external references as evidence.
+Recommend which option to choose based on what you find.
+Prefix every claim with `CORRECTION:`, `TRADE-OFF:`, or `RISK:` per the RDPI taxonomy." </dev/null
+```
+
+Verify the output before reading: `bash .claude/scripts/codex-output-check.sh tasks/codex-design-tiebreaker.tmp 5`. If the check fails, stop and tell the developer.
+
+After Codex finishes, read `tasks/codex-design-tiebreaker.tmp` FULLY, spot-check its claims, and absorb the new evidence into the artifact (update options, resolve the relevant open question). Then pick the winner. If the decision is STILL unclear after the tiebreaker, STOP and escalate to the developer — do NOT run Codex a third time.
+
+**Append a `## Decision` section** to `tasks/design-decision.md`:
+
+```markdown
+## Decision
+
+**Chosen approach:** [Option name or "Hybrid of Option A + B"]
+
+**Rationale:** [Why this approach wins on technical merit. Reference decision heuristics. If Codex's cross-check materially influenced the choice, note it in one sentence.]
+```
+
+### 5. Verify the design is implementation-ready
+Before handing off to `/create-plan`, check:
+- **Blocking questions resolved.**
+- **Decision is specific.**
+- **Rationale is concrete.**
+- **Codex claims verified** — any file path, line, or reference Codex surfaced that was absorbed into the artifact has been checked against real code.
+
+If Claude can resolve a failed check → fix and re-verify. If it needs developer input → STOP and tell the developer.
+
+### 6. Pattern research
+
+Studies external references — repos, docs, specs, articles, papers — that inform the chosen approach.
+
+**Decide RUN or SKIP based on the chosen approach.**
+
+**SKIP requires all of these to hold:**
+- The chosen approach directly extends a pattern already documented in `tasks/research-codebase.md` (cite the pattern)
+- No external standards, protocols, or algorithms are load-bearing
+- No new orchestration across components, services, or processes
+
+If any one is uncertain, RUN.
+
+State the gate result with concrete evidence:
+- `Gate: RUN — <reason>`
+- `Gate: SKIP — extends <specific pattern cited from research>`
+
+If SKIP and a stale `tasks/research-patterns.md` exists, delete it.
+
+**If RUN:**
+
+1. Fill `${CLAUDE_SKILL_DIR}/research-patterns-guide.md` — replace `{RESEARCH_TOPIC}` with a short description of what external patterns to study (derived from the chosen approach in `## Decision`). Write to `tasks/patterns-prompt.tmp`.
+2. Run Codex with `--search`:
+
+   **Run with `run_in_background: true` — this is a Bash-tool parameter (set it when you call the Bash tool), not shell syntax. Codex phase, may take 10+ minutes.**
+
+   ```bash
+   codex -c model_reasoning_effort=xhigh --search -a never exec \
+     --sandbox read-only \
+     -o tasks/codex-patterns-research.tmp \
+     "$(cat tasks/patterns-prompt.tmp)" </dev/null
+   ```
+
+3. Verify the output before reading: `bash .claude/scripts/codex-output-check.sh tasks/codex-patterns-research.tmp 15`. If the check fails, stop and tell the developer.
+
+4. After Codex finishes, read `tasks/codex-patterns-research.tmp` FULLY. Spot-check a sample of source URLs (open one per finding to confirm the source exists and the claim holds).
+
+5. **Fallback (only if Codex's coverage is thin or spot-check fails):** read the `## Coverage Assessment` section that Codex produced. Spawn Claude sub-agents to deep-read individual sources if **any** of the following hold: (a) source count < 2 strong sources, (b) confidence is LOW, (c) any source's read depth is "superficial" on a topic critical to the chosen approach, or (d) the step-4 spot-check surfaced dead URLs, sources that didn't exist, or claims that didn't hold up against the cited source. If Codex's coverage assessment shows ≥2 strong sources at MEDIUM or HIGH confidence with no superficial reads AND the step-4 spot-check passed, skip this step.
+
+   When spawning, follow `CLAUDE.md` § Sub-Agent Use restated for this site:
+   - One sub-agent per source gap (split test specialized to source-count). When spawning ≥2, send all `Agent` calls in a single message.
+   - Use the default/general-purpose subagent type so web fetches work — `Explore` is read-only and lacks web tools.
+   - Each spawn prompt must require source URLs in the per-source findings dump and instruct the sub-agent to flag contradictions with Codex's coverage assessment.
+   - If output lacks URLs or contradicts Codex, the parent reads the relevant sources directly to fill the gap — do not re-spawn. Sub-agents MUST NOT spawn further sub-agents (recursion guard at `CLAUDE.md:178`).
+
+6. Write `tasks/research-patterns.md` from Codex's findings (plus any sub-agent supplementation) — preserve the structure shown in the prompt template, fix any URLs that didn't hold up, and add a `## Concerns for Developer Review` section if patterns suggest revisiting the design (do NOT edit `tasks/design-decision.md`).
+
+### 7. Clean up
+Delete `tasks/codex-design-review.tmp`, `tasks/codex-design-tiebreaker.tmp` (if it exists), `tasks/patterns-prompt.tmp` (if it exists), and `tasks/codex-patterns-research.tmp` (if pattern research ran).
+
+### 8. Present findings
+- Give a short summary of the final options (reflecting any updates from Codex's cross-check).
+- State the chosen approach and core rationale.
+- List any non-blocking open questions that remain.
+- **State the pattern research gate result:**
+  - If RUN: summarize the patterns found (top 2-3 signals) and flag any entries from `tasks/research-patterns.md`'s "Concerns for Developer Review" section.
+  - If SKIP: state the reason.
+- **Self-evaluate the gate decision:** For SKIP, name the specific pattern from research the approach extends. For RUN, name which SKIP criterion didn't hold. If a SKIP can't cite a specific pattern, run Step 6 now.
+- Ask the developer to confirm or override the choice before proceeding to `/create-plan`.
+
+---
+
+## Important notes
+- **No implementation details.** Specific code and file-level changes belong in the plan phase.
+- **Sub-agents:** Required for the pattern-research fallback when the Step 6 trigger conditions hold (see Step 6, item 5). Otherwise not used in this command. Sub-agents MUST NOT spawn further sub-agents (recursion guard).
