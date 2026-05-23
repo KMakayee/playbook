@@ -18,7 +18,7 @@ rm -rf playbook/.git && rmdir playbook
 rm -rf tasks
 ```
 
-> The `mv` command overwrites existing files. Back up your `CLAUDE.md`, `.claude/`, and `.claude/templates/` directories first if they already exist.
+> The `mv` command overwrites existing files. Back up your `CLAUDE.md`, `README.md`, `quickref.md`, and `.claude/` first if they already exist. The `rm -rf tasks` step also deletes your existing `tasks/` directory.
 >
 > `rm -rf tasks` clears the playbook maintainer's working artifacts (`todo.md`, `errors.md`, `issues.md`) that ship with the repo. RDPI commands recreate `tasks/` as you work.
 
