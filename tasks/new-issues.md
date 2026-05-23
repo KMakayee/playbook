@@ -78,7 +78,53 @@ Surfaced 2026-05-20 during Task 10 (background-by-default migration) verificatio
 
 [Filled by `/issue-update` after a related issue completes.]
 
-## #4 — Tighten `codex-output-check.sh` validation (non-numeric arg, whitespace-only pass, stale comment)
+## #4 — Enable Codex web search (`--search`) on `/design` and `/codex-review`
+
+**Status:** Draft
+**Priority:** Medium
+**Created:** 2026-05-22
+
+### Description
+
+Codex's `--search` (web search) and `--sandbox` (filesystem write access) are independent flags — a `--sandbox read-only` call can still search the web if `--search` is passed. Today only the research-oriented Codex calls enable it: `/research-codebase` (research-codebase.md:57), `/issue-research` (issue-research.md:47), and `/design`'s pattern-research pass (design.md:201).
+
+Two `/design` Codex calls and the `/codex-review` call currently run without `--search`, which means they cannot verify claims against the open web:
+
+- `/design` design review (design.md:89) — independent cross-check of the proposed design options.
+- `/design` tiebreaker (design.md:141) — conditional pass that breaks a stalemate between options.
+- `/codex-review` (codex-review.md:58) — ad-hoc review of a target file/doc/assumption.
+
+Design decisions frequently hinge on external facts (does framework X support Y? is this API still current?), and the tiebreaker's whole job is resolving uncertainty — both benefit from being able to check online. For `/codex-review`, the motivating use case is having Codex review web research the developer already did, to confirm coverage is complete.
+
+The fix adds `--search` to these three Codex invocations and updates each command's surrounding prose to reflect that web search is now available. The pattern-research pass (design.md:201) already has `--search` and needs no change.
+
+### Acceptance Criteria
+
+- [ ] `/design` design review Codex call (design.md:89) runs with `--search`
+- [ ] `/design` tiebreaker Codex call (design.md:141) runs with `--search`
+- [ ] `/codex-review` Codex call (codex-review.md:58) runs with `--search`
+- [ ] Each affected command's prose is updated so the search-enabled behavior is documented (mirroring how research-codebase.md:89 notes `--search` was enabled)
+- [ ] Plan/implement-phase Codex calls (`/create-plan`, `/issue-plan`, `/implement`, `/issue-implement`, `/implement-codex`) are left unchanged — they remain codebase-grounded with no web search
+
+### Constraints
+
+Do not touch the `--sandbox read-only` setting on any of these calls — `--search` is orthogonal to the sandbox and the read-only filesystem boundary must hold. Scope is limited to `/design` and `/codex-review`; do not add `--search` to the plan or implement phases.
+
+### Relevant paths
+
+- `.claude/commands/design.md` — lines 89, 141 (and 201 as the existing `--search` reference)
+- `.claude/commands/codex-review.md` — line 58
+- `.claude/commands/research-codebase.md` — line 57, existing `--search` pattern to mirror
+
+### Notes
+
+Surfaced 2026-05-22 in a conversation auditing whether playbook Codex invocations can do outside investigation.
+
+### Impacts
+
+[Filled by `/issue-update` after a related issue completes.]
+
+## #5 — Tighten `codex-output-check.sh` validation (non-numeric arg, whitespace-only pass, stale comment)
 
 **Status:** Draft
 **Priority:** Medium
