@@ -144,6 +144,85 @@ CLAUDE.md requires special handling because the top half is team-owned and the b
 
 ---
 
+## Step 2.5: Apply legacy removals (rename / deprecation cleanup)
+
+The playbook occasionally renames or removes files it used to manage (e.g., the `.claude/commands/` → `.claude/skills/<name>/SKILL.md` migration in PR #28). To prevent target repos from accumulating orphans — and from registering duplicate slash entries when both the old command and the new skill exist — the playbook ships `.claude/playbook-removals.md` in its source tree listing paths that should be removed.
+
+**This step must always prompt the developer before deleting anything.** Never delete silently.
+
+### A. Read the manifest
+
+1. Check whether `.claude/playbook-removals.md` exists in the temp dir (`[TEMP_DIR]/.claude/playbook-removals.md`).
+   - If absent → skip this step entirely. Not every playbook version ships removals.
+2. Parse entries listed under the `## Entries` heading **only**. Ignore everything else in the file — including text inside fenced code blocks (these may be format examples or documentation, not real entries). Each entry has the format:
+   ```
+   - path: <relative path from repo root; trailing / denotes a directory>
+     since: YYYY-MM-DD
+     reason: <one-line note shown to the developer>
+   ```
+
+### B. Validate scope (hard guardrail — never skip, never relax)
+
+For every path in the manifest, validate against the lists below **before doing anything else**. If any path fails validation, **abort the entire `/playbook-update` run** with a loud error — this indicates a bug in the playbook source, not a recoverable condition.
+
+**Allowed prefixes** — a path MUST start with exactly one of these:
+
+```
+.claude/skills/
+.claude/commands/
+.claude/templates/
+.claude/prompts/
+.claude/scripts/
+.claude/hooks/
+```
+
+**Forbidden — always reject even if listed:**
+
+```
+Any path that does not start with .claude/
+The literal path .claude/ or .claude (the directory root itself)
+Any path starting with .claude/settings (user/IDE config — gitignored locally)
+CLAUDE.md, README.md, quickref.md, .gitignore, .playbook-version
+Any path starting with tasks/ (developer artifacts)
+```
+
+**Path-traversal check:** reject any entry containing `..` or starting with `/` or `~`.
+
+**Character restriction:** each path must match `[A-Za-z0-9._/-]` only — no spaces, no shell metacharacters (`$`, backticks, `;`, `|`, `&`, `*`, `?`, `(`, `)`, quotes, etc.). Reject any path with disallowed characters.
+
+If validation fails for any entry, do not proceed to step C. Report: "ABORTING: `.claude/playbook-removals.md` contains an out-of-scope path `[path]`. This is a bug in the playbook source — report it. No files were removed." Then exit `/playbook-update` (managed-file updates from Step 2 stay; version file write in Step 3 is skipped).
+
+### C. Build the proposal
+
+For each entry that passed validation, check whether the path exists in the target repo:
+- If absent → silently skip (nothing to remove).
+- If present and a file → record line count and the first 5 lines for the preview.
+- If present and a directory → record file count and the first 5 filenames (alphabetical) for the preview.
+
+If no entries remain after this filter, skip the prompt and move to Step 3.
+
+### D. Prompt the developer
+
+Present a single consolidated prompt listing every entry that exists:
+
+> "The playbook no longer manages these paths. Remove them from your repo?
+>
+> - `.claude/commands/` (directory — 22 files: auto-issues.md, catchup.md, checkpoint.md, codex-review.md, commit.md, ...) — Ported to skills (since 2026-05-22)
+>
+> Choose: **yes** (remove all) / **no** (skip all) / **one-by-one** (decide per entry)"
+
+- **yes** → For each entry, delete with `rm -- '<path>'` (for files) or `rm -rf -- '<path>'` (for directories) — single-quote the exact path from the manifest and include `--` to terminate option parsing (defends against paths beginning with `-`). Log each as "Removed (legacy)" in the Step 4 summary table.
+- **no** → Skip all. Log each as "Kept (declined)" in the summary table.
+- **one-by-one** → Ask per entry with the same yes/skip choices.
+
+### E. Safety rules during deletion
+
+- Use the exact path from the manifest — never expand globs, never substitute, never operate on a parent directory.
+- Echo the full path immediately before each `rm` so the developer sees what is about to be deleted.
+- If any `rm` fails (permissions, file in use), abort the remaining removals and report which paths were and were not removed. Do not silently continue.
+
+---
+
 ## Step 3: Update version file
 
 Write `.playbook-version` in the project root with the following content:
@@ -198,5 +277,5 @@ Tell the developer: "Version tracking updated. Consider adding `.playbook-versio
 - **`# RDPI Workflow Rules` marker missing from CLAUDE.md (and no legacy `# QRSPI Workflow Rules` / `# RPI Workflow Rules`):** Abort the CLAUDE.md update only (not the whole command). Update other managed files normally. Suggest running `/playbook-setup` to fix the structure.
 - **Old commit not in history:** Skip the targeted changelog. Show the latest 10 commits instead and note: "The previously installed commit is no longer in the source history (possibly due to a force-push). Showing recent commits instead."
 - **Developer has modified a managed file:** The diff will show their changes. They can choose to skip that file to preserve their modifications, or overwrite with the latest.
-- **Self-update:** `.claude/skills/playbook-update/SKILL.md` is in the managed files list. If it updates itself, note: "The update command itself was updated. The changes will take effect next time you run `/playbook-update`."
+- **Self-update:** `.claude/skills/playbook-update/SKILL.md` is in the managed files list. If it updates itself, tell the developer: "The `/playbook-update` skill itself was updated — any new logic in this update (including new legacy-removal entries that would be handled in Step 2.5) didn't run this pass because the agent loaded the old instructions at the start. To apply pending changes, run `/playbook-update` again — when it reports 'already on latest,' accept the force-update prompt to re-run with the new logic."
 - **Temp directory already exists:** Remove it before cloning to avoid conflicts.
