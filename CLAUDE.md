@@ -25,9 +25,9 @@ Issues are tracked using the playbook's own issue board — not TaskCreate or Gi
 
 - **Log new issues** → `tasks/new-issues.md` (triage inbox)
 - **Active issue board** → `tasks/issues.md` (tracked work)
-- **Template** → `templates/new-issues.md`
+- **Template** → `.claude/templates/new-issues.md`
 
-To log a new issue, append to `tasks/new-issues.md` using the format from `templates/new-issues.md`. Auto-increment the issue number.
+To log a new issue, append to `tasks/new-issues.md` using the format from `.claude/templates/new-issues.md`. Auto-increment the issue number.
 
 Use `/issue-research`, `/issue-plan`, `/issue-implement`, `/issue-update`, `/issue-finish` to move issues through the workflow.
 

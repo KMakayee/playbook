@@ -123,3 +123,40 @@ Surfaced 2026-05-22 in a conversation auditing whether playbook Codex invocation
 ### Impacts
 
 [Filled by `/issue-update` after a related issue completes.]
+
+## #5 — Tighten `codex-output-check.sh` validation (non-numeric arg, whitespace-only pass, stale comment)
+
+**Status:** Draft
+**Priority:** Medium
+**Created:** 2026-05-22
+
+### Description
+
+`.claude/scripts/codex-output-check.sh` is the gate 9 skills use to verify Codex tmp output exists and "has substance" before reading it. Surfaced by a Tier A `/codex-review` pass during Task 7 verification: the script has three gaps.
+
+1. **Non-numeric `min-lines` exits success.** Line 17 (`[ "$LINES" -lt "$MIN_LINES" ]`) doesn't validate that `MIN_LINES` is numeric. Running `bash .claude/scripts/codex-output-check.sh somefile abc` prints a bash `integer expression expected` error, then falls through and exits 0 with `OK`. A caller passing a typo gets a silent pass — the safety gate fails open.
+2. **`wc -l` treats newlines as substance.** Line 16 (`LINES=$(wc -l < "$FILE")`) only counts newlines. A Codex response of 5 blank lines passes the default threshold. The script's stated purpose ("verify ... has substance") implies non-empty content, but the implementation accepts pure whitespace.
+3. **Stale/inaccurate precedent comment.** Line 4 says `Default min-lines: 5 (matches pipeline-eval.sh:41-50 precedent for Codex outputs)`. `pipeline-eval.sh` actually uses 10-line log and 20-line artifact thresholds, not 5 — the cited precedent doesn't exist. Misleading documentation.
+
+All three are pre-existing — none were introduced by Task 7. The Task 7 port deliberately left this shared script untouched ("no behavioral change" constraint). Logging here for a separate fix pass.
+
+### Acceptance Criteria
+
+- [ ] `bash .claude/scripts/codex-output-check.sh <file> <non-numeric>` exits non-zero with a clear error (no silent `OK`).
+- [ ] A file containing only whitespace fails the gate at the default threshold (count non-empty / non-whitespace lines, not raw newlines).
+- [ ] Line 4's precedent comment is either corrected to match `pipeline-eval.sh`'s actual thresholds, or dropped.
+- [ ] All 9 callers still pass the gate on normal Codex output (no false negatives introduced).
+
+### Relevant paths
+
+- `.claude/scripts/codex-output-check.sh` — the script itself.
+- `.claude/scripts/pipeline-eval.sh` — for verifying the precedent comment.
+- Callers: any skill invoking `bash .claude/scripts/codex-output-check.sh` — `research-codebase`, `design`, `create-plan`, `implement`, `implement-codex`, `issue-research`, `issue-plan`, `issue-implement`, `codex-review` (9 total).
+
+### Notes
+
+Surfaced 2026-05-22 during Task 7 (skill port) Tier A verification. Codex pass against `codex-output-check.sh` as a trivial target.
+
+### Impacts
+
+[Filled by `/issue-update` after a related issue completes.]

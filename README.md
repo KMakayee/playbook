@@ -18,7 +18,7 @@ rm -rf playbook/.git && rmdir playbook
 rm -rf tasks
 ```
 
-> The `mv` command overwrites existing files. Back up your `CLAUDE.md`, `.claude/`, and `templates/` directories first if they already exist.
+> The `mv` command overwrites existing files. Back up your `CLAUDE.md`, `.claude/`, and `.claude/templates/` directories first if they already exist.
 >
 > `rm -rf tasks` clears the playbook maintainer's working artifacts (`todo.md`, `errors.md`, `issues.md`) that ship with the repo. RDPI commands recreate `tasks/` as you work.
 
@@ -28,15 +28,15 @@ Then open Claude Code and run:
 /playbook-setup
 ```
 
-This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE.md`, and offers to install global utility commands.
+This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE.md`, and offers to install global utility skills.
 
 ## What's included
 
-### Commands
+### Skills
 
 **RDPI workflow**
 
-| Command | Purpose |
+| Skill | Purpose |
 |---|---|
 | `/research-codebase` | Codex sweeps, Claude synthesizes; writes `tasks/research-codebase.md` |
 | `/design` | Evaluate options, run Codex cross-check, pick a winner; writes `tasks/design-decision.md`. Includes inline pattern research with RUN/SKIP gate. |
@@ -47,7 +47,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 **Issue workflow**
 
-| Command | Purpose |
+| Skill | Purpose |
 |---|---|
 | `/issue-research` | Codex sweeps issue, Claude synthesizes + recommends approach; writes `tasks/research-issue-N.md` |
 | `/issue-plan` | Draft plan, Codex reviews, absorb findings; writes `tasks/plan-issue-N.md` |
@@ -58,7 +58,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 **Setup & maintenance**
 
-| Command | Purpose |
+| Skill | Purpose |
 |---|---|
 | `/playbook-setup` | One-time project configuration |
 | `/playbook-audit` | Health check and artifact cleanup |
@@ -66,7 +66,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 **Utility**
 
-| Command | Purpose |
+| Skill | Purpose |
 |---|---|
 | `/commit` | Stage, commit, and push to current branch |
 | `/push-pr` | Push, open PR, full code review, squash-merge by default |
@@ -104,8 +104,8 @@ Fetches the latest playbook, shows what changed, and lets you approve each file 
 |---|---|---|
 | `CLAUDE.md` | Project context + workflow rules | Yes — every session |
 | `quickref.md` | Human-readable RDPI cheat sheet | No — for your reference |
-| `templates/*` | Structures for research, plans, audits, etc. | Referenced when writing artifacts |
-| `.claude/commands/*` | Slash commands | Only when invoked |
+| `.claude/templates/*` | Structures for research, plans, audits, etc. | Referenced when writing artifacts |
+| `.claude/skills/*` | Slash commands | Only when invoked |
 
 ## LSP
 

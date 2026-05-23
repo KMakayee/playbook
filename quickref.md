@@ -4,11 +4,11 @@
 
 ---
 
-## Commands
+## Skills
 
 **Playbook**
 
-| Command             | What it does                                                     |
+| Skill               | What it does                                                     |
 |---------------------|------------------------------------------------------------------|
 | `/playbook-setup`   | Configure CLAUDE.md for your codebase                            |
 | `/playbook-update`  | Fetch and apply latest playbook version                          |
@@ -16,7 +16,7 @@
 
 **RDPI Workflow**
 
-| Command                  | What it does                                                                   |
+| Skill                    | What it does                                                                   |
 |--------------------------|--------------------------------------------------------------------------------|
 | `/create-todo`           | Create standalone `tasks/todo.md` for ad-hoc tracking                          |
 | `/research-codebase` | Codex sweeps, Claude synthesizes → `tasks/research-codebase.md`                |
@@ -27,7 +27,7 @@
 
 **Issue Board**
 
-| Command                          | What it does                                              |
+| Skill                            | What it does                                              |
 |----------------------------------|-----------------------------------------------------------|
 | `/issue-research N`    | Codex sweeps + Claude synthesizes + recommends → `tasks/research-issue-N.md` |
 | `/issue-plan N`        | Draft plan, Codex reviews, absorb findings → `tasks/plan-issue-N.md`         |
@@ -38,7 +38,7 @@
 
 **Code Quality**
 
-| Command         | What it does                                                                     |
+| Skill           | What it does                                                                     |
 |-----------------|----------------------------------------------------------------------------------|
 | `/finish`       | Wrap up task: mark done, commit everything including RDPI artifacts             |
 | `/commit`       | Stage, commit, and push to current branch                                        |
