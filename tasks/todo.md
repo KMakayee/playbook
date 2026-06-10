@@ -10,7 +10,7 @@
 
 Numbering is reference-only, not execution order. The backlog splits into three roughly-independent fronts; pick within a front in dependency order.
 
-- **Codex-trio + forge (19, 20, 21) — current priority, being tackled first.** `19` (`/codex-audit`) → `21` (`/forge`) is the hard critical path: forge's fidelity gate is the one genuinely new capability it needs. `20` (`/codex-research`) is independent of `19` and can run in parallel; `21` self-summons `/codex-research`, so `20` improves `21` but doesn't block a first version. `/codex-review` already exists. All three are doable now — `19`/`21` inline triage's bucket logic rather than waiting on `13`. Net: `19` and `20` in parallel, then `21`.
+- **Codex-trio + forge (20, 21) — current priority, being tackled first.** `19` (`/codex-audit`) is **done** (2026-06-10, archived to `tasks/completed.md`), so the hard critical path `19` → `21` (`/forge`) is unblocked: forge's fidelity gate now exists. `20` (`/codex-research`) is independent; `21` self-summons `/codex-research`, so `20` improves `21` but doesn't block a first version. `/codex-review` already exists. Both are doable now — `21` inlines triage's bucket logic rather than waiting on `13`. Net: `20` next, or jump straight to `21`.
 - **Triage-rooted chain (13 → 14/15 → 16).** `13` (`/triage`) is the root: `14` (`/codex-goal`), `15` (RDPI structural), and `16` (inference-reduction) all hard-depend on it. `16` additionally depends on `15`.
 - **Checkpoint pair (17 → 18).** `18` (auto-rehydrate hook) consumes `17`'s (`/checkpoint` redesign) output, so `17` lands first. Independent of the other two fronts.
 
@@ -45,7 +45,7 @@ Cross-front: `13` strengthens the apply step of `19`/`21` but isn't a hard block
 **Relevant paths.**
 - Source: `~/Projects/Omakase/omk-core/.claude/commands/triage.md` (placeholder being ported)
 - New skill: `.claude/skills/triage/SKILL.md`
-- Skills to modify: `.claude/skills/codex-review/SKILL.md`, `.claude/skills/implement/SKILL.md`, `.claude/skills/implement-codex/SKILL.md`, `.claude/skills/issue-implement/SKILL.md`, `.claude/skills/create-plan/SKILL.md`, `.claude/skills/issue-plan/SKILL.md`, `.claude/skills/design/SKILL.md`
+- Skills to modify: `.claude/skills/codex-review/SKILL.md`, `.claude/skills/implement/SKILL.md`, `.claude/skills/implement-codex/SKILL.md`, `.claude/skills/issue-implement/SKILL.md`, `.claude/skills/create-plan/SKILL.md`, `.claude/skills/issue-plan/SKILL.md`, `.claude/skills/design/SKILL.md`, `.claude/skills/codex-audit/SKILL.md` (added by task 19 — see note added 2026-06-10 below)
 - Project rules: `CLAUDE.md` (RDPI workflow rules section)
 - Reference conventions: `.claude/skills/research-codebase/SKILL.md` (tmp-file pattern), `.claude/skills/codex-review/SKILL.md` (target-resolution pattern, cleanup-before-present convention)
 
@@ -65,7 +65,7 @@ These were surfaced during pre-RDPI design discussion. RDPI Research/Design phas
 5. **Skip Step 0 misroute check when invoked from a known triage caller** — the implementation-vs-triage pre-check is for freeform invocation. When `codex-review` / `implement` etc. hand off, the chunk is known to be review findings; the pre-check is friction.
 6. **Carry forward "Codex confidence is not evidence"** — codex-review SKILL has this caveat. Restate in triage: bucket weight = evidence, not how assertively the source stated the finding.
 7. **Memory + project-state consultation** — omk-core mentions auto-memory for prior project state (e.g., "Task 12c"). In playbook, the equivalent is `tasks/issues.md` issue numbers and `tasks/plan.md` phase numbers; tell triage to consult those when chunks reference them.
-8. **Bucket naming reconciliation** — codex-review 6b uses `apply` / `judgment call` / `noise`; omk-core triage uses `A.1` / `A.2` / `B` / `C`. Pick one. Preference: `A.1/A.2/B/C` (separates auto-fix from no-op, more precise) — RDPI to confirm.
+8. **Bucket naming reconciliation** — codex-review 6b uses `apply` / `judgment call` / `noise`; omk-core triage uses `A.1` / `A.2` / `B` / `C`. Pick one. Preference: `A.1/A.2/B/C` (separates auto-fix from no-op, more precise) — RDPI to confirm. **Also sweep in `/codex-audit`** (task 19) — its between-pass triage step uses the same interim `apply / judgment-call / noise` vocabulary, chosen deliberately to avoid pre-committing to `A.1/A.2/B/C` before this task lands (task 19 Axis 6 / OQ5, see `tasks/design-decision.md`). When standardizing the vocabulary, reconcile `/codex-audit` alongside the rest and align it to the `/triage` reference spec inline (per the "Inline contract, not nested invocation" constraint above — no runtime `/triage` call). *(Note added 2026-06-10: `/codex-audit` postdates this task's original AC list, so it is not enumerated in ACs 2–5; treat it as an additional inline-triage wiring point of the same kind.)*
 9. **Tmp file naming aligned with playbook** — rename omk-core's `tasks/triage-input.tmp` → `tasks/triage-chunk.tmp`; add `tasks/triage-fixes.tmp` for `parent-triages-child-applies` mode.
 10. **Caller-handoff contract** — formalize what each caller passes to `/triage` (chunk format, lens metadata, mode flag). Without this, integrations drift.
 
@@ -386,46 +386,6 @@ A fresh session reads only that and continues — no SKILL.md, no artifacts.
 - Consume timing: `mv` to `consumed/` on inject — what if the session is abandoned right after (brief effectively lost)? Acceptable, or keep until the first real turn?
 - Does the hook's `sessionTitle` reliably persist to `/resume` (writing a `custom-title` entry)? 30-sec confirm; if not, the script appends the `custom-title` line directly (confirmed schema above).
 - `compact` trigger: the user doesn't compact, but the hook fires on it — confirm consume-on-first-inject prevents double-injection across a compact.
-
----
-
-### 19. Add /codex-audit skill — source-grounded fidelity + completeness audit (Codex)
-
-**Intent.** Create a new standalone skill `.claude/skills/codex-audit/SKILL.md` — a Codex pass that checks a target *against the source(s) it was built from* for **fidelity** (faithful restatement of what the source means), **completeness** (load-bearing facts the target dropped), and **precision** (correct names / IDs / sections). This is the relational `target ↔ source` check that `/codex-review` structurally cannot do: `/codex-review` reads the target in isolation and critiques its merit (factual / simplest-approach / pattern), so it can only surface what is *present and wrong* — never what is *absent* relative to a ground-truth source (an omission is invisible to a blind pass over the target alone). `/codex-audit` fills that gap. **`/codex-review` stays exactly as-is** — review = opinion on merit; audit = verification against source. Prior art: the Omakase `codex-source-audit.md`, which proves the pattern but is hardwired to the fp-rebuild docs — this generalizes it.
-
-**Constraints (firm — settled in pre-RDPI discussion).**
-- **Standalone skill.** No persistent artifact, reads no RDPI prerequisites — same boundary as `/codex-review`. Distinct from the `/code-review` / `/security-review` PR workflows.
-- **Sources are Claude-injected, never a user argument.** Almost everything is built on something, and Claude (driving the command, in the chat) already knows the source docs — so the command must NOT require an `against <sources>` arg. But Codex (the `codex exec` subprocess) cannot see the chat, so Claude composes the relevant source(s) into the Codex prompt automatically. Confirm with the developer only when the source of truth is genuinely ambiguous.
-- **Lenses are derived per-target by Claude — never a fixed menu.** The right lenses depend on what the document is about (a code-migration target wants blast-radius / right-home / fiddly-transforms / still-compiles; a synthesized design doc wants lineage / omission / restatement fidelity). The prompt may offer *example* lens sets as inspiration, but must NEVER present "here are the lenses, choose one" — that anti-pattern is explicitly out of scope. Structure = always-on **core** (fidelity, completeness, precision) + Claude-composed **secondary** lenses fitted to the specific target.
-- **No hardcoded loop.** Default = a single pass. Looping is opt-in via a `passes` argument (replaces the fork's baked-in 3×).
-- **Manual invocation** (`disable-model-invocation: true`) per [[feedback_skill_manual_invocation]] — it is a side-effecting workflow skill (it may edit the target), not a passive/advisory one.
-
-**Arguments.**
-- `argument-hint: '[file | diff | artifact | "description"] [passes]'`
-- Leading token(s) = target (freeform: path, diff, artifact, or quoted description) — resolved the same way `/codex-review` resolves its target (explicit `$ARGUMENTS`, else inferred from conversation).
-- Trailing optional integer = `passes` (number of `review → triage → apply` loops). `/codex-audit foo.md 3` → 3 passes; omitted → 1.
-
-**Acceptance criteria.**
-1. `.claude/skills/codex-audit/SKILL.md` exists with skill frontmatter, `disable-model-invocation: true`, and `argument-hint: '[file | diff | artifact | "description"] [passes]'`.
-2. The composed Codex prompt runs the relational fidelity + completeness + precision audit against Claude-injected source(s) — NOT the three-lens merit review (that stays in `/codex-review`).
-3. Lenses are derived per-target; the prompt offers example lens sets but presents no fixed lens menu.
-4. `passes` parsed from the trailing integer; default 1; each pass is `review → triage → apply` with the next pass seeing the corrected on-disk state (mirrors `codex-source-audit.md` Step 3).
-5. Reuses the established Codex plumbing: safe tmp-file prompt compose, `codex -a never exec --sandbox read-only`, `codex-output-check.sh` verification, cleanup-before-present (`codex-review/SKILL.md`).
-6. `/codex-review` is unchanged.
-7. `/playbook-update`'s managed-file list accounts for the new skill (same check as task 13 AC8 — enumerated vs globbed).
-
-**Relevant paths.**
-- New skill: `.claude/skills/codex-audit/SKILL.md`
-- Prior art (generalize, don't copy): `~/Projects/Omakase/omk-core/.claude/commands/codex-source-audit.md`
-- Reference conventions: `.claude/skills/codex-review/SKILL.md` (target resolution, safe tmp-compose, cleanup-before-present, "Codex confidence is not evidence" caveat), `.claude/scripts/codex-output-check.sh`
-- `/playbook-update` managed list: `.claude/skills/playbook-update/SKILL.md`
-- Related: task 13 (`/triage`) — codex-audit's between-pass triage should reuse the inline triage bucket logic, not reinvent it.
-
-**Open questions for RDPI.**
-- **Recommend-only vs apply-by-default.** `/codex-review` is recommend-only; `codex-source-audit` applies verified fidelity-defects. Candidate resolution to evaluate: couple it to `passes` — a multi-pass loop *must* apply between iterations (so pass N+1 reads corrected state), while a single pass could default to recommend-only. Confirm, and decide whether an explicit `--no-apply` escape is needed. (See [[feedback_taskspec_tradeoffs_to_rdpi]].)
-- **Argument parsing edge.** Trailing-integer `passes` vs a freeform target that legitimately ends in a number. Leading-flag form (`--passes N <target>`) is unambiguous but heavier; the trailing-int form is the ergonomic one the developer wants. Decide the rule (lean: the last whitespace token, if it parses as a small int and a non-empty target remains, is `passes`).
-- **Lineage / supersession lens.** It is the fp-rebuild fork's highest-value check but is source-versioning-specific. Core lens, or just one secondary lens Claude adds when the sources carry a supersession order? (Lean: secondary, conditional.)
-- **Default `passes` cap.** Any upper bound to stop a runaway `/codex-audit x 99`?
 
 ---
 
