@@ -20,7 +20,7 @@ rm -rf tasks
 
 > The `mv` command overwrites existing files. Back up your `CLAUDE.md`, `README.md`, `quickref.md`, and `.claude/` first if they already exist. The `rm -rf tasks` step also deletes your existing `tasks/` directory.
 >
-> `rm -rf tasks` clears the playbook maintainer's working artifacts (`todo.md`, `errors.md`, `issues.md`) that ship with the repo. RDPI commands recreate `tasks/` as you work.
+> `rm -rf tasks` clears the playbook maintainer's working artifacts (`todo.md`, `completed.md`, `errors.md`, `issues.md`, `new-issues.md`) that ship with the repo. RDPI commands recreate `tasks/` as you work.
 
 Then open Claude Code and run:
 
