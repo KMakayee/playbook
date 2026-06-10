@@ -47,6 +47,7 @@
 | `/catchup`      | Catch a feature branch up to its default base — fetch, merge, surface conflicts  |
 | `/checkpoint`   | Save / resume / discard work state in `tasks/checkpoint.md` (auto-detects RDPI phase + cursor) |
 | `/codex-review` | One-shot Codex second-opinion pass over a file, diff, artifact, or freeform target |
+| `/codex-audit`  | Audit a target against its source(s) for fidelity, completeness, and precision     |
 | `/simplify`     | Review changed code for reuse, quality, and efficiency (built-in)                |
 | `/batch`        | Decompose large changes into parallel sub-agents in isolated worktrees (built-in)|
 | `/loop`         | Run a prompt on a recurring interval, e.g. `/loop 5m check deploy` (built-in)   |

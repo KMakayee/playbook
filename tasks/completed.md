@@ -2,6 +2,13 @@
 
 > Archived completed tasks. Full bodies findable in git via `git log` on the commits that landed each task.
 
+## Codex-trio batch (2026-06)
+
+Standalone Codex skills beyond `/codex-review` — audit (fidelity) and research (grounding) — feeding the temporary `/forge` lane (task 21).
+
+### 19. Add /codex-audit skill — source-grounded fidelity + completeness audit
+Added `.claude/skills/codex-audit/SKILL.md` — a source-grounded Codex audit of a target against the source(s) it was built from: fidelity/completeness/precision core lenses plus Claude-composed per-target secondary lenses, Claude-injected sources (never a CLI arg), optional multi-pass `review → triage → apply` loop (`passes` arg; default 1 = recommend-only, cap 5, editable-target guard). Plumbing from `/codex-review` (safe tmp-compose, `-a never exec --sandbox read-only`, output-check, cleanup-before-present); temps under gitignored `tasks/logs/audits/` with per-run-unique tokens. Registered in `/playbook-update`'s managed list + README/quickref rows; `/codex-review` byte-for-byte unchanged. Verified via 29 structural checks and a clean live self-audit run.
+
 ## Skill conversion and upfront-spec batch (2026-04 to 2026-05)
 
 Twelve tasks closing out playbook command → skill migration plus blog-driven spec improvements (upfront specs, subagent guidance, Codex expansion across RDPI, background-by-default migration). Task 7 (skill port) landed last so behavioral changes settled first; Tasks 1-6 and 8-12 were the behavioral surface.

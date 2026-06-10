@@ -74,6 +74,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 | `/catchup` | Catch a feature branch up to its default base — fetch, merge, surface conflicts, run validation, recommend `/push-pr` |
 | `/checkpoint` | Save / resume / discard work state in `tasks/checkpoint.md` (commits on save, consumes on resume) |
 | `/codex-review` | One-shot Codex second-opinion pass over a file, diff, artifact, or freeform target |
+| `/codex-audit` | Source-grounded Codex audit of a target against its source(s) for fidelity, completeness, and precision |
 | `/finish` | Wrap up task: verify, commit artifacts, clean up |
 
 ### Templates
