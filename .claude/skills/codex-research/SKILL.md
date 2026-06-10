@@ -60,7 +60,7 @@ Compute the literal date (`date +%F`) and the slug:
 
 - **Target path free** → write there.
 - **Exists *with* the metadata header** (valid kept doc):
-  - **Auto-fired, same question slug** → **reuse it**: read the existing doc and fold its findings into the answer; skip regeneration entirely (jump to Step 9). Dedup keys on question *identity*, not a running total — it never caps how many distinct questions get researched.
+  - **Auto-fired, same question slug** → check the stored `question:` in that doc's metadata header. If it matches the resolved question, **reuse it**: read the existing doc and fold its findings into the answer; skip regeneration entirely (jump to Step 9). If the slug matches but the stored question differs (the ≤ ~40-char slug is lossy), treat it as a collision, not a dedup hit — append a numeric suffix as below. Dedup keys on question *identity*, not a running total — it never caps how many distinct questions get researched.
   - **Manual / distinct topic** → append a numeric suffix to the slug (`-2`, `-3`, …) so the kept doc is **never overwritten** (`codex -o` would clobber an identical path). The suffixed identifier is the run identifier from here on.
 - **Exists but *headerless*** (partial/failed leftover) → safe to **overwrite**: regenerate over it. Not a dedup hit; no suffix. This self-heals a poisoned canonical path.
 
@@ -154,6 +154,8 @@ date: <YYYY-MM-DD>
 relevant_paths: <paths, if any>
 ---
 ```
+
+Header values must keep the header parseable: write `question` (and any other free-text value) on a single line when it is plain; if it contains YAML-special characters (such as `: `, quotes, or `#`) or newlines, use a block scalar — `question: |-` with the text indented on the following lines. A malformed header would silently stop acting as the completion marker.
 
 This is an edit to the skill's *own output doc* (not a source file; not pre-edit-gated). The header backs scannability, dedup-by-slug (it is the completion marker from Step 3), and safe promotion.
 
