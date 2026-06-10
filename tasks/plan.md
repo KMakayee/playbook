@@ -337,6 +337,8 @@ can't make: (a) single-pass writes **nothing** to the target (R2), and (b) the m
 
 ## Phase 2 — Register in the `/playbook-update` managed list (AC7)
 
+- [x] **Phase 2 complete** — bare path inserted adjacent to the codex-review entry; all criteria pass.
+
 `.claude/skills/playbook-update/SKILL.md` carries an **enumerated** (not globbed) managed-file list;
 `.claude/skills/codex-review/SKILL.md` is at **line 31** (verified). Add the new skill path on its
 own line **adjacent to line 31** (immediately after the codex-review entry keeps the two Codex
