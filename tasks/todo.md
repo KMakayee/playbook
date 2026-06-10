@@ -10,7 +10,7 @@
 
 Numbering is reference-only, not execution order. The backlog splits into three roughly-independent fronts; pick within a front in dependency order.
 
-- **Codex-trio + forge (20, 21) — current priority, being tackled first.** `19` (`/codex-audit`) is **done** (2026-06-10, archived to `tasks/completed.md`), so the hard critical path `19` → `21` (`/forge`) is unblocked: forge's fidelity gate now exists. `20` (`/codex-research`) is independent; `21` self-summons `/codex-research`, so `20` improves `21` but doesn't block a first version. `/codex-review` already exists. Both are doable now — `21` inlines triage's bucket logic rather than waiting on `13`. Net: `20` next, or jump straight to `21`.
+- **Codex-trio + forge (21) — current priority.** `19` (`/codex-audit`) and `20` (`/codex-research`) are both **done** (2026-06-10, archived to `tasks/completed.md`) — the Codex trio is complete, so `21` (`/forge`) has its fidelity gate and its self-summoned research lane. `/codex-review` already exists. Net: `21` is fully unblocked — it inlines triage's bucket logic rather than waiting on `13`.
 - **Triage-rooted chain (13 → 14/15 → 16).** `13` (`/triage`) is the root: `14` (`/codex-goal`), `15` (RDPI structural), and `16` (inference-reduction) all hard-depend on it. `16` additionally depends on `15`.
 - **Checkpoint pair (17 → 18).** `18` (auto-rehydrate hook) consumes `17`'s (`/checkpoint` redesign) output, so `17` lands first. Independent of the other two fronts.
 
@@ -386,58 +386,6 @@ A fresh session reads only that and continues — no SKILL.md, no artifacts.
 - Consume timing: `mv` to `consumed/` on inject — what if the session is abandoned right after (brief effectively lost)? Acceptable, or keep until the first real turn?
 - Does the hook's `sessionTitle` reliably persist to `/resume` (writing a `custom-title` entry)? 30-sec confirm; if not, the script appends the `custom-title` line directly (confirmed schema above).
 - `compact` trigger: the user doesn't compact, but the hook fires on it — confirm consume-on-first-inject prevents double-injection across a compact.
-
----
-
-### 20. Add /codex-research skill — general-purpose Codex research (codebase + external), auto-invoked
-
-**Intent.** Create a new standalone skill `.claude/skills/codex-research/SKILL.md` — a general-purpose Codex research command, third in the Codex trio (`/codex-review` = merit, `/codex-audit` = fidelity, `/codex-research` = grounding / second opinion). It covers three research modes, with Claude routing to whichever the request needs (no fixed menu): (1) **codebase grounding** — survey what exists before acting; (2) **misc / generative** — novel approaches, "is there a better way"; (3) **external / prior-art** — how others tackled a comparable problem, from any public source: OSS implementations, **published research / papers**, official docs, standards, engineering writeups — not limited to source code. Usable anytime, including mid-task when stuck on an open question or to bring the developer richer grounding on a serious decision. Unlike `/codex-review` and `/codex-audit`, its output is a **kept research document**, not a deleted tmp.
-
-**Distinct lane (settled).** Coexists with two existing tools, clear lanes — none replaced:
-- `deep-research` skill — Claude-native fan-out web harness with adversarial verification. Unchanged.
-- `/research-codebase` — the RDPI Phase-1 step that writes `tasks/research-codebase.md` behind an intake gate. Unchanged.
-- `/codex-research` — Codex-powered, codebase + external, **no RDPI**, invokable anytime (incl. auto). The "send Codex to go dig" lane.
-
-**Constraints (firm — settled in pre-RDPI discussion).**
-- **Standalone, no RDPI prerequisites.** Reads no RDPI artifacts; not gated by the pre-edit classification (it edits no source — it only writes a research doc). Both **auto-invoked** and manually invocable as `/codex-research <topic>`.
-- **Auto-invocation — intentional exception to [[feedback_skill_manual_invocation]].** Most workflow skills set `disable-model-invocation: true`; this one is deliberately auto-fireable because it is an advisory, read-only-on-code research tool. Flag the exception in the skill so it doesn't read as a mistake.
-  - **Trigger:** auto-fire whenever Claude is about to stop and ask the developer — an open question, a hard judgment call, a blocker. Run the Codex second opinion *first*, then surface to the developer with that grounding (or with the question resolved). The point is a second opinion *before* bothering the human, not after.
-  - **Run mode:** background / non-blocking (`run_in_background: true`). Claude keeps working; findings surface when ready. No 10-minute stall on the turn.
-- **Output is a kept research doc — never auto-deleted.** Default home: `tasks/logs/research/<YYYY-MM-DD>-<descriptive-slug>.md`. `tasks/logs/` is already gitignored (`.gitignore:6`), so the default is local-only, uncommitted, and out of the working `tasks/` files — organized by date + descriptive name under a dedicated research folder (mirrors the `tasks/logs/checkpoints/` convention).
-  - **Promotion path (human-gated):** when a research doc becomes a reference / supporting-evidence trail for another doc, Claude asks the developer, then extracts it into a real committed doc at a Claude-chosen location (best judgment — e.g. the relevant component's `docs/`). Only promoted docs get committed; the default never does.
-  - This **supersedes** the rough-outline idea of Claude scattering docs into component folders by default. Default = the organized local logs folder; component-`docs/` placement is the *promotion* case, gated on human input, not the default.
-- **External mode is broad but Claude-discretionary.** "External" = prior art from any public source (OSS code, published research / papers, official docs, standards, engineering writeups), not just repos. It is **not always-on**: codebase grounding is the common path, and Claude reaches for external only when prior art would actually help — bounded by judgment, but *not* hard-gated and *not* flag-required (don't gate it strictly; don't fire it every time). External research needs Codex web access (`--search`, cf. issue #4); codebase / misc modes stay codebase-grounded. RDPI to settle the exact flag + sandbox per mode.
-- **No fixed mode menu.** Claude routes to the right research mode(s) from the request — consistent with the `/codex-audit` lens philosophy. The prompt may describe the modes as ideas, never "pick a mode."
-
-**Arguments.**
-- `argument-hint: '[topic or question]'` — a **single** freeform argument: the thing to research, phrased as a topic or a question. (Not multiple input kinds — unlike `/codex-review`'s `file | diff | artifact`, codex-research's input is always "a thing to research.")
-- Resolved like `/codex-review`: explicit `$ARGUMENTS`, else inferred from conversation / the open question that triggered the auto-fire.
-
-**Acceptance criteria.**
-1. `.claude/skills/codex-research/SKILL.md` exists with skill frontmatter and `argument-hint`, and is **auto-invocable** (NOT `disable-model-invocation: true`), with an in-skill note that the auto-invoke is a deliberate exception to the manual-invoke convention.
-2. The skill documents the three research modes (codebase grounding / misc-generative / external prior-art) and routes among them per request — no fixed mode menu; external is reached for at Claude's discretion, not by default.
-3. Auto-fire is wired to the "about to ask the developer" moments (OQ / hard judgment / blocker): run Codex first, then surface with grounding or resolution.
-4. The Codex call runs in the background (`run_in_background: true`) — non-blocking; findings surface when ready.
-5. Output is written to `tasks/logs/research/<YYYY-MM-DD>-<slug>.md` (local, gitignored) and is NEVER auto-deleted.
-6. A human-gated promotion path extracts a research doc into a committed Claude-chosen location only on developer confirmation, when it becomes a reference trail.
-7. External mode runs Codex with web access (`--search`); codebase / misc modes stay codebase-grounded.
-8. `/playbook-update`'s managed-file list accounts for the new skill (same check as task 13 AC8 — enumerated vs globbed).
-9. `/codex-review` is unchanged; `deep-research` and `/research-codebase` are unchanged.
-
-**Relevant paths.**
-- New skill: `.claude/skills/codex-research/SKILL.md`
-- Reference conventions: `.claude/skills/codex-review/SKILL.md` (target resolution, safe tmp-compose, Codex invocation + `run_in_background`, "Codex confidence is not evidence" caveat), `.claude/scripts/codex-output-check.sh`
-- Storage: `tasks/logs/research/` (new) — under the already-gitignored `tasks/logs/` (`.gitignore:6`); mirrors `tasks/logs/checkpoints/` (tasks 17/18).
-- Stay distinct from: `deep-research` skill, `.claude/skills/research-codebase/SKILL.md`.
-- Related: issue #4 (Codex `--search` enablement) — external mode depends on the same flag.
-- `/playbook-update` managed list: `.claude/skills/playbook-update/SKILL.md`
-
-**Open questions for RDPI.**
-- **Auto-fire frequency control.** "Before asking the developer" is the trigger, but how to keep it from firing on every minor hesitation? Need a threshold (only OQs / judgment-calls of real weight), debounce on the same OQ, and a per-session cap. Define it.
-- **Background-to-foreground handoff.** When a backgrounded codex-research finishes, how does it surface — interrupt with findings, or fold into the next turn? And what if the developer has moved on or the OQ self-resolved meanwhile?
-- **`--search` / sandbox per mode.** External mode needs network; codebase mode wants read-only. Settle the exact `codex exec` flags + sandbox per mode (coordinate with issue #4).
-- **Promotion mechanics + default location.** What exactly triggers the "this is now a reference trail → ask to promote" prompt, and where do promoted docs land by default (component `docs/`, a top-level `docs/research/`, …)? Claude-judgment with a sensible fallback.
-- **Research-slug convention.** How to name `<descriptive-slug>` so files stay scannable (topic-based, or OQ-id-based when auto-fired from an open question?).
 
 ---
 
