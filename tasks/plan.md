@@ -375,6 +375,8 @@ grep -nF '.claude/skills/codex-audit/SKILL.md' "$P" | grep -qvE '#|<--'
 
 ## Phase 3 — Discoverability rows (Axis 9 — non-AC polish)
 
+- [x] **Phase 3 complete** — rows added after the codex-review rows in both tables; quickref padding matches (104 chars).
+
 Add a `/codex-audit` row to each utility table, immediately after the `/codex-review` row:
 
 - **`README.md`** after line 76 (verified — codex-review row in the utility-commands table, header
