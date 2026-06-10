@@ -23,9 +23,9 @@ Wherever the steps below reference the target, use the resolved target — the e
 
 **Argument parsing — `passes`.** `$ARGUMENTS` carries the target plus an optional trailing pass count:
 
-- The **last whitespace-delimited token** is `passes` **iff** it parses as a positive integer **and** a non-empty target remains after removing it. Otherwise the token is part of the target (e.g. `/codex-audit "step 2"` → target `step 2`, `passes` defaults to 1).
-- `passes` defaults to 1. The parsed value must be a positive integer — 0 and negatives are rejected, never silently accepted. Then apply the cap: `passes` is capped at 5. The cap is not a parse condition — a trailing `99` still parses as `passes`, then gets clamped to 5 with a note to the developer that it was clamped; treating the cap as a parse condition would silently fold the number back into the target.
-- **Escape hatch:** quote the target to force a trailing number into it — `/codex-audit "fix step 2"` audits the literal phrase `fix step 2` with `passes = 1`. Document a wrong split by re-invoking with quotes.
+- The **last whitespace-delimited token** is a `passes` **candidate** **iff** it parses as an integer **and** a non-empty target remains after removing it. Otherwise the token is part of the target (e.g. `/codex-audit "step 2"` → target `step 2`, `passes` defaults to 1).
+- `passes` defaults to 1 when no candidate is present. A candidate of 0 or a negative is **rejected** with a one-line corrective message — never silently accepted, and never silently folded back into the target. A candidate above 5 is clamped: `passes` is capped at 5, with a note to the developer that it was clamped. Neither bound is a parse condition — a trailing `99` or `0` still parses as the candidate first; treating the bounds as parse conditions would silently fold the number back into the target.
+- **Escape hatch:** quote the target to force a trailing number into it — `/codex-audit "fix step 2"` audits the literal phrase `fix step 2` with `passes = 1`. If the parse splits your target wrongly, re-invoke with the target quoted.
 
 **Source resolution.** The source set is **never a CLI argument** — Claude determines it from the conversation, the target's own citations, or what the developer has named, and injects it into the composed prompt (Step 2). If the source of truth is genuinely ambiguous, confirm with the developer (one question) before composing — a guessed source corrupts the entire audit.
 
@@ -37,7 +37,7 @@ Wherever the steps below reference the target, use the resolved target — the e
 
 All temp files for one run live under the **gitignored** `tasks/logs/audits/` and share a single **run token**: `tasks/logs/audits/<run>-prompt.tmp` (the composed prompt) and `tasks/logs/audits/<run>-<i>.tmp` (the pass-`i` output).
 
-- **Choose `<run>` once, as a literal string** (e.g. a short slug of the target plus a few extra characters: `spec-sync-k3`), and thread it **verbatim** into every temp path for the rest of the run. Do **not** use a bare `$$` or a command substitution in the temp names — each Bash tool call is a separate shell, so a value computed inside one call does not survive into the next, and the compose → invoke → cleanup calls would each name different files.
+- **Choose `<run>` once, as a literal string unique to this run** — a short slug of the target plus the date and a few random characters (e.g. `spec-sync-20260610-k3`), filesystem-safe characters only (`A-Za-z0-9._-`) — and thread it **verbatim** into every temp path for the rest of the run. Uniqueness is load-bearing: the pre-delete and cleanup commands match `<run>-*.tmp`, so two runs sharing a token would delete each other's files. Do **not** use a bare `$$` or a command substitution in the temp names — each Bash tool call is a separate shell, so a value computed inside one call does not survive into the next, and the compose → invoke → cleanup calls would each name different files.
 - Create the dir and defensively clear anything matching this run's token:
 
 ```bash
@@ -126,11 +126,11 @@ Read the output FULLY (no limit/offset). **Spot-check the relation, not just the
 
 Map Codex's two buckets onto **apply / judgment call / noise**:
 
-- **Single pass (`effective_passes = 1`) — recommend-only.** Do **not** write the target. Triage labels are computed but nothing is applied; skip to Step 6, and present per Step 7's single-pass flow.
+- **Single pass (`effective_passes = 1`) — recommend-only.** Do **not** write the target and do **not** pre-triage — carry the raw findings (with Step 4's spot-check caveats) to Step 7; triage happens only if the developer accepts the opt-in offer there. Skip to Step 6.
 - **Multi-pass (`effective_passes > 1`) — apply on every pass**, including the final one (each pass is `review → triage → apply`; the prompt regeneration in 5c is the only between-passes-only step). For each finding:
   - **Clear, verified fidelity defect → apply the minimal faithful edit to the TARGET now**, inline in this session. Record it in a running **applied-fixes** list. The fix lands on disk, so the next pass's Codex re-reads the corrected target — it won't re-flag it, and may catch any error the edit introduced.
   - **Judgment call, boundary note, or still-open question → do NOT edit.** Keep it on a **carry-forward** list. A fix you are not confident enough to apply is by definition a judgment call — carry it, don't force it.
-  - **Noise → drop.**
+  - **Noise → drop from the loop** (never carried forward), but keep a one-line note per dropped finding in context — the temps are deleted in Step 6, and Step 7's noise count must be able to answer `show all`.
   - **Guardrails:** only fidelity defects auto-apply, and edits are confined to the **target** — sources are ground truth and are never edited.
 
   **5c. Regenerate the prompt — only when another pass remains** (`i < effective_passes`). Rewrite `tasks/logs/audits/<run>-prompt.tmp` as the base body (Step 2) **plus ONE fresh current-state block**:

@@ -53,6 +53,7 @@ From `tasks/research-codebase.md:16`. Each AC is delivered by the cited phase/st
 ## Phase 1 — Author `.claude/skills/codex-audit/SKILL.md`
 
 - [x] **Phase 1 complete** — skill authored; all 24 success-criteria checks pass; manual read-checks (a) and (b) verified.
+- [x] **Code-review revisions applied** — 4 Codex findings fixed. *Deviation note (§B parse rule):* the plan's parse condition ("last token is `passes` iff positive integer") and its validation line ("reject 0 / negative") prescribed conflicting behavior for a trailing `0`/negative. Resolved toward candidate-then-validate (last token is a candidate iff it parses as an *integer*; ≤0 rejected with a note, >5 clamped) — the same anti-silent-fallback rationale the plan itself gives for the cap. Mechanism-level deviation; design intent (default 1, non-silent bounds, quote escape hatch) preserved.
 
 The whole deliverable. A single new Markdown file modeled section-by-section on
 `.claude/skills/codex-review/SKILL.md` (verified 1-136) for **plumbing/presentation** and on
