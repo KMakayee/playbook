@@ -13,6 +13,7 @@ Numbering is reference-only, not execution order. The backlog splits into three 
 - **Codex-trio + forge — front complete.** `19`, `20`, and `21` (`/forge`) all landed 2026-06-10 (archived to `tasks/completed.md`).
 - **Triage-rooted chain (13 → 14/15 → 16).** `13` (`/triage`) is the root: `14` (`/codex-goal`), `15` (RDPI structural), and `16` (inference-reduction) all hard-depend on it. `16` additionally depends on `15`.
 - **Checkpoint pair (17 → 18).** `18` (auto-rehydrate hook) consumes `17`'s (`/checkpoint` redesign) output, so `17` lands first. Independent of the other two fronts.
+- **Native-agents pair (22 → 23).** `22` (install/auto-boot lane) productizes the codex/gemini native-agent setups; `23` (workflow model routing + `/forge` re-route) routes work to the agent types `22` ships, so `22` lands first. Independent of the other fronts, with one soft collision: `23` edits `/forge`, which task `13` also touches (bucket-vocabulary sweep) — independent sections, coordinate if both are in flight.
 
 Cross-front: the landed `19`/`21` inline `13`'s bucket logic; if `13` later refines it, updating them is an enhancement, not a blocker.
 
@@ -386,4 +387,117 @@ A fresh session reads only that and continues — no SKILL.md, no artifacts.
 - Consume timing: `mv` to `consumed/` on inject — what if the session is abandoned right after (brief effectively lost)? Acceptable, or keep until the first real turn?
 - Does the hook's `sessionTitle` reliably persist to `/resume` (writing a `custom-title` entry)? 30-sec confirm; if not, the script appends the `custom-title` line directly (confirmed schema above).
 - `compact` trigger: the user doesn't compact, but the hook fires on it — confirm consume-on-first-inject prevents double-injection across a compact.
+
+---
+
+### 22. Productize native multi-model agents — install + auto-boot lane
+
+**Intent.** Turn the two verified native-agent setups (`tasks/codex-native-agents.md`, `tasks/gemini-native-agents.md`) into an installable playbook surface, so a playbook user can run one install skill and get GPT-5.5 (Codex) and Gemini agents as first-class subagent types inside Claude Code — with the supporting processes booting automatically, never left to manual launch. The skill: (a) guides the **machine layer** (VibeProxy install + Codex OAuth — check-and-instruct, not automated); (b) writes the **project/user layer** (relay script, agent type files `codex` / `codex-xhigh` / `gemini-flash`, any settings/env wiring); (c) wires **auto-boot** so the relay (and, where enabled, shim + engine) is running before any relayed session — the env-set-but-relay-down lockout is the failure mode the auto-boot design exists to kill; (d) ends with a **doctor probe** per lane: spawn each agent type, assert the right model answers AND the relay log shows the matching upstream line (self-report alone is weak through a translation layer). Also: README Prerequisites gains VibeProxy.
+
+**Gemini lane decision (developer, 2026-06-11):** the user-facing install ships ONLY the default lane — VibeProxy OAuth toggle (`gemini-*` routed to VibeProxy; zero GCP, zero extra processes). The **Vertex + ADC lane ships toggled off** — the shim/engine-#2/3-way-route machinery stays in the repo for local use (it's the path verified end-to-end) but is not offered to users by the install. The OAuth lane ships **untested** (accepted risk — we can't verify it locally); the doctor probe is each user's own install-time verification, so design it to fail loudly and diagnosably.
+
+**Constraints.**
+- Skill follows `disable-model-invocation: true` (manual-invoke convention for side-effect skills).
+- Playbook stays project-agnostic: shipped templates carry no machine-specific paths, accounts, or GCP project IDs. The `~/Projects/Tools/codex-relay/` paths in the source docs are dev copies, not the shipped layout.
+- Machine layer is check-and-guide: VibeProxy install + OAuth login cannot be scripted (codex doc §5C — turnkey for repo wiring, one-time manual for the machine). The skill detects, instructs, and re-checks.
+- Relay/shim/engine processes must NEVER be children of a claude session (they die with it — both docs' lifecycle rule). Auto-boot must produce user-owned processes (launchd / detached spawn / wrapper).
+- One relay per port: the install must never leave two relays racing on 3456.
+- Ship the **hardened** relay: client-abort/concurrency safety nets AND the `authorization`/`x-api-key` strip on the non-Anthropic route — Claude credentials never reach third-party code. Non-negotiable.
+- If launchd is the chosen auto-boot, flip the relay's `uncaughtException` posture to fail-fast (recorded tension, codex doc §6) — keep-serving is only correct with no supervisor.
+- Stock sessions stay 100% stock: a user who skips the install (or launches plain `claude`) sees zero behavior change; a broken/absent relay must never lock anyone out of plain sessions.
+- New agent types register at session start — the install must sequence the restart and run the doctor probe in a fresh relayed session.
+- Model IDs drift (`gpt-5.5`, `gemini-3.5-flash`): the IDs currently live in four+ places (codex doc §6) — the shipped layout should centralize or explicitly document the update path.
+
+**Acceptance criteria.**
+1. A new install skill exists (name decided in RDPI) covering machine-layer check/guide → project-layer write → auto-boot wiring → doctor probe, end-to-end for the Codex lane and the default Gemini (OAuth toggle) lane.
+2. The playbook repo carries the shipped artifacts as templates: the relay, the agent type files (`codex`, `codex-xhigh`, `gemini-flash`), and the Vertex-lane machinery (shim, engine-#2 config, 3-way route) present but toggled off / not user-offered. Template placement decided in RDPI.
+3. Codex lane installs end-to-end on a fresh setup: VibeProxy prereq checked, relay placed + auto-booting, agent files placed, doctor probe passes (agent self-report + relay-log upstream assertion).
+4. Default Gemini lane installs the same way (gemini agent file + relay route to VibeProxy + VibeProxy Gemini-toggle instruction); its doctor probe is the user's verification since we ship it untested — probe failures must say what to check (toggle off? not logged in? model name?).
+5. Auto-boot mechanism (RDPI picks from codex doc §5 A/B/C) starts what's needed without manual steps and guards the env-set-but-relay-down lockout.
+6. README Prerequisites gains VibeProxy; the install skill appears in the README command tables.
+7. `/playbook-setup` offers/mentions the install as optional; `/playbook-update`'s managed-file list accounts for all new files (verify enumerate-vs-glob, as in tasks 13/14).
+8. Existing flows unaffected: stock sessions identical; the `codex exec`-based trio (`/codex-research`, `/codex-review`, `/codex-audit`) untouched.
+
+**Relevant paths.**
+- Research seeds (primary — both docs already stage this work in their "Planned work" sections): `tasks/codex-native-agents.md` (§3 setup, §5 auto-launch, §7a install-skill sketch), `tasks/gemini-native-agents.md` (§2 components, §5 two-lane decision)
+- Dev copies to productize: `~/Projects/Tools/codex-relay/` (`relay.mjs`, `relay-gemini.mjs`, `vertex-adc-shim.mjs`, `gemini-cpa-config.yaml`, test scripts); `~/.claude/agents/codex.md`, `codex-xhigh.md`, `gemini-flash.md`
+- New skill: `.claude/skills/<name>/SKILL.md`; templates under `.claude/templates/` (placement RDPI)
+- Docs: `README.md` (Prerequisites, command tables), `.claude/skills/playbook-setup/SKILL.md`, `.claude/skills/playbook-update/SKILL.md:15`
+
+---
+
+**Design notes for RDPI to review:**
+
+1. **Auto-boot mechanism** — codex doc §5 sketches three: (A) shell wrapper, (B) launchd LaunchAgent, (C) project `.claude/settings.json` env + SessionStart hook that checks/starts the relay. C is the most playbook-shaped (arrives via git, per-project opt-in); B is most robust (KeepAlive). A hybrid (C for detection/start, B offered as hardening) is plausible. The lockout failure mode is the deciding criterion.
+2. **One relay or two** — `relay-gemini.mjs` is a superset of `relay.mjs`. But note the routing difference: the 3-way relay sends `gemini-*` to engine #2 (Vertex lane), while the default OAuth lane wants `gemini-*` → VibeProxy 8317 (which the stock 2-way relay already does by falling through). Shipping ONE canonical relay whose gemini upstream is a flag/config (default 8317; Vertex toggle → 8319) kills both the two-relays-one-port footgun and the lane split. RDPI to confirm.
+3. **Agent file placement (decided 2026-06-11)** — project-level `.claude/agents/` in the consuming repo is the installed home (git-shared, playbook-distributable). The dev machine's user-level `~/.claude/agents/` copies (`codex.md`, `codex-xhigh.md`, `gemini-flash.md`) are the interim home and get removed once the project-level install lands — do NOT delete them before then; they're what registers the agent types today. The install should detect leftover user-level duplicates of the same agent names and offer cleanup.
+4. **Doctor probe sequencing** — agent types register at session start, so the probe can't run in the same session that installs the files. Likely shape: `install` step ends with "restart, then run `<skill> doctor`"; pre-flight without claude exists (`test-codex-leg.mjs`) for the relay leg alone.
+5. **Gemini leg tool-use/schema verification** — open item in the gemini doc (codex leg verified both; gemini translation untested for tools). We can't test the OAuth lane locally at all — so the doctor probe should include a tool-use check (e.g., the agent Reads a file), making each user's install self-verifying on exactly the capabilities routing (task 23) will assume.
+6. **Engine #2 binary brittleness (Vertex lane, local-only)** — borrowed from the VibeProxy app bundle; path moves if the app does. Since the lane ships toggled off, a doc note may suffice; don't over-engineer.
+7. **ToS posture note** — the codex doc records the posture (own-machine pass-through, subscription OAuth in VibeProxy only). The install/README should state it plainly so users opt in informed, without turning the README into a legal essay.
+
+**Open questions for RDPI:**
+
+- Skill name (`/agents-install`? `/playbook-agents`?) and whether install/doctor are subcommands of one skill or two steps of one flow.
+- Does the install write project `.claude/settings.json` env (every session in the repo is relayed) or keep relayed sessions opt-in via a wrapper command? Tied to the lockout guard and to "stock sessions stay stock."
+- Do the relay smoke/stress test scripts ship as part of the installed surface (doctor building blocks) or stay dev-only?
+- How does the Vertex toggle physically work — config flag in the shipped relay, separate config file, or an undocumented `--vertex` install arg? (Must be invisible enough that users never wander into it, present enough that local re-install works.)
+
+---
+
+### 23. Multi-model workflow routing — CLAUDE.md Workflow section + recursion-guard upgrade + /forge re-route
+
+**Intent.** Add a model-routing layer for delegated work, now that Codex and Gemini run as native subagent types (task 22). Three pieces. (1) A new **Workflow** section in CLAUDE.md governing ALL agent dispatch — Workflow-tool scripts AND plain Agent-tool spawns: when work is delegated, the orchestrator allocates the model by role. Role defaults: **Codex = coding** — essentially all of it, including small code changes; **Opus = auditing Codex output, synthesis, review**; **Gemini Flash = small/minor tasks and fetching**; **Sonnet = trivial fan-out work** (bulk reads where volume matters); **the session model (Fable) = orchestrator only, never spawned as a sub-agent**. Written as cue-based soft guidance — guardrails plus stated-reason freedom, not a rigid matrix (workflows hit millions of scenarios; the section steers defaults, it doesn't forbid judgment). (2) Replace the recursion guard with the orchestrator-grant version (text below). (3) Re-route `/forge` — the only existing workflow-touching skill — to the new allocation: **Codex builds everything** (developer decision 2026-06-11): even the main build pass dispatches to Codex workers; the orchestrator frames, coordinates seams, and reviews, rather than writing the code itself.
+
+**Constraints.**
+- Routing is guidance with guardrails: recognition cues + default allocations + an explicit freedom clause (deviate with a one-line stated reason). Per established feedback: concrete cues over "best judgment" — every role gets recognition cues, not adjectives.
+- The session model is never spawned as a sub-agent. Orchestration, spine decisions, and user interaction stay in the main loop.
+- Acknowledge the Opus/Codex overlap (both review and synthesize well) with a cross-model cue: **reviewer ≠ author** — Codex-written code is audited by Opus/Claude; Claude-written artifacts get Codex review (the existing playbook handshake). Don't pretend the roles are disjoint.
+- **Graceful degradation, no env sniffing:** in a non-relayed session, `agentType: codex` / `gemini-flash` fails fast with a distinctive error (~440ms — codex doc §7b); that fast-fail IS the installed-or-not detector. Fallback routing is Claude-only (Opus takes coding, Sonnet/Haiku take small tasks), and `/forge` falls back to its current orchestrator-builds-in-main-loop shape. The playbook must remain fully usable without task 22's install.
+- Mechanics stated correctly: the Workflow tool's `model:` opt is a closed enum (`sonnet|opus|haiku|fable`) — Codex/Gemini route via `agentType`; Claude tiers via `model`. Cite the agent-type names task 22 ships.
+- The trio (`/codex-research`, `/codex-review`, `/codex-audit`) stays on `codex exec` — explicitly out of scope (codex doc §7b remains design-only).
+- Recursion-guard replacement is the developer-supplied orchestrator-grant text (below) — adapt wording minimally; the grant is non-transitive (max depth: parent → orchestrator → leaf); granted only for adaptive investigation; plannable fan-out returns a work-list as structured output instead.
+- `/forge`'s leaf-write override, sub-agent caps, and "every spawn pins model explicitly" rule must be reconciled with both the new guard and the new builder routing — not deleted, re-derived.
+- CLAUDE.md edits (Workflow section AND new guard) are mirrored into `.claude/templates/playbook-sections.md` (`playbook-setup/SKILL.md:31` appends it on existing-project setup; a CLAUDE.md-only edit is lost on fresh installs).
+- Depends on task 22 (the agent types and relay this section routes to must be installable first).
+
+**Replacement recursion-guard text** (developer-supplied; adapt minimally):
+> **Recursion guard:** Sub-agents are leaf tasks (read, search, report) and MUST NOT spawn sub-agents unless their spawn prompt explicitly grants the orchestrator role. The grant is non-transitive: an orchestrator spawns leaves only (max depth: parent → orchestrator → leaf).
+> Grant the role only for adaptive investigation — when each next spawn depends on the previous result and the lead's accumulated context doesn't serialize well (deep debugging, unfamiliar-code archaeology). If the fan-out is plannable up front, don't grant: have the lead return a work-list as structured output and spawn its items from the parent or workflow script.
+
+**Acceptance criteria.**
+1. CLAUDE.md gains a **Workflow** routing section (placed near Sub-Agent Behaviors; exact placement RDPI's) covering all agent dispatch: the role table with recognition cues, the never-spawn-the-session-model rule, the reviewer≠author cross-model cue, the explicit-pin rule (every dispatch names `agentType` or `model`; never inherit), the fast-fail fallback rule, and the freedom clause.
+2. The recursion guard in CLAUDE.md is replaced with the orchestrator-grant version; no skill references the old wording in a way that now contradicts it (e.g., `forge/SKILL.md:60` cites the guard).
+3. Both edits are mirrored in `.claude/templates/playbook-sections.md`.
+4. `/forge` is re-routed: Build dispatches to Codex workers (orchestrator frames, briefs each seam, coordinates, reviews); the Orchestration & routing hierarchy is rewritten with no Fable spawns; Opus keeps audit/bounded-fix roles; Gemini/Sonnet slots per the new table; design-confirm pause and verify cycles stay orchestrator-run in the main loop; the non-relayed fallback (current main-loop build) is documented in-skill.
+5. `/forge`'s frontmatter/description and the README `/forge` row are reworded where "model-led single pass" no longer matches the dispatch-led shape.
+6. No other skill is touched: the trio unchanged, RDPI skills unchanged (their sub-agent spawns inherit the CLAUDE.md section by reading it, not by per-skill edits).
+
+**Relevant paths.**
+- Project rules: `CLAUDE.md` (Sub-Agent Behaviors — guard replacement; new Workflow section)
+- Mirror: `.claude/templates/playbook-sections.md:137` (Sub-Agent Behaviors block)
+- Skill to re-route: `.claude/skills/forge/SKILL.md` (Steps 2/4, Orchestration & routing, frontmatter)
+- Docs: `README.md` (`/forge` row, workflow blurb)
+- Research seeds: `tasks/codex-native-agents.md` (§4 usage, §6 constraints, §7b fallback protocol), `tasks/gemini-native-agents.md`
+- Dependency: task 22 (agent types + relay installable). Soft collision: task 13's bucket-vocabulary sweep also edits `/forge` — independent sections.
+
+---
+
+**Design notes for RDPI to review:**
+
+1. **Role table candidate rows** (RDPI drafts the final cues): coding of any size — feature, fix, small mechanical code change — → `codex`; hard analysis/synthesis leaf needing deep reasoning → `codex-xhigh`; audit/review of Codex-written code, multi-source synthesis → `opus` (or Codex when Claude authored the inputs — reviewer≠author); fetch/lookup/format/small mechanical non-code → `gemini-flash`; bulk fan-out reads where volume matters or Claude-harness strengths help → `sonnet`; orchestration → main loop, never spawned.
+2. **Sonnet vs Gemini Flash boundary** — both are "small-task" tiers. Candidate cue: needs Claude-harness reliability or longer context → Sonnet; cheap bulk fetch/transform where occasional misses are tolerable → Gemini Flash. Sharpen during design; this is the fuzziest seam in the table.
+3. **Haiku's slot** — the user named Opus/Codex/Gemini/Sonnet only. Haiku remains in the Workflow `model:` enum; decide whether it gets a row (cheapest Claude tier) or is folded under Sonnet's, and what the Claude-only fallback table uses for the small tier.
+4. **Where the cost posture lands** — established feedback: Codex calls are cheap, Claude agent spend is dear. The routing section can encode this as the economic rationale line (it explains WHY coding defaults to Codex), but keep it one line — cues carry the behavior.
+5. **Forge gate mechanics: exec vs native** — forge's gates currently apply the trio specs via Bash `codex exec`. With native codex agents available, gates could become native spawns (`schema` structured findings kill the temp-file plumbing). But the shared `codex-invoke` contract (codex doc §7b) is explicitly out of scope, and changing gate mechanics inside forge only would fork the trio specs' semantics. Default: gates stay on exec this task; revisit when §7b is promoted. RDPI may override with reasons.
+6. **Dispatch-led forge implications** — with Codex building everything: seam briefs become the load-bearing artifact (the orchestrator must serialize intent/contracts per seam — forge's continuation-prompt discipline already does this between phases; reuse the shape); parallel independent seams become natural Workflow + `isolation: 'worktree'` candidates; the per-phase sub-agent caps (≤4, ≤2 concurrent) need re-deriving for Codex workers (they're cheap — but the cap also bounds coordination chaos, not just cost); and the design-confirm pause stays main-loop (workflows take no mid-run input).
+7. **Reconcile with the existing Sub-Agent Use section** — CLAUDE.md already has spawn rules (split test, batching, acceptance contract, parent-only fallback). The Workflow section is a sibling concern (WHICH model) vs Sub-Agent Use (HOW to spawn). Keep them adjacent and cross-referenced; don't merge into one mega-section — but do reconcile the acceptance-contract wording with non-Claude leaves (Codex/Gemini agents must also return citations).
+8. **Orchestrator-grant interplay with routing** — an orchestrator-granted sub-agent (adaptive investigation) picks models for ITS leaf spawns by the same table. State this explicitly so the grant doesn't read as exempting the grantee from routing.
+
+**Open questions for RDPI:**
+
+- Should the fallback (non-relayed) routing table be spelled out in CLAUDE.md, or is "fall back to Claude tiers by the same role logic" one line enough? (Full second table risks doubling the section's length for the uninstalled case.)
+- Does the Workflow section bind RDPI-phase sub-agent spawns (e.g., `/research-codebase` parallel readers) immediately, or is RDPI-skill alignment a follow-up sweep? AC6 says no per-skill edits — confirm reading-CLAUDE.md inheritance is actually sufficient in practice.
+- `/forge` naming after the re-route: "single-pass" still holds (one Frame → Build → gate pass); does "built for the strong-model window" framing survive when the strong model no longer writes the code, or does the skill description get re-grounded on orchestration quality?
+- Where exactly does the Workflow section live — inside the fixed RDPI Workflow Rules block (always loaded with workflow context) or as its own top-level block near Sub-Agent Behaviors? (Same placement question pattern as task 13's CLAUDE.md rule.)
 
