@@ -31,6 +31,7 @@ quickref.md
 .claude/skills/codex-review/SKILL.md
 .claude/skills/codex-audit/SKILL.md
 .claude/skills/codex-research/SKILL.md
+.claude/skills/forge/SKILL.md
 .claude/skills/create-todo/SKILL.md
 .claude/skills/issue-research/SKILL.md
 .claude/skills/issue-plan/SKILL.md
