@@ -136,6 +136,8 @@ ps -o ppid= -p "$(lsof -tnP -iTCP:3492 -sTCP:LISTEN)"   # → 1 (re-parented to 
 
 ## Phase 3 — Agent templates
 
+- [x] **Complete 2026-06-11.** Model IDs verbatim (gpt-5.5 / gpt-5.5(xhigh) / gemini-3.5-flash); all three name the claude-native relayed-session requirement; gemini-flash.md has zero Vertex/ADC mentions; diff vs dev copies is description-only.
+
 **Goal:** the three agent files as shipped templates, rewritten for the productized lane.
 
 `.claude/templates/native-agents/agents/{codex,codex-xhigh,gemini-flash}.md` — start from the dev copies at `~/.claude/agents/` (verified 2026-06-11: frontmatter `name`/`description`/`model`/`tools: Read, Glob, Grep, Bash`, minimal no-subagents leaf prompt). Deltas:
