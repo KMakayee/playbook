@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 # Native Multi-Model Agents
 
-Install `codex`, `codex-xhigh`, and `gemini-flash` as native subagent types, served by a local model-routing relay in front of VibeProxy. Sessions launched through the installed `claude-native` launcher route `gpt-*`/`gemini-*` agent traffic to VibeProxy's OAuth providers while `claude-*` traffic passes to Anthropic untouched. Plain `claude` sessions are never affected — the launcher is fail-closed and nothing is written to any settings `env` block, so a broken relay can never lock you out.
+Install `codex`, `codex-xhigh`, and `gemini-flash` as native subagent types, served by a local model-routing relay in front of VibeProxy. Sessions launched through the installed `claude-native` launcher route `gpt-*`/`gemini-*` agent traffic to VibeProxy's OAuth providers while `claude-*` traffic passes to Anthropic untouched. Stock sessions are never affected — the launcher is fail-closed and nothing is written to any settings `env` block, so a broken relay can never lock you out. (`command claude` is always the stock form; it is identical to plain `claude` unless the developer opts into the Doctor step 6 alias.)
 
 Takes a single optional argument (`$ARGUMENTS`):
 
@@ -21,7 +21,7 @@ Takes a single optional argument (`$ARGUMENTS`):
 
 - **Never auto-kill a process.** When a stale or foreign listener must go away, name it (PID, command) and instruct the developer to stop it themselves.
 - The machine layer (VibeProxy install, server start, provider OAuth) is **check-and-guide only** — verify and instruct, never automate.
-- Run the exact command strings shown below — they match the permission rules the install merges into `.claude/settings.local.json`.
+- Run the probe commands exactly as written — the relay/VibeProxy probes match the permission rules the install merges into `.claude/settings.local.json`. Steps beyond the pinned rules (file copies, greps, preflight checks) may prompt — that's expected in these guided flows.
 
 ---
 
@@ -81,11 +81,11 @@ Create the machine home and copy the three runtime files:
 
 ### 5. Project layer write
 
-a. **Agent files:** `mkdir -p .claude/agents`, then copy the three templates from `.claude/templates/native-agents/agents/` → `.claude/agents/{codex,codex-xhigh,gemini-flash}.md`, with the same diff-and-confirm as step 4. Install all three even when the gemini lane isn't ready — a missing lane produces a contained per-spawn error (documented in each agent's description), and the doctor diagnoses lane state.
+a. **Agent files:** `mkdir -p .claude/agents`, then copy the three templates from `.claude/templates/native-agents/agents/` → `.claude/agents/{codex,codex-xhigh,gemini-flash}.md`, with the same diff-and-confirm as step 4. Install all three even when the gemini lane isn't ready — a missing lane produces a contained per-spawn error and the doctor diagnoses lane state (the agent descriptions document the relayed-session requirement).
 
-b. **User-level copies** (only after the project copies are in place): if any of `~/.claude/agents/{codex,codex-xhigh,gemini-flash}.md` exist, diff them against the templates:
-   - **Identical** → an intentional global install (doctor step 6b offers it) — leave them; just note project copies take precedence in this repo.
-   - **Different** → either a stale dev leftover or an outdated global install — offer to update them to the current templates, or delete them. Never delete silently.
+b. **User-level copies** (only after the project copies are in place): if any of `~/.claude/agents/{codex,codex-xhigh,gemini-flash}.md` exist, diff **each existing file** against its template — classify per file; mixed states are normal:
+   - **Identical** → an intentional global install (doctor step 6b offers it) — leave it; just note project copies take precedence in this repo.
+   - **Different** → a stale dev leftover, an outdated global install, or a deliberate customization — offer per file: update to the current template / leave as-is (project copies still take precedence here) / delete. Never delete silently.
 
 c. **Permission rules:** merge the following into the project's `.claude/settings.local.json` (create the file if absent; preserve all existing keys; the rules belong under `permissions.allow`). Show the developer the merged result.
 
@@ -100,13 +100,14 @@ c. **Permission rules:** merge the following into the project's `.claude/setting
       "Bash(shasum -a 256 ~/.claude/native-agents/relay.mjs)",
       "Bash(shasum -a 256 .claude/templates/native-agents/relay.mjs)",
       "Bash(node ~/.claude/native-agents/start-relay.mjs)",
-      "Read(~/.claude/native-agents/**)"
+      "Read(~/.claude/native-agents/**)",
+      "Read(~/.claude/agents/**)"
     ]
   }
 }
 ```
 
-These cover the doctor and install-re-run paths on the default port. Sessions on a non-default `CLAUDE_NATIVE_PORT` may see permission prompts — accepted; the override is an escape hatch, not the paved path.
+These cover the doctor and install-re-run *read/probe* paths on the default port (the second Read rule covers diffing user-level agent copies in step 5b and doctor step 6b re-runs); the file copies themselves may prompt. Sessions on a non-default `CLAUDE_NATIVE_PORT` may see permission prompts — accepted; the override is an escape hatch, not the paved path.
 
 ### 6. Shell integration (check-and-guide)
 
@@ -118,7 +119,7 @@ export PATH="$HOME/.claude/native-agents/bin:$PATH"
 
 PATH is preferred over an alias because it also works for headless runs (`claude-native -p "…"`) and scripts; an alias (`alias claude-native="$HOME/.claude/native-agents/bin/claude-native"`) is the alternative. You cannot verify the developer's rc file took effect — say so explicitly.
 
-If the developer asks to make `claude` itself launch relayed sessions, don't set that up now — the doctor offers exactly that after its probes pass (Doctor step 6), which is the right gate: never default someone into a lane that hasn't passed a probe yet.
+If the developer asks to make `claude` itself launch relayed sessions, don't set that up now — the doctor offers exactly that after the codex probes pass (Doctor step 6; the optional gemini lane may fail without blocking it). That's the right gate: never default someone into a lane that hasn't passed a probe yet.
 
 ### 7. Handoff
 
@@ -126,7 +127,7 @@ Print, verbatim in spirit:
 
 1. Open a **new terminal** (so the PATH change loads), `cd` into this project, and run `claude-native` — agent types register at session start, so a restart is mandatory; this session cannot see them.
 2. In that new session, run `/native-agents doctor` to verify end-to-end.
-3. Escape hatch: a stock session is always available — plain `claude` (or `command claude`, which bypasses the optional alias from Doctor step 6).
+3. Escape hatch: a stock session is always available — `command claude` (identical to plain `claude` until the optional Doctor step 6 alias is added; after it, `command claude` is the stock form).
 4. Lockout immunity: `claude-native` is fail-closed — it never points a session at a relay it hasn't verified, so a dead or stale relay means a refused launch with diagnostics, never a broken Claude.
 
 ---
@@ -144,8 +145,8 @@ printenv ANTHROPIC_BASE_URL
 
 ### 1. Preflight
 
-- `curl -fsS --max-time 2 http://127.0.0.1:<derived-port>/health` → assert `"service":"playbook-native-agents-relay"`; report `relayVersion`, `scriptHash`, `pid`, `geminiPort`.
-- `curl -fsS --max-time 2 http://127.0.0.1:8317/v1/models` → read the expected model IDs from the **installed agents' frontmatter** (`grep '^model:' .claude/agents/*.md` — never a hardcoded list) and check each against the live catalog, stripping any `(…)` reasoning-effort suffix first (`gpt-5.5(xhigh)` → catalog entry `gpt-5.5`). Track availability **per lane**: a missing `gpt-5.5` fails the codex lane; a missing `gemini-3.5-flash` fails only the gemini lane (record it for the step-5 verdict + triage and skip that probe's pass expectation). One absent lane never stops the doctor — the remaining probes still run.
+- `curl -fsS --max-time 2 http://127.0.0.1:<derived-port>/health` → assert `"service":"playbook-native-agents-relay"`; report `relayVersion`, `scriptHash`, `pid`, `port`, `geminiPort`.
+- `curl -fsS --max-time 2 http://127.0.0.1:8317/v1/models` → read the expected model IDs from the **installed agents' frontmatter** (`grep '^model:' .claude/agents/*.md`, falling back to `~/.claude/agents/{codex,codex-xhigh,gemini-flash}.md` where the project has no copies — matching Claude Code's project-over-user precedence; never a hardcoded list) and check each against the live catalog, stripping any `(…)` reasoning-effort suffix first (`gpt-5.5(xhigh)` → catalog entry `gpt-5.5`). Track availability **per lane**: a missing `gpt-5.5` fails the codex lane; a missing `gemini-3.5-flash` fails only the gemini lane (record it for the step-5 verdict + triage and skip that probe's pass expectation). One absent lane never stops the doctor — the remaining probes still run.
 
 ### 2. Log baseline
 
@@ -181,7 +182,7 @@ Present a table: agent type | probe result | log evidence | verdict (PASS/FAIL +
 
 ### 6. Offer the default swap (only when the codex probes pass)
 
-If the `codex`/`codex-xhigh` probes passed (gemini may have failed — it's optional), check `~/.zshrc` for an existing `alias claude=` line. If one is already there, skip silently. Otherwise offer:
+If the `codex`/`codex-xhigh` probes passed (gemini may have failed — it's optional), check `~/.zshrc` for an existing `alias claude=` line. Already aliased to the installed launcher → note the swap is in place and move on. Aliased to something else → show the existing line and ask whether to replace it; never overwrite silently. No alias → offer:
 
 > "Want `claude` itself to launch relayed sessions from now on? I'll add `alias claude=\"$HOME/.claude/native-agents/bin/claude-native\"` to your `~/.zshrc`. You can always get a stock session with `command claude` (bypasses the alias), and removing the line undoes it."
 
@@ -194,7 +195,7 @@ The alias cannot break the launcher itself: aliases don't apply inside non-inter
 
 > "Want the three agent types available in **every** repo on this machine? I'll copy them to `~/.claude/agents/` (user level). Repos with their own `.claude/agents/` copies still take precedence, and a relayed session is required either way."
 
-- **yes** → copy the three agent files to `~/.claude/agents/` (diff-and-confirm if they exist). Note: future `/native-agents install` runs in any repo will detect these user-level copies — that's the intentional-global case in install step 5b, not a stale leftover.
+- **yes** → copy the three files from `.claude/templates/native-agents/agents/` (the canonical source — not the project copies, which may drift) to `~/.claude/agents/` (diff-and-confirm if they exist). Note: future `/native-agents install` runs in any repo will detect these user-level copies — that's the intentional-global case in install step 5b, not a stale leftover.
 - **no** → skip silently.
 
 If the codex probes did not pass, do not offer either swap — fix the lane first.
@@ -212,6 +213,6 @@ When a provider renames or retires a model (the doctor's live-catalog check is t
 1. `.claude/templates/native-agents/agents/codex.md` and `codex-xhigh.md` — `model: gpt-5.5` / `gpt-5.5(xhigh)`
 2. `.claude/templates/native-agents/agents/gemini-flash.md` — `model: gemini-3.5-flash`
 3. Installed project copies in `.claude/agents/` (this and every consuming project) — propagate by re-running `/native-agents install`
-4. Any user-level `~/.claude/agents/` equivalents on consumer machines — same re-run, which detects and offers to retire them
+4. Any user-level `~/.claude/agents/` equivalents on consumer machines — same re-run, which detects them and offers an update (or retirement) per install step 5b
 
 After updating, re-run `/native-agents doctor` to confirm the new IDs resolve against the live catalog.
