@@ -13,6 +13,7 @@ Numbering is reference-only, not execution order. The backlog splits into three 
 - **Codex-trio + forge — front complete.** `19`, `20`, and `21` (`/forge`) all landed 2026-06-10 (archived to `tasks/completed.md`).
 - **Triage-rooted chain (13 → 14/15 → 16).** `13` (`/triage`) is the root: `14` (`/codex-goal`), `15` (RDPI structural), and `16` (inference-reduction) all hard-depend on it. `16` additionally depends on `15`.
 - **Checkpoint pair (17 → 18).** `18` (auto-rehydrate hook) consumes `17`'s (`/checkpoint` redesign) output, so `17` lands first. Independent of the other two fronts.
+- **Issue-board remake (24).** Independent of the other fronts; touches the issue skills and boards only.
 - **Native-agents pair (22 → 23).** `22` (install/auto-boot lane) landed 2026-06-11 as PR #33 (archived to `tasks/completed.md`) — the `codex`/`codex-xhigh`/`gemini-flash` agent types, relay, and `claude-native` launcher `23` routes to are installable. `23` (workflow model routing + `/forge` rewrite) is unblocked. One soft collision: `23` edits `/forge`, which task `13` also touches (bucket-vocabulary sweep) — independent sections, coordinate if both are in flight.
 
 Cross-front: the landed `19`/`21` inline `13`'s bucket logic; if `13` later refines it, updating them is an enhancement, not a blocker.
@@ -451,4 +452,34 @@ A fresh session reads only that and continues — no SKILL.md, no artifacts.
 - Does the Workflow section bind RDPI-phase sub-agent spawns (e.g., `/research-codebase` parallel readers) immediately, or is RDPI-skill alignment a follow-up sweep? AC6 says no per-skill edits — confirm reading-CLAUDE.md inheritance is actually sufficient in practice.
 - `/forge` naming after the rewrite: "single-pass" still holds (one Frame → Build → gate pass); does "built for the strong-model window" framing survive when the strong model no longer writes the code, or does the skill description get re-grounded on orchestration quality? Relatedly, "build lane" and "wide generative pieces" read code-only — the rewording sweep (AC5) should make artifact pieces legible from the frontmatter alone.
 - Where exactly does the Workflow section live — inside the fixed RDPI Workflow Rules block (always loaded with workflow context) or as its own top-level block near Sub-Agent Behaviors? (Same placement question pattern as task 13's CLAUDE.md rule.)
+
+---
+
+### 24. Remake the issue board as a ticket-organized `tasks/issues/` folder
+
+**Intent.** Replace the flat issue boards (`tasks/new-issues.md` triage inbox + `tasks/issues.md` active board) with a folder inside `tasks/` where each issue is its own ticket file, organized by state — new issues, closed issues, and the states in between. Developer direction (2026-06-11): issues should live inside `tasks/` as a folder and be ticket-organized. Start with a simple shape — this is a first cut, not a full tracker buildout.
+
+**Constraints.**
+- The issue workflow skills (`/issue-research`, `/issue-plan`, `/issue-implement`, `/issue-update`, `/issue-finish`) and `/auto-issues` must keep working against the new structure — they currently read/write the two flat files.
+- Existing issues carry over without content loss, keeping their numbers.
+- Keep it simple: a folder with ticket files grouped by state. Don't build tooling beyond what the existing skills need.
+
+**Acceptance criteria.**
+1. Issues live under a `tasks/issues/` folder, one ticket file per issue, organized by state (at minimum: new, active, closed).
+2. Existing issues are migrated into the new structure with numbers and content intact.
+3. The issue skills and `/auto-issues` operate on the new structure; no references to the old flat files remain in skills, templates, or CLAUDE.md.
+4. The CLAUDE.md Issue Tracking section, `.claude/templates/new-issues.md` (or its successor), and the mirrored `.claude/templates/playbook-sections.md` reflect the new location and layout.
+5. Lifecycle commands that reference the old files (`/finish`, `/playbook-audit`, `/playbook-update`, session-start validation) are reconciled.
+
+**Relevant paths.**
+- Current boards: `tasks/new-issues.md`, `tasks/issues.md`
+- Template: `.claude/templates/new-issues.md`
+- Skills: `.claude/skills/issue-research/SKILL.md`, `.claude/skills/issue-plan/SKILL.md`, `.claude/skills/issue-implement/SKILL.md`, `.claude/skills/issue-update/SKILL.md`, `.claude/skills/issue-finish/SKILL.md`, `.claude/skills/auto-issues/SKILL.md`
+- Project rules: `CLAUDE.md` (Issue Tracking section) + mirror `.claude/templates/playbook-sections.md`
+
+**Open questions for RDPI:**
+
+- State organization: state subfolders (`tasks/issues/new/`, `tasks/issues/closed/`) vs. one folder with state recorded in each ticket file — file moves vs. field edits when an issue changes state.
+- Does the triage-inbox vs. active-board distinction survive as two states in one system, or collapse into the ticket lifecycle?
+- Ticket filename convention (number, slug, both) so the folder is scannable.
 
