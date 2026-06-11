@@ -159,6 +159,8 @@ diff ~/.claude/agents/codex.md .claude/templates/native-agents/agents/codex.md  
 
 ## Phase 4 — `/native-agents` skill (install + doctor)
 
+- [x] **Complete 2026-06-11.** Frontmatter (name/description/argument-hint/disable-model-invocation) verified; "Never auto-kill" ×2; doctor mode documented; structural read-through confirms install steps 1–7, doctor steps 0–5, gemini triage table, fragility note, and drift checklist. Permission-rule strings pinned (judgment call 10): printenv, curl health/models, lsof 3456, shasum template+installed, node start-relay boot path, Read rule for the machine home (log reads go through the Read tool, so no tail/wc Bash rules needed).
+
 **Goal:** `.claude/skills/native-agents/SKILL.md`. Frontmatter: `name: native-agents`, description, `disable-model-invocation: true`. Modes via `$ARGUMENTS` (precedent `checkpoint/SKILL.md:12`): bare or `install` → install flow; `doctor` → probe.
 
 ### Install flow (steps the skill instructs the agent to perform)
