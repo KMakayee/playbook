@@ -6,6 +6,7 @@ A workflow toolkit that pairs Claude and Codex for disciplined software engineer
 
 - [Claude Code](https://claude.com/claude-code) — the runtime for slash commands
 - [Codex CLI](https://github.com/openai/codex) — invoked in every RDPI phase for independent review
+- [VibeProxy](https://github.com/automazeio/vibeproxy) — *optional*, macOS only; powers the native multi-model agents installed by `/native-agents`
 
 ## Setup
 
@@ -64,6 +65,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 | `/playbook-setup` | One-time project configuration |
 | `/playbook-audit` | Health check and artifact cleanup |
 | `/playbook-update` | Fetch and apply latest playbook version |
+| `/native-agents` | Install GPT/Gemini as native subagent types via a local relay (optional; macOS) |
 
 **Utility**
 
@@ -78,6 +80,10 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 | `/codex-audit` | Source-grounded Codex audit of a target against its source(s) for fidelity, completeness, and precision |
 | `/codex-research` | General-purpose Codex research / grounding (codebase, generative, or external prior-art) producing a kept research doc |
 | `/finish` | Wrap up task: verify, commit artifacts, clean up |
+
+### Native multi-model agents (optional, macOS)
+
+`/native-agents` installs `codex`, `codex-xhigh`, and `gemini-flash` as native subagent types, served through a local model-routing relay in front of [VibeProxy](https://github.com/automazeio/vibeproxy)'s OAuth providers. Sessions opt in by launching with the installed `claude-native` launcher (fail-closed: it never starts Claude against an unverified relay); `/native-agents doctor` verifies the install end-to-end. Stock `claude` sessions are completely untouched. After a passing doctor run, the skill offers to make `claude` itself default to the relayed launcher via a shell alias — `command claude` always gives a stock session.
 
 ### Templates
 

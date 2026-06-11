@@ -53,6 +53,15 @@ quickref.md
 .claude/skills/auto-issues/scripts/pipeline-eval.sh
 .claude/scripts/codex-output-check.sh
 .claude/templates/error-report.md
+.claude/skills/native-agents/SKILL.md
+.claude/scripts/native-agents/claude-native
+.claude/scripts/native-agents/start-relay.mjs
+.claude/templates/native-agents/relay.mjs
+.claude/templates/native-agents/agents/codex.md
+.claude/templates/native-agents/agents/codex-xhigh.md
+.claude/templates/native-agents/agents/gemini-flash.md
+.claude/templates/native-agents/vertex/vertex-adc-shim.mjs
+.claude/templates/native-agents/vertex/gemini-cpa-config.yaml
 ```
 
 ---
@@ -121,6 +130,7 @@ For each file in the managed files list above:
 3. If the file exists in the latest but NOT in the project → report it as a new file:
    > "New file: `[filename]` — [brief description of what it is]. Install it? (yes / skip)"
 4. If the file exists in the project but NOT in the latest → do nothing (it may be a local addition).
+5. If any `native-agents` file was updated, remind the developer to re-run `/native-agents install` so the installed copies (machine home `~/.claude/native-agents/` and project `.claude/agents/`) pick up the change — this re-run is how relay security fixes propagate; the updated repo files alone change nothing at runtime.
 
 ### Category B — CLAUDE.md (partial merge)
 

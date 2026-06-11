@@ -13,6 +13,7 @@
 | `/playbook-setup`   | Configure CLAUDE.md for your codebase                            |
 | `/playbook-update`  | Fetch and apply latest playbook version                          |
 | `/playbook-audit`   | Health check — stale config, leftover artifacts                  |
+| `/native-agents`    | Install GPT/Gemini native subagent types via local relay (macOS) |
 
 **RDPI Workflow**
 

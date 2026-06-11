@@ -1,0 +1,32 @@
+# Second CLIProxyAPI instance — Gemini/Vertex leg only (local-only lane,
+# NOT installed by /native-agents; pair with the relay's RELAY_GEMINI_PORT=8319).
+# Run with the binary VibeProxy ships:
+#   /Applications/VibeProxy.app/Contents/Resources/cli-proxy-api-plus -config <path-to>/gemini-cpa-config.yaml
+# VibeProxy's own instance (8317/8318) and its merged-config.yaml are never touched.
+
+port: 8319
+host: 127.0.0.1
+
+# Isolated auth dir — must NOT share ~/.cli-proxy-api with VibeProxy's instance,
+# or this instance would also load the Codex token and double-serve it.
+auth-dir: "~/.cli-proxy-api-gemini"
+
+debug: true
+logging-to-file: false
+usage-statistics-enabled: false
+request-retry: 1
+request-timeout: "10m"
+
+remote-management:
+  allow-remote: false
+  secret-key: ""
+
+# Vertex provider pointed at the local ADC shim (vertex-adc-shim.mjs on 3457).
+# The api-key is a placeholder — the shim discards it and attaches a real
+# short-lived ADC access token before forwarding to aiplatform.googleapis.com.
+vertex-api-key:
+  - api-key: "local-adc-shim"
+    base-url: "http://127.0.0.1:3457"
+    disable-cooling: true  # shim 401s (e.g. stale ADC) must not bench the provider
+    models:
+      - name: "gemini-3.5-flash"
