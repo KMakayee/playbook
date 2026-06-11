@@ -302,3 +302,51 @@ Surfaced 2026-06-10 while checking whether `tasks/todo.md` aligns with `/create-
 ### Impacts
 
 [Filled by `/issue-update` after a related issue completes.]
+
+## #9 — `/native-agents`: offer reboot-proof auto-start (relay LaunchAgent) alongside the alias + global-agents offers
+
+**Status:** Draft
+**Priority:** Medium
+**Created:** 2026-06-11
+
+### Description
+
+Task 22 shipped the relay as boot-on-demand: `claude-native` starts it on first launch, and it survives until reboot. After a reboot, the first `claude-native` boots it again — workable, but the relay has no crash-restart supervision, and users who want an always-on stack have no offered path. Task 22's plan explicitly deferred launchd ("No launchd" scope boundary); this issue picks that thread up as a **user-choice offer**, not a default.
+
+Developer direction (2026-06-11): the doctor's post-PASS offers should grow a third option — auto-start — alongside the existing two (step 6 `claude`→`claude-native` alias, step 6b global agent install). All three are independently choosable: a user can take any one, any pair, or all three. For the shipped lane, "auto-start" means a **launchd LaunchAgent for the relay** (`RunAtLoad` + `KeepAlive`: starts at login, restarts on crash); the VibeProxy app side is already covered by its own Launch-at-Login setting (the install flow recommends it — the offer should verify/echo it).
+
+The known design tension RDPI must resolve (recorded in the dev notes when launchd was first sketched): the relay's `uncaughtException`/`unhandledRejection` handlers deliberately **keep serving** because an unsupervised crash would lock every session on the port — but under launchd supervision the correct posture flips to **fail-fast** (let it crash; `KeepAlive` restarts it clean, since post-throw state may be corrupt). The relay needs a deliberate mechanism for this (env flag, launchd detection, or a supervised variant) rather than one posture silently serving both modes.
+
+Working precedent (dev machine, 2026-06-11): the local Vertex lane runs under two LaunchAgents (`com.chief.vertex-adc-shim`, `com.chief.gemini-cpa`, RunAtLoad + KeepAlive, logs adjacent to the binaries) — built by hand and recorded in the machine-local runbook. That precedent is for the *local-only* Vertex lane; whether inert plist *templates* for it ship under `templates/native-agents/vertex/` is an open question for research (plists embed machine paths — node path, `$HOME` — so shipped templates must be generated/parameterized at install time, never hardcoded).
+
+### Acceptance Criteria
+
+- [ ] The doctor's post-PASS flow offers auto-start as a third independent option alongside the alias and global-agents offers — any combination of the three is valid.
+- [ ] Accepting it makes the relay reboot-proof: starts at login, restarts on crash, and the warm-path `claude-native` finds it healthy without booting.
+- [ ] The keep-serving vs fail-fast tension is resolved deliberately: supervised relay fails fast, unsupervised on-demand relay keeps serving — and the mechanism that selects the posture is explicit.
+- [ ] The identity/staleness gates still hold end-to-end: a launchd-started relay passes the launcher's handshake + hash gate, and an install re-run that updates `relay.mjs` has a documented path to restart the supervised relay (never auto-kill — instruct, or use launchd's own restart).
+- [ ] The doctor diagnoses auto-start state (agent loaded? process running? plist pointing at the installed relay?) and the offer verifies/echoes the VibeProxy Launch-at-Login recommendation.
+- [ ] A disable/uninstall path is documented (e.g. `launchctl bootout`), restoring boot-on-demand.
+- [ ] Declining the offer changes nothing — boot-on-demand remains the default; stock sessions stay untouched.
+
+### Constraints
+
+- Opt-in only; boot-on-demand stays the shipped default. The offer lives behind the same gate as the other two (codex probes passed).
+- Shipped artifacts stay project-agnostic: any plist content is generated at install time (node path via `command -v node`, `$HOME`-derived paths) — no hardcoded user paths in templates.
+- Install-owned conventions hold: diff-and-confirm on re-run, never auto-kill a running relay, fail-closed on ambiguity.
+- The Vertex-lane plists remain local-only unless research explicitly decides to ship inert templates for them.
+
+### Relevant paths
+
+- `.claude/skills/native-agents/SKILL.md` — doctor steps 6/6b (the offer pattern to extend), install step 4 (machine-home writes), the fragility note + drift checklist.
+- `.claude/templates/native-agents/relay.mjs` — the keep-serving `uncaughtException`/`unhandledRejection` handlers the supervised posture must flip.
+- `.claude/scripts/native-agents/claude-native` + `start-relay.mjs` — boot-on-demand path that must coexist with a supervised relay (lock, health poll, hash gate).
+- Dev-machine precedent (not in repo): `~/Library/LaunchAgents/com.chief.vertex-adc-shim.plist`, `com.chief.gemini-cpa.plist`; machine-local runbook at `~/Projects/Tools/codex-relay/README.md` (auto-start section).
+
+### Notes
+
+Logged 2026-06-11, immediately after Task 22 landed (PR #33) and the dev machine's Vertex-lane auto-start was built by hand. Developer direction: make it an install/doctor option so users who want a reboot-proof stack get it offered, "alongside the global (they can do either 1x or both)."
+
+### Impacts
+
+[Filled by `/issue-update` after a related issue completes.]
