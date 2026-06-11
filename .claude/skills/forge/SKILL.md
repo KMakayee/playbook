@@ -1,16 +1,14 @@
 ---
 name: forge
-description: TEMPORARY slim single-pass build lane for the strong-model window — collapses RDPI into one model-led Frame → Build → gate → verify pass for wide generative pieces. Archived on revert to Opus.
+description: Slim single-pass build lane built for the strong-model window — collapses RDPI into one model-led Frame → Build → gate → verify pass for wide generative pieces.
 argument-hint: '[piece — source path or "description"]'
 disable-model-invocation: true
-when_to_use: 'Manual only: use when the developer invokes /forge on a blueprint piece during the strong-model window.'
+when_to_use: 'Manual only: use when the developer invokes /forge on a blueprint piece.'
 ---
 
 # Forge
 
-A TEMPORARY build lane that collapses RDPI's Research/Design/Plan/Implement into **one model-led pass** for wide, generative pieces — for the piece: **$ARGUMENTS**. Governing principle: scaffolding scales inversely with model strength; this is the lighter calibration for the strong-model window.
-
-**Temporary / archive note.** Built for the strong-model window (Fable, ~through 2026-06-24). On revert to Opus, archive this lane from the playbook *source* repo: delete `.claude/skills/forge/`, drop its line from the `playbook-update/SKILL.md` managed-files list, and add a `.claude/playbook-removals.md` entry — the skill propagates to consumer repos via `/playbook-update`, so the removals entry is required, not optional. Not folded into RDPI; full RDPI resumes unchanged.
+A build lane **built for the strong-model window** that collapses RDPI's Research/Design/Plan/Implement into **one model-led pass** for wide, generative pieces — for the piece: **$ARGUMENTS**. Governing principle: scaffolding scales inversely with model strength; this is the lighter calibration for strong models. RDPI itself is unchanged and runs alongside this lane.
 
 **Pre-Edit Gate override.** Explicit developer invocation of `/forge` IS the authorization for this lane: for the named piece, Frame + Build replace the RDPI artifact prerequisites of the **Pre-Edit Gate** in CLAUDE.md's RDPI Workflow Rules — the rule reading "Do not call Edit or Write on source files until…". While this skill runs, sessions must not refuse edits for a missing `tasks/plan.md` and must not silently fall back into RDPI.
 

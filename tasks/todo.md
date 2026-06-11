@@ -10,7 +10,7 @@
 
 Numbering is reference-only, not execution order. The backlog splits into three roughly-independent fronts; pick within a front in dependency order.
 
-- **Codex-trio + forge — front complete.** `19`, `20`, and `21` (`/forge`) all landed 2026-06-10 (archived to `tasks/completed.md`). Reminder: `/forge` is temporary — archive it on revert to Opus (~2026-06-24) per its in-skill archive note.
+- **Codex-trio + forge — front complete.** `19`, `20`, and `21` (`/forge`) all landed 2026-06-10 (archived to `tasks/completed.md`).
 - **Triage-rooted chain (13 → 14/15 → 16).** `13` (`/triage`) is the root: `14` (`/codex-goal`), `15` (RDPI structural), and `16` (inference-reduction) all hard-depend on it. `16` additionally depends on `15`.
 - **Checkpoint pair (17 → 18).** `18` (auto-rehydrate hook) consumes `17`'s (`/checkpoint` redesign) output, so `17` lands first. Independent of the other two fronts.
 
