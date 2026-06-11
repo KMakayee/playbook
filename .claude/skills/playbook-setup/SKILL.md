@@ -141,6 +141,16 @@ Ask the developer:
 
 ---
 
+## Step 3D: Offer native multi-model agents (optional, macOS)
+
+If the platform is macOS, mention the optional native-agents lane:
+
+> "The playbook can also install **native multi-model agents** — `codex` (GPT-5.5), `codex-xhigh`, and `gemini-flash` as native subagent types, served through a local relay in front of VibeProxy. It's opt-in per session via a `claude-native` launcher; plain `claude` is never affected. Interested? Run `/native-agents` whenever you like — it walks through the whole install and has a `doctor` mode for verification."
+
+Do not run the install inline — `/native-agents` owns that flow. On non-macOS platforms, skip this step silently (VibeProxy is macOS-only).
+
+---
+
 ## Step 4: Wrap up
 
 After all sections are filled:

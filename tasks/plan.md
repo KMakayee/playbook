@@ -216,6 +216,8 @@ Plus a full read-through against this phase's spec (prose artifact — review is
 
 ## Phase 5 — Docs + distribution wiring
 
+- [x] **Complete 2026-06-11.** README (prereq line, maintenance-table row, "Native multi-model agents" subsection), quickref row, playbook-setup Step 3D (reference-only, no inline install), playbook-update managed list (all 9 paths verbatim, completeness loop clean) + re-run nudge, `.gitignore` `.claude/agents/` entry — all success-criteria greps pass.
+
 1. **`README.md`:**
    - Prerequisites (`README.md:5-8`): add optional line — VibeProxy (macOS, for optional native multi-model agents).
    - "Setup & maintenance" table (`README.md:60-66`): add `/native-agents` row ("Install GPT/Gemini as native subagent types via a local relay (optional; macOS)").
