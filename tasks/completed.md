@@ -2,6 +2,13 @@
 
 > Archived completed tasks. Full bodies findable in git via `git log` on the commits that landed each task.
 
+## Native multi-model agents (2026-06)
+
+Task 22 of the native-agents pair (22 → 23): the install/auto-boot lane. Task 23 (workflow model routing + `/forge` rewrite) builds on the agent types this ships.
+
+### 22. Productize native multi-model agents — install + auto-boot lane
+Shipped `/native-agents` (install + doctor) and the lane it manages: `codex` / `codex-xhigh` / `gemini-flash` as native subagent types served through a local model-routing relay in front of VibeProxy. Canonical relay template (claude-*→Anthropic verbatim with auth untouched; gpt-*/gemini-*→VibeProxy with credentials stripped; `GET /health` identity JSON with boot-time scriptHash; fail-fast port validation; `RELAY_GEMINI_PORT=8319` toggle for the inert local-only Vertex lane under `templates/native-agents/vertex/`). Fail-closed `claude-native` launcher (port check → identity handshake → hash staleness gate → mkdir-lock-guarded boot via a Node detach helper with 5 MB log rotation → exec) — never auto-kills, lockout structurally impossible since no settings `env` is ever written; `command claude` is always the stock form. Doctor: per-lane live-catalog preflight from installed agent frontmatter, per-type probes (gemini includes tool-use), authoritative relay-log assertion, gemini triage table, model-ID drift checklist, and post-PASS offers — `claude`→`claude-native` alias and global `~/.claude/agents/` install. Docs/distribution: README prereq + subsection, quickref row, playbook-setup Step 3D, playbook-update managed list (9 paths) + re-run-install nudge (the relay security-fix channel), `.claude/agents/` gitignore guard. Dogfooded end-to-end on the dev machine: codex/codex-xhigh PASS via relay-log evidence; gemini lane correctly diagnosed (VibeProxy provider not enabled — the designed acceptance outcome for the ships-untested OAuth lane). Final `/codex-audit` + `/codex-review` over the skill: 14 findings triaged → 9 fixes. Landed as PR #33 squash (`91ae8df`); RDPI artifacts preserved on the PR branch, none on main.
+
 ## Codex-trio batch (2026-06)
 
 Standalone Codex skills beyond `/codex-review` — audit (fidelity) and research (grounding) — feeding the `/forge` lane (task 21).

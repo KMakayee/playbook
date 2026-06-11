@@ -13,7 +13,7 @@ Numbering is reference-only, not execution order. The backlog splits into three 
 - **Codex-trio + forge — front complete.** `19`, `20`, and `21` (`/forge`) all landed 2026-06-10 (archived to `tasks/completed.md`).
 - **Triage-rooted chain (13 → 14/15 → 16).** `13` (`/triage`) is the root: `14` (`/codex-goal`), `15` (RDPI structural), and `16` (inference-reduction) all hard-depend on it. `16` additionally depends on `15`.
 - **Checkpoint pair (17 → 18).** `18` (auto-rehydrate hook) consumes `17`'s (`/checkpoint` redesign) output, so `17` lands first. Independent of the other two fronts.
-- **Native-agents pair (22 → 23).** `22` (install/auto-boot lane) productizes the codex/gemini native-agent setups; `23` (workflow model routing + `/forge` rewrite) routes work to the agent types `22` ships, so `22` lands first. Independent of the other fronts, with one soft collision: `23` edits `/forge`, which task `13` also touches (bucket-vocabulary sweep) — independent sections, coordinate if both are in flight.
+- **Native-agents pair (22 → 23).** `22` (install/auto-boot lane) landed 2026-06-11 as PR #33 (archived to `tasks/completed.md`) — the `codex`/`codex-xhigh`/`gemini-flash` agent types, relay, and `claude-native` launcher `23` routes to are installable. `23` (workflow model routing + `/forge` rewrite) is unblocked. One soft collision: `23` edits `/forge`, which task `13` also touches (bucket-vocabulary sweep) — independent sections, coordinate if both are in flight.
 
 Cross-front: the landed `19`/`21` inline `13`'s bucket logic; if `13` later refines it, updating them is an enhancement, not a blocker.
 
@@ -387,61 +387,6 @@ A fresh session reads only that and continues — no SKILL.md, no artifacts.
 - Consume timing: `mv` to `consumed/` on inject — what if the session is abandoned right after (brief effectively lost)? Acceptable, or keep until the first real turn?
 - Does the hook's `sessionTitle` reliably persist to `/resume` (writing a `custom-title` entry)? 30-sec confirm; if not, the script appends the `custom-title` line directly (confirmed schema above).
 - `compact` trigger: the user doesn't compact, but the hook fires on it — confirm consume-on-first-inject prevents double-injection across a compact.
-
----
-
-### 22. Productize native multi-model agents — install + auto-boot lane
-
-**Intent.** Turn the two verified native-agent setups (`tasks/codex-native-agents.md`, `tasks/gemini-native-agents.md`) into an installable playbook surface, so a playbook user can run one install skill and get GPT-5.5 (Codex) and Gemini agents as first-class subagent types inside Claude Code — with the supporting processes booting automatically, never left to manual launch. The skill: (a) guides the **machine layer** (VibeProxy install + Codex OAuth — check-and-instruct, not automated); (b) writes the **project/user layer** (relay script, agent type files `codex` / `codex-xhigh` / `gemini-flash`, any settings/env wiring); (c) wires **auto-boot** so the relay (and, where enabled, shim + engine) is running before any relayed session — the env-set-but-relay-down lockout is the failure mode the auto-boot design exists to kill; (d) ends with a **doctor probe** per lane: spawn each agent type, assert the right model answers AND the relay log shows the matching upstream line (self-report alone is weak through a translation layer). Also: README Prerequisites gains VibeProxy.
-
-**Gemini lane decision (developer, 2026-06-11):** the user-facing install ships ONLY the default lane — VibeProxy OAuth toggle (`gemini-*` routed to VibeProxy; zero GCP, zero extra processes). The **Vertex + ADC lane ships toggled off** — the shim/engine-#2/3-way-route machinery stays in the repo for local use (it's the path verified end-to-end) but is not offered to users by the install. The OAuth lane ships **untested** (accepted risk — we can't verify it locally); the doctor probe is each user's own install-time verification, so design it to fail loudly and diagnosably.
-
-**Constraints.**
-- Skill follows `disable-model-invocation: true` (manual-invoke convention for side-effect skills).
-- Playbook stays project-agnostic: shipped templates carry no machine-specific paths, accounts, or GCP project IDs. The `~/Projects/Tools/codex-relay/` paths in the source docs are dev copies, not the shipped layout.
-- Machine layer is check-and-guide: VibeProxy install + OAuth login cannot be scripted (codex doc §5C — turnkey for repo wiring, one-time manual for the machine). The skill detects, instructs, and re-checks.
-- Relay/shim/engine processes must NEVER be children of a claude session (they die with it — both docs' lifecycle rule). Auto-boot must produce user-owned processes (launchd / detached spawn / wrapper).
-- One relay per port: the install must never leave two relays racing on 3456.
-- Ship the **hardened** relay: client-abort/concurrency safety nets AND the `authorization`/`x-api-key` strip on the non-Anthropic route — Claude credentials never reach third-party code. Non-negotiable.
-- If launchd is the chosen auto-boot, flip the relay's `uncaughtException` posture to fail-fast (recorded tension, codex doc §6) — keep-serving is only correct with no supervisor.
-- Stock sessions stay 100% stock: a user who skips the install (or launches plain `claude`) sees zero behavior change; a broken/absent relay must never lock anyone out of plain sessions.
-- New agent types register at session start — the install must sequence the restart and run the doctor probe in a fresh relayed session.
-- Model IDs drift (`gpt-5.5`, `gemini-3.5-flash`): the IDs currently live in four+ places (codex doc §6) — the shipped layout should centralize or explicitly document the update path.
-
-**Acceptance criteria.**
-1. A new install skill exists (name decided in RDPI) covering machine-layer check/guide → project-layer write → auto-boot wiring → doctor probe, end-to-end for the Codex lane and the default Gemini (OAuth toggle) lane.
-2. The playbook repo carries the shipped artifacts as templates: the relay, the agent type files (`codex`, `codex-xhigh`, `gemini-flash`), and the Vertex-lane machinery (shim, engine-#2 config, 3-way route) present but toggled off / not user-offered. Template placement decided in RDPI.
-3. Codex lane installs end-to-end on a fresh setup: VibeProxy prereq checked, relay placed + auto-booting, agent files placed, doctor probe passes (agent self-report + relay-log upstream assertion).
-4. Default Gemini lane installs the same way (gemini agent file + relay route to VibeProxy + VibeProxy Gemini-toggle instruction); its doctor probe is the user's verification since we ship it untested — probe failures must say what to check (toggle off? not logged in? model name?).
-5. Auto-boot mechanism (RDPI picks from codex doc §5 A/B/C) starts what's needed without manual steps and guards the env-set-but-relay-down lockout.
-6. README Prerequisites gains VibeProxy; the install skill appears in the README command tables.
-7. `/playbook-setup` offers/mentions the install as optional; `/playbook-update`'s managed-file list accounts for all new files (verify enumerate-vs-glob, as in tasks 13/14).
-8. Existing flows unaffected: stock sessions identical; the `codex exec`-based trio (`/codex-research`, `/codex-review`, `/codex-audit`) untouched.
-
-**Relevant paths.**
-- Research seeds (primary — both docs already stage this work in their "Planned work" sections): `tasks/codex-native-agents.md` (§3 setup, §5 auto-launch, §7a install-skill sketch), `tasks/gemini-native-agents.md` (§2 components, §5 two-lane decision)
-- Dev copies to productize: `~/Projects/Tools/codex-relay/` (`relay.mjs`, `relay-gemini.mjs`, `vertex-adc-shim.mjs`, `gemini-cpa-config.yaml`, test scripts); `~/.claude/agents/codex.md`, `codex-xhigh.md`, `gemini-flash.md`
-- New skill: `.claude/skills/<name>/SKILL.md`; templates under `.claude/templates/` (placement RDPI)
-- Docs: `README.md` (Prerequisites, command tables), `.claude/skills/playbook-setup/SKILL.md`, `.claude/skills/playbook-update/SKILL.md:15`
-
----
-
-**Design notes for RDPI to review:**
-
-1. **Auto-boot mechanism** — codex doc §5 sketches three: (A) shell wrapper, (B) launchd LaunchAgent, (C) project `.claude/settings.json` env + SessionStart hook that checks/starts the relay. C is the most playbook-shaped (arrives via git, per-project opt-in); B is most robust (KeepAlive). A hybrid (C for detection/start, B offered as hardening) is plausible. The lockout failure mode is the deciding criterion.
-2. **One relay or two** — `relay-gemini.mjs` is a superset of `relay.mjs`. But note the routing difference: the 3-way relay sends `gemini-*` to engine #2 (Vertex lane), while the default OAuth lane wants `gemini-*` → VibeProxy 8317 (which the stock 2-way relay already does by falling through). Shipping ONE canonical relay whose gemini upstream is a flag/config (default 8317; Vertex toggle → 8319) kills both the two-relays-one-port footgun and the lane split. RDPI to confirm.
-3. **Agent file placement (decided 2026-06-11)** — project-level `.claude/agents/` in the consuming repo is the installed home (git-shared, playbook-distributable). The dev machine's user-level `~/.claude/agents/` copies (`codex.md`, `codex-xhigh.md`, `gemini-flash.md`) are the interim home and get removed once the project-level install lands — do NOT delete them before then; they're what registers the agent types today. The install should detect leftover user-level duplicates of the same agent names and offer cleanup.
-4. **Doctor probe sequencing** — agent types register at session start, so the probe can't run in the same session that installs the files. Likely shape: `install` step ends with "restart, then run `<skill> doctor`"; pre-flight without claude exists (`test-codex-leg.mjs`) for the relay leg alone.
-5. **Gemini leg tool-use/schema verification** — open item in the gemini doc (codex leg verified both; gemini translation untested for tools). We can't test the OAuth lane locally at all — so the doctor probe should include a tool-use check (e.g., the agent Reads a file), making each user's install self-verifying on exactly the capabilities routing (task 23) will assume.
-6. **Engine #2 binary brittleness (Vertex lane, local-only)** — borrowed from the VibeProxy app bundle; path moves if the app does. Since the lane ships toggled off, a doc note may suffice; don't over-engineer.
-7. **ToS posture note** — the codex doc records the posture (own-machine pass-through, subscription OAuth in VibeProxy only). The install/README should state it plainly so users opt in informed, without turning the README into a legal essay.
-
-**Open questions for RDPI:**
-
-- Skill name (`/agents-install`? `/playbook-agents`?) and whether install/doctor are subcommands of one skill or two steps of one flow.
-- Does the install write project `.claude/settings.json` env (every session in the repo is relayed) or keep relayed sessions opt-in via a wrapper command? Tied to the lockout guard and to "stock sessions stay stock."
-- Do the relay smoke/stress test scripts ship as part of the installed surface (doctor building blocks) or stay dev-only?
-- How does the Vertex toggle physically work — config flag in the shipped relay, separate config file, or an undocumented `--vertex` install arg? (Must be invisible enough that users never wander into it, present enough that local re-install works.)
 
 ---
 
