@@ -15,3 +15,10 @@
 - **What:** `codex exec` fails to write the `-o` output file when the bash tool's default 2-minute timeout kills the process mid-run. `codex exec --output-last-message` only writes on clean exit — a killed process leaves no file.
 - **Why it matters:** Every codex command silently produces no output when Codex takes >2 minutes on a large codebase. Fix: always specify a 10-minute timeout (600000ms) when running `codex exec`.
 - **Confidence:** high — root cause confirmed via `codex exec --help` (no `--timeout` flag; timeout is bash-side)
+
+### 2026-06-10 — /finish (maintainer repo)
+
+- **Type:** pitfall
+- **What:** `/finish` Step 1 says to mark the todo task done with `- [x]` in `tasks/todo.md`, but the maintainer repo's board has no checkboxes — its convention (stated at `todo.md:3`) is remove the `### N` task block from `todo.md` and add a summary entry to `tasks/completed.md` (precedent: tasks 19/20). Also update any cross-references in "Dependencies & pickup order".
+- **Why it matters:** A session following the skill literally would bolt a stray checkbox onto a heading-based board instead of archiving, leaving the board inconsistent with its own convention.
+- **Confidence:** high — verified against `todo.md:3` and the task 19/20 archive precedent
