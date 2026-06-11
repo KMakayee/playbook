@@ -141,7 +141,7 @@ printenv ANTHROPIC_BASE_URL
 ### 1. Preflight
 
 - `curl -fsS --max-time 2 http://127.0.0.1:<derived-port>/health` → assert `"service":"playbook-native-agents-relay"`; report `relayVersion`, `scriptHash`, `pid`, `geminiPort`.
-- `curl -fsS --max-time 2 http://127.0.0.1:8317/v1/models` → read the expected model IDs from the **installed agents' frontmatter** (`grep '^model:' .claude/agents/*.md` — never a hardcoded list) and assert each appears in the live catalog. Strip any `(…)` reasoning-effort suffix first (`gpt-5.5(xhigh)` → catalog entry `gpt-5.5`).
+- `curl -fsS --max-time 2 http://127.0.0.1:8317/v1/models` → read the expected model IDs from the **installed agents' frontmatter** (`grep '^model:' .claude/agents/*.md` — never a hardcoded list) and check each against the live catalog, stripping any `(…)` reasoning-effort suffix first (`gpt-5.5(xhigh)` → catalog entry `gpt-5.5`). Track availability **per lane**: a missing `gpt-5.5` fails the codex lane; a missing `gemini-3.5-flash` fails only the gemini lane (record it for the step-5 verdict + triage and skip that probe's pass expectation). One absent lane never stops the doctor — the remaining probes still run.
 
 ### 2. Log baseline
 

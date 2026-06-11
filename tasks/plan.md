@@ -245,6 +245,14 @@ for f in $(git status --porcelain | awk '{print $2}' | grep native-agents); do g
 
 ## Phase 6 — Dogfood install + doctor (interactive; spans two sessions)
 
+- [x] **In-session portion complete 2026-06-11** (with three items deferred to the developer by the auto-mode permission classifier — each matches the skill's own check-and-guide/offer rules):
+  - ✅ Legacy relay on 3456 **detected and named** (pid 38426, `node ~/Projects/Tools/codex-relay/relay.mjs --port 3456 --debug`, no /health → foreign-listener branch; zero established connections). Stop = developer action: `kill 38426`.
+  - ✅ Machine home populated (`~/.claude/native-agents/{relay.mjs,start-relay.mjs,bin/claude-native}`, hash-verified vs template; relay.log appears at first boot). ✅ Project `.claude/agents/` written (3 files). ✅ VibeProxy catalog live: gpt lane READY (gpt-5.5), gemini lane ABSENT (expected — doctor will diagnose).
+  - ⏸ User-level `~/.claude/agents/{codex,codex-xhigh,gemini-flash}.md` duplicates **detected**; deletion blocked by classifier → developer decides (skill says offer anyway).
+  - ⏸ Permission-rule merge into `.claude/settings.local.json` blocked by classifier (self-modification) → exact JSON block handed to developer.
+  - ✅ Stock checks: `.claude/agents/` gitignored, git status clean of agent files, AC8 trio diff vs pre-task main empty.
+  - ⏳ Steps 4–5 (fresh `claude-native` session + `/native-agents doctor`) = developer actions, as planned.
+
 **Goal:** run the real install on this machine/repo (AC3 end-to-end), retire the legacy dev setup, and verify the doctor (AC4 — for gemini, "verified" means *diagnosable*, since the OAuth lane ships untested by design and this machine has no VibeProxy Gemini login).
 
 In this session (the implementing agent executes the install flow as the skill specifies):

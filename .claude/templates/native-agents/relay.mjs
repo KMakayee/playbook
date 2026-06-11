@@ -34,7 +34,20 @@ import crypto from "node:crypto";
 const RELAY_VERSION = "1.0.0";
 
 const args = process.argv.slice(2);
-const PORT = Number(args[args.indexOf("--port") + 1]) || 3456;
+
+// fail fast on explicit invalid ports: a detached boot logs this to relay.log
+// and the claude-native launcher fails closed showing the log tail
+function parsePort(value, fallback, name) {
+  if (value === undefined) return fallback;
+  const n = Number(value);
+  if (!Number.isInteger(n) || n < 1 || n > 65535) {
+    console.error(`relay: invalid ${name} "${value}" — expected an integer 1..65535`);
+    process.exit(1);
+  }
+  return n;
+}
+const portIdx = args.indexOf("--port");
+const PORT = parsePort(portIdx >= 0 ? args[portIdx + 1] : undefined, 3456, "--port");
 const DEBUG = args.includes("--debug");
 
 const ANTHROPIC = { protocol: "https:", host: "api.anthropic.com", port: 443, label: "anthropic" };
@@ -42,7 +55,7 @@ const CODEX = { protocol: "http:", host: "127.0.0.1", port: 8317, label: "codex"
 const GEMINI = {
   protocol: "http:",
   host: "127.0.0.1",
-  port: Number(process.env.RELAY_GEMINI_PORT) || 8317,
+  port: parsePort(process.env.RELAY_GEMINI_PORT, 8317, "RELAY_GEMINI_PORT"),
   label: "gemini",
 };
 

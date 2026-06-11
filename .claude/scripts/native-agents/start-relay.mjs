@@ -45,4 +45,4 @@ const child = spawn(process.execPath, [relayPath, "--port", port], {
 });
 child.unref();
 fs.closeSync(fd);
-console.log(`start-relay: relay pid ${child.pid} (port ${port}, log ${logPath})`);
+console.error(`start-relay: relay pid ${child.pid} (port ${port}, log ${logPath})`);
