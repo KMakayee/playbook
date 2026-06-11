@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+# claude-native: fail-closed launcher for relayed Claude Code sessions.
+#
+# Flow: port check → identity handshake (GET /health) → boot-if-absent →
+# poll health → exec claude with ANTHROPIC_BASE_URL pointed at the relay.
+# On ANY ambiguity (foreign listener, stale relay, failed boot) it refuses
+# to start Claude — the env var is never set against an unverified relay,
+# so a broken relay can never lock you out: plain `claude` stays untouched.
+#
+# Installed by /native-agents to ~/.claude/native-agents/bin/claude-native.
+# Config: CLAUDE_NATIVE_PORT (default 3456), CLAUDE_NATIVE_HEALTH_TRIES
+# (default 30 × 100 ms). All claude args pass through: claude-native -p "…"
+
+set -u
+
+NA_HOME="${HOME}/.claude/native-agents"
+RELAY="$NA_HOME/relay.mjs"
+HELPER="$NA_HOME/start-relay.mjs"
+LOG="$NA_HOME/relay.log"
+LOCK="$NA_HOME/relay.start.lock"
+
+PORT="${CLAUDE_NATIVE_PORT:-3456}"
+HEALTH="http://127.0.0.1:$PORT/health"
+TRIES="${CLAUDE_NATIVE_HEALTH_TRIES:-30}"
+
+fail() {
+  echo "claude-native: $*" >&2
+  echo "claude-native: plain \`claude\` is unaffected — run it directly if you don't need native agents." >&2
+  exit 1
+}
+
+listeners() { lsof -nP -iTCP:"$PORT" -sTCP:LISTEN 2>/dev/null; }
+
+# --- health JSON helpers (relay emits single-line JSON.stringify output) ---
+health_fetch()   { HEALTH_JSON=$(curl -fsS --max-time 2 "$HEALTH" 2>/dev/null); }
+is_our_relay()   { printf '%s' "${HEALTH_JSON:-}" | grep -q '"service":"playbook-native-agents-relay"'; }
+health_hash()    { printf '%s' "${HEALTH_JSON:-}" | grep -o '"scriptHash":"[a-f0-9]*"' | cut -d'"' -f4; }
+health_pid()     { printf '%s' "${HEALTH_JSON:-}" | grep -o '"pid":[0-9]*' | cut -d: -f2; }
+health_version() { printf '%s' "${HEALTH_JSON:-}" | grep -o '"relayVersion":"[^"]*"' | cut -d'"' -f4; }
+
+# Staleness gate: the running relay's self-reported source hash must match the
+# installed relay.mjs (single source of truth — catches any content change,
+# not just version bumps). Match → exec claude; mismatch → fail closed.
+verify_and_exec() {
+  local want got
+  want=$(shasum -a 256 "$RELAY" | cut -d' ' -f1)
+  got=$(health_hash)
+  if [ -n "$want" ] && [ "$want" = "$got" ]; then
+    exec env ANTHROPIC_BASE_URL="http://127.0.0.1:$PORT" claude "$@"
+  fi
+  fail "running relay (v$(health_version), pid $(health_pid)) doesn't match the installed relay.mjs — stop it (kill $(health_pid)), then rerun claude-native. Never auto-killed: it may be serving another session."
+}
+
+fail_foreign() {
+  echo "claude-native: something is listening on 127.0.0.1:$PORT but it is not the playbook relay:" >&2
+  listeners >&2
+  echo "claude-native: stop that process (or set CLAUDE_NATIVE_PORT to a free port), then rerun. Relay log: $LOG" >&2
+  fail "refusing to start claude against an unverified listener"
+}
+
+boot_diag() {
+  echo "claude-native: $*" >&2
+  echo "claude-native: last lines of $LOG:" >&2
+  if [ -f "$LOG" ]; then tail -5 "$LOG" >&2; else echo "  (no log at $LOG)" >&2; fi
+  echo "claude-native: inspect the port with: lsof -nP -iTCP:$PORT -sTCP:LISTEN" >&2
+  fail "relay did not become healthy — refusing to start claude"
+}
+
+# 1. preconditions — fail closed before touching anything
+for tool in node curl lsof shasum claude; do
+  command -v "$tool" >/dev/null 2>&1 || fail "required tool '$tool' not found on PATH"
+done
+[ -f "$RELAY" ] || fail "$RELAY missing — run /native-agents install first"
+[ -f "$HELPER" ] || fail "$HELPER missing — run /native-agents install first"
+
+# 3. identity handshake against whatever answers on the port
+if health_fetch; then
+  is_our_relay || fail_foreign
+  verify_and_exec "$@"
+fi
+# no health response — anything else squatting on the port is a foreign listener
+[ -n "$(listeners)" ] && fail_foreign
+
+# 4. boot, guarded by an advisory lock so concurrent launchers spawn one relay
+if mkdir "$LOCK" 2>/dev/null; then
+  trap 'rmdir "$LOCK" 2>/dev/null' EXIT
+  # lost the race to a relay that came up between handshake and lock? fine.
+  if health_fetch && is_our_relay; then
+    rmdir "$LOCK" 2>/dev/null
+    trap - EXIT
+    verify_and_exec "$@"
+  fi
+  CLAUDE_NATIVE_PORT="$PORT" node "$HELPER" || {
+    rmdir "$LOCK" 2>/dev/null
+    trap - EXIT
+    boot_diag "start-relay helper failed"
+  }
+  i=0
+  while [ "$i" -lt "$TRIES" ]; do
+    if health_fetch && is_our_relay; then
+      rmdir "$LOCK" 2>/dev/null
+      trap - EXIT
+      verify_and_exec "$@"
+    fi
+    sleep 0.1
+    i=$((i + 1))
+  done
+  rmdir "$LOCK" 2>/dev/null
+  trap - EXIT
+  boot_diag "no healthy relay after $TRIES tries"
+else
+  # another launcher holds the lock and is booting — wait for its relay
+  i=0
+  while [ "$i" -lt "$TRIES" ]; do
+    if health_fetch && is_our_relay; then
+      verify_and_exec "$@"
+    fi
+    sleep 0.1
+    i=$((i + 1))
+  done
+  fail "another claude-native seems to be booting the relay (lock: $LOCK) but it never became healthy after $TRIES tries. If no other launcher is running, clear a stale lock with: rmdir '$LOCK' — then rerun."
+fi

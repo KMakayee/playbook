@@ -89,6 +89,8 @@ Strip-condition and abort-net correctness are verified by code review against `r
 
 ## Phase 2 — Fail-closed launcher + detach helper
 
+- [x] **Complete 2026-06-11.** All 6 harness checks pass (HOME-override + stub claude): cold boot execs with env + relay re-parented to init (ppid=1); warm path reuses same relay pid; foreign listener fails closed (lsof table, no exec); stale gate catches content edit via hash mismatch with stop-it message; stray lock doesn't block a healthy relay. Note: foreign-listener diagnostic prints the lsof *output table* (plus the lsof command in boot_diag), satisfying the "show lsof" criterion.
+
 **Goal:** `claude-native` = port-check → identity handshake → boot-if-absent → poll health → `exec` claude with env, refusing to start Claude on any ambiguity. Lockout becomes structurally impossible (env is never set against an unverified relay).
 
 ### 2a. `.claude/scripts/native-agents/start-relay.mjs` (Node detach helper)
