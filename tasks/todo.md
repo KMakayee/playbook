@@ -10,11 +10,11 @@
 
 Numbering is reference-only, not execution order. The backlog splits into three roughly-independent fronts; pick within a front in dependency order.
 
-- **Codex-trio + forge (21) — current priority.** `19` (`/codex-audit`) and `20` (`/codex-research`) are both **done** (2026-06-10, archived to `tasks/completed.md`) — the Codex trio is complete, so `21` (`/forge`) has its fidelity gate and its self-summoned research lane. `/codex-review` already exists. Net: `21` is fully unblocked — it inlines triage's bucket logic rather than waiting on `13`.
+- **Codex-trio + forge — front complete.** `19`, `20`, and `21` (`/forge`) all landed 2026-06-10 (archived to `tasks/completed.md`). Reminder: `/forge` is temporary — archive it on revert to Opus (~2026-06-24) per its in-skill archive note.
 - **Triage-rooted chain (13 → 14/15 → 16).** `13` (`/triage`) is the root: `14` (`/codex-goal`), `15` (RDPI structural), and `16` (inference-reduction) all hard-depend on it. `16` additionally depends on `15`.
 - **Checkpoint pair (17 → 18).** `18` (auto-rehydrate hook) consumes `17`'s (`/checkpoint` redesign) output, so `17` lands first. Independent of the other two fronts.
 
-Cross-front: `13` strengthens the apply step of `19`/`21` but isn't a hard blocker there — they inline its bucket logic.
+Cross-front: the landed `19`/`21` inline `13`'s bucket logic; if `13` later refines it, updating them is an enhancement, not a blocker.
 
 ## Tasks
 
@@ -387,81 +387,3 @@ A fresh session reads only that and continues — no SKILL.md, no artifacts.
 - Does the hook's `sessionTitle` reliably persist to `/resume` (writing a `custom-title` entry)? 30-sec confirm; if not, the script appends the `custom-title` line directly (confirmed schema above).
 - `compact` trigger: the user doesn't compact, but the hook fires on it — confirm consume-on-first-inject prevents double-injection across a compact.
 
----
-
-### 21. Add /forge skill — slim single-pass build lane for strong models (temporary, Fable window)
-
-**Intent.** A deliberately thin, **temporary** build lane that collapses RDPI's Research/Design/Plan/Implement-design into one model-led pass for *wide, generative* tasks (immediate use case: the omk-core fp-rebuild spine, starting with `contracts.md`), then verifies with the Codex trio. Motivated by three things: (a) full RDPI runs ~6 Codex `xhigh` sweeps (research 1 + design up-to-3 + plan 1 + implement 1) plus 4 artifacts that re-read each other — heavy token burn, calibrated for Opus; (b) a temporarily-stronger model (codename **Fable**, ~2-week window) needs less option-enumeration scaffolding and benefits from wide-lens freedom; (c) the assess→design option matrix actively *taxes* a model whose edge is wide generative design — option-enumeration is a crutch that stops a weaker model from tunneling on idea #1, which Fable doesn't need. Governing principle: **scaffolding scales inversely with model strength.** `/forge` is the lighter calibration for the strong-model window; when it reverts to Opus, full RDPI resumes unchanged. (Note the opposite vector of task 15, which *adds* scaffolding because Opus is under-informed — same curve, opposite direction.)
-
-**Lane shape.** Frame → Build → gate → gate → verify:
-1. **Frame** (no Codex) — read the source piece fully + directly-referenced files; 3-line intent + acceptance criteria. Lightweight four-field intake without the ceremony.
-2. **Build** — one freeform model-led pass that designs *and* writes code together. No axis/option matrix. Front of lane is model-led: the model reads the bounded surface directly (independence belongs on verification, not input-gathering); it **self-summons `/codex-research` only when it decides it needs broader grounding** — Codex is an on-demand discovery tool here, not a fixed sweep.
-3. **Optional design-confirm pause** — before writing code, the model states the contract shapes / boundaries in a few lines and waits for a yes/no. Preserves one cheap human gate (RDPI fuses design+implement, losing `/create-plan`'s approval point). Default ON for load-bearing pieces (contracts), OFF for conform-only follow-ons.
-4. **Gate 1 — fidelity** (`/codex-audit`, task 19) — target ↔ blueprint; catches omissions / infidelity. Runs first: no point polishing merit on code that doesn't faithfully implement the spine.
-5. **Gate 2 — merit** (`/codex-review`, exists) — diff in isolation; catches present-and-wrong.
-6. **Apply** triaged fixes (classification inlined per task 13), each routed by the agent hierarchy below — Fable keeps the complex ones, cheaper tiers take the bounded/mechanical. Then **Verify** (tests / typecheck) and present.
-
-Both gates are RUN/SKIP per piece: contracts gets both; conform-only follow-ons may get audit-only or neither. Net Codex cost ~1–2 calls vs RDPI's ~6.
-
-**Gate convergence.** The audit + review gates may **loop until a good state by best judgment** — each pass is review → triage → apply-fix → re-check, the next pass seeing corrected on-disk state (reuses `/codex-audit`'s `passes` mechanic, task 19). Convergence ≠ zero findings: stop when a pass surfaces no *new critical* findings (residual nits are acceptable, not grounds to keep looping). Bounded by a max-passes safety cap so it can't thrash (cf. task 19's passes-cap OQ). The loop runs at the **orchestrator** level — because the recursion guard makes build / gate / fix separate leaf dispatches that something has to coordinate (see routing).
-
-**Phased execution & operator handoff.** A wide piece must NOT build in one ever-growing context. `/forge` splits the work at *natural seams* (per contract group / module boundary it discovers during Frame), completes one phase, then **compacts and emits a ready-to-run continuation prompt for the next phase** — the operator compacts and continues on a clean window. This reuses the existing **Multi-Batch Plans** rule (`CLAUDE.md` — one batch per prompt, compact between) and the `/checkpoint` light-handoff artifact (tasks 17/18); do NOT invent a new handoff format. Each phase is independently buildable + verifiable; the continuation prompt carries forward only the settled spine decisions + remaining phase list, never raw file contents.
-
-**Workflow & agent routing (Fable-orchestrated, ultracode).** `/forge` may use the Workflow tool — invoking the skill is itself the Workflow opt-in. Power model: **Fable orchestrates in a lean main loop (ultracode)** and owns the one thing that can never be delegated — the **spine / contract design** (the coherent whole). Everything downstream of a settled spine can be dispatched as a **leaf** task. The inherit trap stays: Workflow agents *inherit the main-loop model by default*, which under Fable spawns a swarm — so **every spawned agent pins its model explicitly; none inherit.** Agent groups:
-- **Fable** — (1) the orchestrator / main loop, which owns the spine design and never delegates it; and (2) optionally a **single sub-agent per phase** that writes that phase's code against the settled spine — keeping the orchestrator context lean (raw reads + code churn live in the disposable sub-agent, only the result returns). One Fable sub-agent *per seam* — never many fanning out, never sub-splitting one interdependent phase (that's the drift the spine avoids).
-- **Opus** — orchestrator's judgment call: takes a **straightforward phase** (doesn't need Fable) and the **bounded gate fixes** (quick changes). Complex fixes — e.g. a subtle bug — stay with Fable; nothing is auto-routed down by rule. Substantive-but-not-spine work.
-- **Sonnet** — cheap fan-out: reads / pull-in / grounding (no logic), **plus** trivial mechanical writes only (stub a file, create a folder, boilerplate scaffold). Never real logic.
-
-Guardrails: the **spine design** stays in the orchestrator (never delegated — this preserves coherence); **delegate at the seam, not within it** (one sub-agent per independent phase, handed the spine contract it must conform to); lean **sequential** per seam by default so phase N+1 sees N's output, parallel only for genuinely independent phases (which then need `isolation: 'worktree'`); sub-agents are leaf (no recursion — `CLAUDE.md:178`), so **build, gate-loop, and fixes are separate leaf dispatches the orchestrator coordinates** — a build sub-agent can't itself spawn the fix sub-agent; a **hard cap on concurrent + total agents** (budget-scaled — no swarms). Routing breadth + delegating phases to cheaper/disposable contexts IS the conservation mechanism that keeps ultracode affordable and the orchestrator lean: Fable's power + ultracode's orchestration, without paying Fable rates everywhere or fragmenting the spine.
-
-**Constraints.**
-- **Temporary / disposable.** Built for the ~2-week strong-model window; archived (not folded into RDPI) when it reverts to Opus. Keep it thin (~50 lines target).
-- **Composition over new machinery — but inlined, not invoked.** Playbook skills cannot runtime-invoke other slash commands (`checkpoint/SKILL.md:180`; task 13 constraint at `todo.md:19`). So `/forge` **inlines** the Codex calls/logic of the trio, using those skills as the canonical reference spec — it does NOT literally call `/codex-research`, `/codex-audit`, `/codex-review`. Each trio skill stays independently runnable. Reuse the shared plumbing (safe tmp-compose, `codex -a never exec --sandbox read-only`, `codex-output-check.sh`, cleanup-before-present) — do not reinvent it.
-- **Independence on verification, not input.** Do NOT force a Codex-led research sweep at the front. Model reads the bounded surface directly; Codex appears only on summon or at the two gates. (When this reverts to Opus, the "Codex leads research" calibration — [[feedback_codex_research]] — comes back, because the context-offload crutch is needed again.)
-- **Bounded-surface rule.** Direct-read is correct only while the surface the piece must satisfy fits comfortably in context. A sprawling legacy surface → summon `/codex-research` to digest it (protect the model from the Dumb Zone), not because Codex is smarter.
-- **Manual invocation** (`disable-model-invocation: true`) per [[feedback_skill_manual_invocation]] — side-effecting workflow skill.
-- **Purely additive.** RDPI and every existing skill unchanged.
-
-**Arguments.**
-- `argument-hint: '[piece — source path or "description"]'` — the blueprint piece to build (e.g. a path to `contracts.md`).
-- Defer the exact surface for gate selection + design-confirm toggle to RDPI (flags vs Claude judgment).
-
-**Acceptance criteria.**
-1. `.claude/skills/forge/SKILL.md` exists, manual-invoke, thin, with an explicit "temporary / strong-model-window / archive when reverted to Opus" note.
-2. A single model-led pass collapses R/D/P/I-design+build; no axis/option matrix; source read fully up front.
-3. The model can self-summon `/codex-research` during discovery; no fixed front-of-lane Codex sweep.
-4. Optional design-confirm pause before code; default ON for load-bearing pieces.
-5. Closing gates inline `/codex-audit` then `/codex-review` logic, each RUN/SKIP per piece; fixes applied via inline triage bucket logic (task 13).
-6. Verify step runs tests / typecheck before presenting.
-7. Reuses shared Codex plumbing; no duplicated/reinvented machinery beyond what the inline-not-invoke constraint forces.
-8. RDPI + all existing skills unchanged. `/playbook-update`'s managed-file list accounts for the new skill (same check as task 13 AC8).
-9. Wide pieces split at natural seams: complete one phase → compact → emit a continuation prompt for the next (reuses `/checkpoint` light-handoff + Multi-Batch Plans pattern; no new handoff format). Continuation prompt carries settled spine decisions + remaining phases, not raw file contents.
-10. Workflow fan-out allowed; **every spawned agent pins its model explicitly (Sonnet/Opus, or Fable for a per-seam build sub-agent) — none inherit the main-loop model.** Invoking `/forge` is the Workflow opt-in.
-11. Routing enforced as a hierarchy by orchestrator judgment (not a hard gate): Fable = orchestrator (owns spine design, never delegated) + optional single per-seam build sub-agent + keeps complex fixes; Opus = straightforward phases + bounded gate fixes; Sonnet = reads + trivial mechanical writes. Spine *design* stays in the orchestrator; per-phase *implementation* may delegate at the seam (never sub-split a phase).
-12. Hard cap on concurrent + total sub-agents (budget-scaled, no swarms); sub-agents are leaf (no recursion, `CLAUDE.md:178`) — so build, gate-loop, and fixes are separate leaf dispatches coordinated by the orchestrator.
-13. Gates may loop to convergence by best judgment — stop when a pass surfaces no new *critical* findings (residual nits OK), bounded by a max-passes safety cap.
-
-**Relevant paths.**
-- New skill: `.claude/skills/forge/SKILL.md`
-- Reference specs to inline: `.claude/skills/codex-audit/SKILL.md` (task 19), `.claude/skills/codex-review/SKILL.md` (exists), `.claude/skills/codex-research/SKILL.md` (task 20), triage bucket logic (task 13)
-- Shared plumbing: `.claude/scripts/codex-output-check.sh`, `codex-review/SKILL.md` (tmp-compose, cleanup-before-present)
-- Phasing / handoff: `.claude/skills/checkpoint/SKILL.md` (light-handoff, tasks 17/18), `CLAUDE.md` Multi-Batch Plans rule
-- Orchestration: the Workflow tool + its `model` per-agent override (Sonnet/Opus); `CLAUDE.md:178` recursion guard
-- Target use case: `~/Projects/Omakase/omk-core/docs/fp-rebuild/README.md`, `omk-core/docs/blueprint/pieces/contracts.md`
-- `/playbook-update` managed list: `.claude/skills/playbook-update/SKILL.md`
-
-**Dependencies / unlock order.** Critical path **19 → 21** (the audit gate is the one genuinely new capability `/forge` needs, and it's a permanently-useful skill regardless of Fable); `/codex-review` already exists. Harden after: **13** (`/triage`) for clean apply, **20** (`/codex-research`) for summonable grounding — both improve `/forge` but neither blocks a usable first version (model reads directly; apply can be inline). Fastest self-contained fallback: build 21 alone, inlining its own audit/review Codex calls — accepts logic duplication that dies with the skill in 2 weeks. Phasing and Workflow routing add **no new task prerequisites** — `/checkpoint` already exists (tasks 17/18 only refine it) and the Workflow tool is built-in; both work against today's tree.
-
-**Open questions for RDPI.**
-- **Bounded-surface threshold.** Concrete heuristic for direct-read vs summon-`/codex-research` (e.g. fits under the ~30% context trigger?).
-- **Design-confirm default.** ON for all load-bearing pieces, or developer-flagged per run? What classifies "load-bearing"?
-- **Gate selection ergonomics.** How is RUN/SKIP per gate per piece expressed — flags, or Claude judgment from the piece's role?
-- **Inline vs duplicate.** Given skills can't invoke each other, does `/forge` inline-reference the trio's prompts (DRY, needs 19/20 built first) or self-contain them (faster, duplicates)? Lean: inline-reference 19 (built first anyway), self-contain the rest if 20/13 lag.
-- **Archive mechanism.** On revert to Opus — delete `/forge`, or move to a `.claude/skills/_archive/`? Does `/playbook-update` need to know it's transient?
-- **Phase-seam heuristic.** What defines a "natural seam" for splitting (per contract group, per module, per N lines)? Is the phase plan operator-gated (like Multi-Batch) or auto-chosen, and does each seam force a compaction or only offer one?
-- **Opus's boundary.** What makes a phase "straightforward" enough for an Opus build sub-agent vs. needing a Fable one — and the severity line for routing gate-fixes to Opus vs. applying mechanical A.1 fixes inline (cf. triage buckets, task 13).
-- **Sub-agent cap.** Fixed N, or budget-scaled off `budget.total`? Per-phase or per-run? What's the ceiling that still feels "not a swarm"?
-- **Ultracode ↔ conservation tension.** Ultracode defaults to "workflow for every substantive task, cost no constraint" — confirm the cheap-model routing policy actually holds under those defaults, so the window's conservation goal isn't silently undone.
-- **Sequential vs parallel phases.** Default to sequential per-seam delegation (phase N+1 sees N's output → coherence), parallel only for genuinely independent phases (which then need `isolation: 'worktree'`). Confirm when parallelism is worth the worktree overhead vs. the coherence + lean-context win of sequential.
-- **Gate-convergence judgment & cap.** How is "no new critical findings" judged across passes (diff the findings set? a severity threshold?), and what's the max-passes ceiling so the loop can't thrash? Is it one combined audit+review loop, or a separate convergence loop per gate?
-- **Spine-contract handoff.** How does the orchestrator hand each build sub-agent the settled spine compactly (the contract it must conform to) without re-bloating context, and fold the result back without re-reading raw output?
