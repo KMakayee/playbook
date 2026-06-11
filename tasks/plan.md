@@ -281,6 +281,10 @@ git diff --stat main -- .claude/skills/codex-research .claude/skills/codex-audit
 
 ---
 
+## Post-review addendum (developer-directed, 2026-06-11)
+
+- [x] **Default-swap alias offer** — agreed in conversation after implementation: Doctor gains step 6 — after the codex probes pass (and only then), offer `alias claude="$HOME/.claude/native-agents/bin/claude-native"` in `~/.zshrc` (`command claude` = stock escape hatch; alias chosen over PATH shim because aliases don't apply in non-interactive scripts, so the launcher's final `exec … claude` can't recurse). Launcher fail() epilogue + install handoff reworded from "plain `claude` is unaffected" to name `command claude`. README sentence added. **Installed launcher copy deliberately NOT re-synced** — developer is running the doctor test in parallel; the delta is message-only and the hash gate covers only relay.mjs. Re-sync via install re-run after tests.
+
 ## Judgment Calls
 
 1. **Names adopted as proposed:** skill `/native-agents`, launcher `claude-native` (design non-blocking OQ; developer can override at plan review — pure find/replace on this plan).

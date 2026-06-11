@@ -116,13 +116,15 @@ export PATH="$HOME/.claude/native-agents/bin:$PATH"
 
 PATH is preferred over an alias because it also works for headless runs (`claude-native -p "…"`) and scripts; an alias (`alias claude-native="$HOME/.claude/native-agents/bin/claude-native"`) is the alternative. You cannot verify the developer's rc file took effect — say so explicitly.
 
+If the developer asks to make `claude` itself launch relayed sessions, don't set that up now — the doctor offers exactly that after its probes pass (Doctor step 6), which is the right gate: never default someone into a lane that hasn't passed a probe yet.
+
 ### 7. Handoff
 
 Print, verbatim in spirit:
 
 1. Open a **new terminal** (so the PATH change loads), `cd` into this project, and run `claude-native` — agent types register at session start, so a restart is mandatory; this session cannot see them.
 2. In that new session, run `/native-agents doctor` to verify end-to-end.
-3. Escape hatch: plain `claude` is always unaffected.
+3. Escape hatch: a stock session is always available — plain `claude` (or `command claude`, which bypasses the optional alias from Doctor step 6).
 4. Lockout immunity: `claude-native` is fail-closed — it never points a session at a relay it hasn't verified, so a dead or stale relay means a refused launch with diagnostics, never a broken Claude.
 
 ---
@@ -174,6 +176,19 @@ Present a table: agent type | probe result | log evidence | verdict (PASS/FAIL +
 | connection refused / `relay_upstream_error (gemini)` 502 | VibeProxy not running | start the VibeProxy server |
 | auth/error body from VibeProxy | Gemini provider toggle off, or not logged in | enable the provider + OAuth login in VibeProxy |
 | `SERVED BY` mismatch or model-not-found | `gemini-3.5-flash` not supported by the OAuth path | check the live `/v1/models` catalog and walk the model-ID drift checklist below |
+
+### 6. Offer the default swap (only when the codex probes pass)
+
+If the `codex`/`codex-xhigh` probes passed (gemini may have failed — it's optional), check `~/.zshrc` for an existing `alias claude=` line. If one is already there, skip silently. Otherwise offer:
+
+> "Want `claude` itself to launch relayed sessions from now on? I'll add `alias claude=\"$HOME/.claude/native-agents/bin/claude-native\"` to your `~/.zshrc`. You can always get a stock session with `command claude` (bypasses the alias), and removing the line undoes it."
+
+- **yes** → append to `~/.zshrc` (with a `# playbook native-agents — claude defaults to the relayed launcher` comment line above it); remind the developer it takes effect in new terminals.
+- **no** → skip silently.
+
+The alias cannot break the launcher itself: aliases don't apply inside non-interactive scripts, so `claude-native`'s final `exec … claude` still resolves to the real binary — no recursion. Never use a PATH shim named `claude` for this; that *would* recurse.
+
+If the codex probes did not pass, do not offer the swap — fix the lane first.
 
 ### Fragility note
 

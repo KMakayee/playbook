@@ -83,7 +83,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 ### Native multi-model agents (optional, macOS)
 
-`/native-agents` installs `codex`, `codex-xhigh`, and `gemini-flash` as native subagent types, served through a local model-routing relay in front of [VibeProxy](https://github.com/automazeio/vibeproxy)'s OAuth providers. Sessions opt in by launching with the installed `claude-native` launcher (fail-closed: it never starts Claude against an unverified relay); `/native-agents doctor` verifies the install end-to-end. Stock `claude` sessions are completely untouched.
+`/native-agents` installs `codex`, `codex-xhigh`, and `gemini-flash` as native subagent types, served through a local model-routing relay in front of [VibeProxy](https://github.com/automazeio/vibeproxy)'s OAuth providers. Sessions opt in by launching with the installed `claude-native` launcher (fail-closed: it never starts Claude against an unverified relay); `/native-agents doctor` verifies the install end-to-end. Stock `claude` sessions are completely untouched. After a passing doctor run, the skill offers to make `claude` itself default to the relayed launcher via a shell alias — `command claude` always gives a stock session.
 
 ### Templates
 
