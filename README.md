@@ -43,6 +43,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 | `/create-plan` | Draft plan, Codex reviews, absorb findings; writes `tasks/plan.md` |
 | `/implement` | Execute plan phase-by-phase, run Codex code review, apply triaged fixes via child process |
 | `/implement-codex` | *Experimental.* Codex drives implementation, Claude verifies per-phase. `/implement` remains the production path |
+| `/forge` | Slim single-pass build lane built for the strong-model window — one model-led Frame → Build pass, then a Codex gate cycle (audit → review → triage → verify) |
 | `/create-todo` | Create standalone `tasks/todo.md` for ad-hoc tracking |
 
 **Issue workflow**
