@@ -83,7 +83,9 @@ Create the machine home and copy the three runtime files:
 
 a. **Agent files:** `mkdir -p .claude/agents`, then copy the three templates from `.claude/templates/native-agents/agents/` → `.claude/agents/{codex,codex-xhigh,gemini-flash}.md`, with the same diff-and-confirm as step 4. Install all three even when the gemini lane isn't ready — a missing lane produces a contained per-spawn error (documented in each agent's description), and the doctor diagnoses lane state.
 
-b. **User-level duplicate detection** (only after the project copies are in place): if any of `~/.claude/agents/{codex,codex-xhigh,gemini-flash}.md` exist, explain that project agents take precedence and stale user-level copies confuse `/agents` listings, then offer to delete them.
+b. **User-level copies** (only after the project copies are in place): if any of `~/.claude/agents/{codex,codex-xhigh,gemini-flash}.md` exist, diff them against the templates:
+   - **Identical** → an intentional global install (doctor step 6b offers it) — leave them; just note project copies take precedence in this repo.
+   - **Different** → either a stale dev leftover or an outdated global install — offer to update them to the current templates, or delete them. Never delete silently.
 
 c. **Permission rules:** merge the following into the project's `.claude/settings.local.json` (create the file if absent; preserve all existing keys; the rules belong under `permissions.allow`). Show the developer the merged result.
 
@@ -188,7 +190,14 @@ If the `codex`/`codex-xhigh` probes passed (gemini may have failed — it's opti
 
 The alias cannot break the launcher itself: aliases don't apply inside non-interactive scripts, so `claude-native`'s final `exec … claude` still resolves to the real binary — no recursion. Never use a PATH shim named `claude` for this; that *would* recurse.
 
-If the codex probes did not pass, do not offer the swap — fix the lane first.
+**6b. Offer global agent types.** The alias (and the launcher) are machine-wide, but agent types are per-project — in a repo without `.claude/agents/` copies, a relayed session works fine but the codex/gemini agent types simply don't exist. Offer:
+
+> "Want the three agent types available in **every** repo on this machine? I'll copy them to `~/.claude/agents/` (user level). Repos with their own `.claude/agents/` copies still take precedence, and a relayed session is required either way."
+
+- **yes** → copy the three agent files to `~/.claude/agents/` (diff-and-confirm if they exist). Note: future `/native-agents install` runs in any repo will detect these user-level copies — that's the intentional-global case in install step 5b, not a stale leftover.
+- **no** → skip silently.
+
+If the codex probes did not pass, do not offer either swap — fix the lane first.
 
 ### Fragility note
 
