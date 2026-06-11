@@ -163,7 +163,7 @@ Read `~/.claude/native-agents/relay.log` lines past the step-2 baseline and asse
 
 - one `model=<id> → codex` line per codex/codex-xhigh probe, and a `model=gemini-3.5-flash → gemini` line for the gemini probe;
 - the session's own `model=claude-* → anthropic` lines exist (proves this session is relayed end-to-end);
-- no `SERVED BY` mismatch lines — flag any found (requested model ≠ serving model is drift, see the checklist below).
+- no `SERVED BY` mismatch lines — flag any found (requested model ≠ serving model is drift, see the checklist below). **Known benign exception:** `gpt-5.5(xhigh)` requests report `SERVED BY gpt-5.5` — the parenthetical is a reasoning-effort directive consumed upstream, not a separate model ID; don't treat it as drift.
 
 ### 5. Verdict
 
