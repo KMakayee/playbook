@@ -162,6 +162,7 @@ Rewrite around dispatch; the orchestrator does not write the deliverable (non-re
 ### 3d. Step 4 deltas — per-type Verify; convergence per type
 
 - Gates unchanged (Bash `codex exec`, trio specs inline, deltas as written). Triage bucket text untouched.
+  > **Deviation (post-review):** "deltas as written" left Gate 1's delta code-narrowed ("target = the code just built"), contradicting per-type Verify for artifact pieces. Codex code review caught it; fixed to per-type target/sources (and "phase 1's code" → "phase 1's build" in Step 3) in `fix: apply code review revisions`. The shared-triage "actual code first" wording stays byte-identical per the task-13 constraint — flagged to the developer instead.
 - Apply routing (`:46`): keep — A.1 inline by default; bounded fixes may route to an Opus sub-agent (`model: opus`).
 - **Verify (`:47`) becomes per-type:** code → Frame-recorded tests/typecheck every cycle (as today). Artifact → Gate 1's fidelity audit doubles as the source-fidelity verify (never run a second Codex audit for Verify); Verify proper = the orchestrator-run internal-consistency/cross-reference pass from the Frame plan. Other → run the Frame-declared plan. Unclear-failure escalation path survives.
 - Convergence (`:48`): "checks pass" = the piece's per-type verify passing; cap and residual-delta rules unchanged.
@@ -230,6 +231,8 @@ grep -rn -i "handshake\|recursion\|model-led" quickref.md      # → no stale hi
 ## Phase 5 — Local propagation + end-to-end verification (no repo diff)
 
 Machine-local exercise of the propagation chain (design Coupling 2). No commit.
+
+> ✅ Phase 5 run 2026-06-11. Whole-diff audit clean vs merge base ae6a168 (main moved ahead 3 docs commits — new-issues/todo deltas are main-side). AC map verified. **Deviation:** the agent-copy `cp` was denied by the auto-mode classifier (agent-config self-modification); read-only classification confirmed all 6 installed copies are STOCK — developer runs the sync command (handed off in the present step).
 
 1. **Sync installed agent copies — diff-gated, never blind** (matches install's diff-and-confirm posture: project copies per `native-agents/SKILL.md:79,84`; user-level copies are classify-per-file, never silently overwritten, per `:86-88,194-198`). A copy is overwritten only if it matches the **stock prior template** (i.e., it is install-owned and unmodified); anything else is reported to the developer with its diff, decision theirs:
    ```bash
