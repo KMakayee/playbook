@@ -25,10 +25,11 @@ rm -rf /tmp/playbook
 **Optional preflight** — if you maintain your own `.claude/` skills or templates and want to see what the copy would overwrite, run the first two lines (the `rm -rf` and the `git clone`) by themselves, then:
 
 ```bash
-(cd /tmp/playbook && find .claude -type f) | while IFS= read -r f; do [ -e "$f" ] && echo "would overwrite: $f"; done
+[ -d /tmp/playbook/.claude ] || echo "no clone at /tmp/playbook — run the rm -rf and git clone lines first"
+(cd /tmp/playbook 2>/dev/null && find .claude -type f) | while IFS= read -r f; do [ -e "$f" ] && echo "would overwrite: $f"; done
 ```
 
-No output means the copy is purely additive. Any `would overwrite:` line is a same-path file — rename yours or accept the overwrite deliberately, then run the remaining lines.
+No output means the copy is purely additive. Any `would overwrite:` line is a same-path file — rename yours or accept the overwrite deliberately, then run the remaining lines. Note the check only works while the clone exists: the install block's last line deletes `/tmp/playbook`, so if you already ran the whole block, re-run the first two lines before checking.
 
 Then open Claude Code and run:
 
