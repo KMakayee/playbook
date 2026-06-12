@@ -223,7 +223,7 @@ grep -n "Workflow section" README.md                           # → blurb + nat
 grep -rn -i "handshake\|recursion\|model-led" quickref.md      # → no stale hits needing rewording
 ```
 
-**Commit:** `docs: update /forge rows and workflow blurb for three-family routing`
+**Commit:** `docs: update /forge rows and workflow blurb for three-family routing` — ✅ done, all criteria pass
 
 ---
 

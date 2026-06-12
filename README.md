@@ -44,7 +44,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 | `/create-plan` | Draft plan, Codex reviews, absorb findings; writes `tasks/plan.md` |
 | `/implement` | Execute plan phase-by-phase, run Codex code review, apply triaged fixes via child process |
 | `/implement-codex` | *Experimental.* Codex drives implementation, Claude verifies per-phase. `/implement` remains the production path |
-| `/forge` | Slim single-pass build lane built for the strong-model window — one model-led Frame → Build pass, then a Codex gate cycle (audit → review → triage → verify) |
+| `/forge` | Piece-agnostic build lane — Frame → dispatch-led Build (Codex workers build code; artifacts follow the authoring chain) → Codex gate cycle (audit → review → triage → per-type verify) |
 | `/create-todo` | Create standalone `tasks/todo.md` for ad-hoc tracking |
 
 **Issue workflow**
@@ -83,7 +83,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 ### Native multi-model agents (optional, macOS)
 
-`/native-agents` installs `codex`, `codex-xhigh`, and `gemini-flash` as native subagent types, served through a local model-routing relay in front of [VibeProxy](https://github.com/automazeio/vibeproxy)'s OAuth providers. Sessions opt in by launching with the installed `claude-native` launcher (fail-closed: it never starts Claude against an unverified relay); `/native-agents doctor` verifies the install end-to-end. Stock `claude` sessions are completely untouched. After a passing doctor run, the skill offers to make `claude` itself default to the relayed launcher via a shell alias — `command claude` always gives a stock session.
+`/native-agents` installs `codex`, `codex-xhigh`, and `gemini-flash` as native subagent types, served through a local model-routing relay in front of [VibeProxy](https://github.com/automazeio/vibeproxy)'s OAuth providers. Sessions opt in by launching with the installed `claude-native` launcher (fail-closed: it never starts Claude against an unverified relay); `/native-agents doctor` verifies the install end-to-end. Stock `claude` sessions are completely untouched. After a passing doctor run, the skill offers to make `claude` itself default to the relayed launcher via a shell alias — `command claude` always gives a stock session. Once installed, CLAUDE.md's Workflow section routes delegated work across the lanes by default (Codex = coding, Opus = audit/synthesis, Gemini Flash = volume/fetch); stock sessions fall back to Claude-only routing per the same section.
 
 ### Templates
 
@@ -97,7 +97,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 ### Workflow rules
 
-`CLAUDE.md` includes the RDPI (Research, Design, Plan, Implement) workflow rules. Any task touching 2+ files or changing interfaces requires structured research, a reviewed design, an approved plan, and step-by-step implementation with verification. Every phase pairs Claude's synthesis with an independent Codex cross-check — the two-agent handshake is what separates this playbook from single-agent workflows. Trivial changes (single file, <20 lines) skip the process. See `quickref.md` for the full checklist.
+`CLAUDE.md` includes the RDPI (Research, Design, Plan, Implement) workflow rules. Any task touching 2+ files or changing interfaces requires structured research, a reviewed design, an approved plan, and step-by-step implementation with verification. Every phase pairs Claude's synthesis with an independent Codex cross-check — the author never reviews its own work, and that rule is what separates this playbook from single-agent workflows. With `/native-agents` installed, CLAUDE.md's Workflow section extends it to a three-family allocation — Codex builds, Claude audits and synthesizes, Gemini Flash takes volume work and third-family verification. Trivial changes (single file, <20 lines) skip the process. See `quickref.md` for the full checklist.
 
 ## Updating
 
