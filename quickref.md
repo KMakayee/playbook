@@ -25,7 +25,7 @@
 | `/create-plan`       | Claude drafts + Codex reviews → `tasks/plan.md`                                |
 | `/implement`         | Execute plan + Codex code review + child-process fixes                         |
 | `/implement-codex`   | *Experimental.* Codex writes phases, Claude verifies; `/implement` stays production |
-| `/forge`             | Single-pass build lane for strong models: Frame → Build → Codex gate cycle → verify |
+| `/forge`             | Piece-agnostic build lane: Frame → dispatched Build (Codex workers / authoring chain) → Codex gate cycle → per-type verify |
 
 **Issue Board**
 

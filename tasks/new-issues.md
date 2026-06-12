@@ -303,46 +303,47 @@ Surfaced 2026-06-10 while checking whether `tasks/todo.md` aligns with `/create-
 
 [Filled by `/issue-update` after a related issue completes.]
 
-## #11 — Broaden the native agents' tool set: add Edit, Write, WebFetch, LSP
+## #12 — Workflow post-mortem: per-session learnings drop under `tasks/logs/workflows/`
 
 **Status:** Draft
-**Priority:** High
+**Priority:** Medium
 **Created:** 2026-06-11
 
 ### Description
 
-The native agent definitions shipped by `/native-agents` (task 22) declare `tools: Read, Glob, Grep, Bash` — a read-and-report set. Developer direction (2026-06-11): the `codex`, `codex-xhigh`, and `gemini-flash` agents also need **Edit, Write, WebFetch, LSP** so workers can apply file changes directly, fetch web content, and use code intelligence.
+Workflow-heavy sessions (RDPI implement runs, `/forge`, `/auto-issues`, Workflow-tool orchestrations) accumulate learnings — routing misfires, lane failures, classifier denials, recurring Codex-finding patterns — that currently evaporate at session end. The only reflection mechanism today is the Reflect step in the four git-ops skills (`/commit`, `/push-pr`, `/push-pr-light`, `/catchup`), which appends per-incident entries to the single cumulative `tasks/errors.md`. Workflow skills have no end-of-session review at all.
 
-This aligns with already-recorded direction rather than fighting it: task 23's locked decision is "Codex builds all code" (workers write, the orchestrator frames/reviews), which is impossible without Edit/Write on the codex agents; and `gemini-flash`'s routing role explicitly includes fetching (research support: bulk source-fetching/collation), for which WebFetch is the sanctioned tool — notably on machines where a user-level `curl` deny makes WebFetch the only clean fetch path. Today's workaround (workers shelling out via Bash `cat >`/heredocs to write files) is worse than granting the dedicated tools: it bypasses the harness's edit-tracking and permission classification.
-
-The tool list lives in agent frontmatter only (no prose documents it — verified by grep): three repo template files, three repo project-agent files, and the three installed machine copies in `~/.claude/agents/`. The change itself is one line per file; the substance of the issue is the contract questions below, plus propagating to installed copies through the install/doctor diff-and-confirm path (never silently).
+Add a quick end-of-session post-mortem step for workflow skills: review the session's issues/learnings and drop at most ONE quick file per session under `tasks/logs/workflows/` (e.g. `<date>-<slug>.md`) — only when there was something to log; a clean session writes nothing. Keep it lightweight: a drop-in step, not a new pipeline. Experience running workflows in other projects shows they often produce many learnings per session, so the format must hold multiple entries in one file without ballooning into a report.
 
 ### Acceptance Criteria
 
-- [ ] All three agent definitions (`codex`, `codex-xhigh`, `gemini-flash`) declare `Read, Glob, Grep, Bash, Edit, Write, WebFetch, LSP` (or a deliberately differentiated per-agent set if research decides differentiation — decision recorded either way) in both repo locations: `.claude/templates/native-agents/agents/*.md` and `.claude/agents/*.md`.
-- [ ] The Agent tool itself stays excluded — native agents remain non-spawning leaves under the recursion guard; the broadened set is reconciled with the leaf posture ("read, search, report" → leaf-write) in whatever wording the guard/task-23 routing needs.
-- [ ] A `/native-agents` install re-run propagates the new tool lines to `~/.claude/agents/*.md` via the existing diff-and-confirm convention (no silent overwrite).
-- [ ] Verified end-to-end in a relayed session: a `codex` agent successfully Edits an existing file and Writes a new one; a `gemini-flash` agent successfully WebFetches; LSP returns results for at least one operation through a relayed agent.
-- [ ] Any skill/doc prose that characterizes the native agents as read-only is updated (none found at logging time — re-verify during implementation).
+- [ ] A shared post-mortem spec (template under `.claude/templates/` or a section in an existing one) that workflow skills reference inline — same pattern as the `error-report.md` Reflect step.
+- [ ] At most one file per session under `tasks/logs/workflows/`, created only when the session had errors/learnings; clean sessions write nothing.
+- [ ] Wired into the workflow skills (candidate set: `/implement`, `/issue-implement`, `/auto-issues`, `/forge`, `/implement-codex` — final set is a design decision).
+- [ ] Durable cross-session learnings still promote to `tasks/errors.md` (or auto-memory) — the post-mortem complements, never duplicates, the existing Reflect mechanism; design defines the promotion rule.
+- [ ] No mid-work interruptions: the post-mortem runs once at session end / present step, never as a mid-phase stop.
 
 ### Constraints
 
-- Tool-list change only — no relay, launcher, or system-prompt changes ride along.
-- The recursion guard holds: do not add `Agent` to the tool list.
-- Installed-copy updates go through the install/doctor flow's diff-and-confirm; never edit `~/.claude/agents/` silently from the implementation.
+- `tasks/logs/` is gitignored today — per-session files there are machine-local scratch. If learnings should persist with the repo, design must pick the location deliberately.
+- A new shipped template touches `/playbook-update`'s managed-file list — account for it (same check as task 13 AC8).
+- Skills cannot slash-invoke other skills — the spec is applied inline (inline-contract convention).
 
 ### Relevant paths
 
-- `.claude/templates/native-agents/agents/codex.md`, `codex-xhigh.md`, `gemini-flash.md` — line 5 (`tools:`) in each.
-- `.claude/agents/codex.md`, `codex-xhigh.md`, `gemini-flash.md` — line 5 in each (repo-local copies).
-- `~/.claude/agents/` (machine) — same three files, updated via `/native-agents` re-run.
-- `.claude/skills/native-agents/SKILL.md` — install step that writes the agent files; doctor checks if any assert the tool list.
-- `tasks/todo.md` task 23 — the "Codex builds all code" + leaf-write reconciliation this unblocks.
+- `.claude/templates/error-report.md` (existing reflection-prompt pattern)
+- `.claude/skills/{implement,issue-implement,auto-issues,forge,implement-codex}/SKILL.md`
+- `tasks/errors.md` (cumulative log; promotion target)
+- `.claude/skills/playbook-update/SKILL.md` (managed list)
 
 ### Notes
 
-Logged 2026-06-11 from developer direction during the relay-usage-tracking discussion. Open question for research: whether WebFetch behaves identically for relayed models (its summarization pass uses a harness-side model, so it should be model-agnostic) — verify rather than assume.
+Open questions for RDPI:
+- Gitignored `tasks/logs/workflows/` vs a tracked location — where do learnings that matter beyond this machine live?
+- Which skills get the step; are Workflow-tool (multi-agent) runs covered via a CLAUDE.md rule instead of per-skill wiring?
+- Session identity for the filename — date + piece/issue slug, or checkpoint-style naming?
+- Promotion rule: what graduates from a session post-mortem into `tasks/errors.md` or auto-memory?
 
 ### Impacts
 
-Unblocks part of task 23 (`tasks/todo.md`) — its "Codex builds all code" dispatch assumes workers can write; coordinate so task 23's RDPI doesn't re-decide the tool set.
+[Filled by `/issue-update` after a related issue completes.]
