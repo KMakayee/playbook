@@ -12,15 +12,23 @@ An agentic engineering toolkit built on the Claude Code harness: it brings tradi
 From your project root:
 
 ```bash
-git clone https://github.com/KMakayee/playbook.git
-mv playbook/* playbook/.claude .
-rm -rf playbook/.git && rmdir playbook
-rm -rf tasks
+rm -rf /tmp/playbook
+git clone --depth 1 https://github.com/KMakayee/playbook.git /tmp/playbook &&
+  mkdir -p .claude &&
+  cp -R /tmp/playbook/.claude/. .claude/ &&
+  { [ -f quickref.md ] || cp /tmp/playbook/quickref.md .; }
+rm -rf /tmp/playbook
 ```
 
-> The `mv` command overwrites existing files. Back up your `CLAUDE.md`, `README.md`, `quickref.md`, and `.claude/` first if they already exist. The `rm -rf tasks` step also deletes your existing `tasks/` directory.
->
-> `rm -rf tasks` clears the playbook maintainer's working artifacts (`todo.md`, `completed.md`, `errors.md`, `issues.md`, `new-issues.md`) that ship with the repo. RDPI commands recreate `tasks/` as you work.
+> This copies only the playbook's `.claude/` content (skills, templates, prompts, scripts) and `quickref.md` (skipped if you already have one). Your `CLAUDE.md`, `README.md`, `tasks/`, and everything else in your project are never touched. The copy **merges** into an existing `.claude/` — your own commands, skills, agents, hooks, and settings are preserved, and the playbook's files are added alongside them. One caveat: if a file exists at the exact same path as a playbook file (e.g., your own skill named `commit` at `.claude/skills/commit/SKILL.md`), that file is overwritten — check for name collisions first if you maintain skills or templates with playbook names. The leading `rm -rf /tmp/playbook` clears any stale clone from an earlier failed run, and the `&&` chain stops the copy if the clone fails.
+
+**Optional preflight** — if you maintain your own `.claude/` skills or templates and want to see what the copy would overwrite, run the first two lines (the `rm -rf` and the `git clone`) by themselves, then:
+
+```bash
+(cd /tmp/playbook && find .claude -type f) | while IFS= read -r f; do [ -e "$f" ] && echo "would overwrite: $f"; done
+```
+
+No output means the copy is purely additive. Any `would overwrite:` line is a same-path file — rename yours or accept the overwrite deliberately, then run the remaining lines.
 
 Then open Claude Code and run:
 
@@ -28,7 +36,7 @@ Then open Claude Code and run:
 /playbook-setup
 ```
 
-This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE.md`, and offers to install global utility skills.
+This creates `CLAUDE.md` for a new project — or, for an existing project, walks you through merging the playbook sections into your `CLAUDE.md` section by section, never removing or rewriting your content without asking. It then detects your tech stack, fills in the `[TEAM FILLS IN]` sections, offers the playbook's recommended `.gitignore` entries (each one your choice), and offers to install global utility skills.
 
 ## What's included
 

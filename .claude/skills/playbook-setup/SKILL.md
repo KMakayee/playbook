@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Setup Assistant
 
-You are setting up the RDPI playbook for this codebase. Start by asking the developer whether this is a new project (playbook template already in CLAUDE.md) or an existing project (their own CLAUDE.md that needs playbook sections added). Then follow the appropriate path.
+You are setting up the RDPI playbook for this codebase. The README install copies only `.claude/` and `quickref.md` — CLAUDE.md is created or merged here, interactively. Start by asking the developer whether this is a new project (CLAUDE.md to be created from the playbook template) or an existing project (their own CLAUDE.md to merge the playbook sections into). Then follow the appropriate path.
 
 ---
 
@@ -14,22 +14,36 @@ You are setting up the RDPI playbook for this codebase. Start by asking the deve
 
 Ask the developer:
 
-> "Is this a **new project** (you followed the playbook README setup instructions and CLAUDE.md already has the `[TEAM FILLS IN]` sections) or an **existing project** (you have your own CLAUDE.md that you'd like the playbook sections added to)?"
+> "Is this a **new project** (no CLAUDE.md yet, or only the playbook's `[TEAM FILLS IN]` template) or an **existing project** (you have your own CLAUDE.md that the playbook sections should be merged into)?"
 
-- **New project** → proceed to Step 1
+- **New project** → proceed to Step 0A
 - **Existing project** → proceed to Step 0B
 
 ---
 
-## Step 0B: Append playbook structure to existing CLAUDE.md
+## Step 0A: Create CLAUDE.md from the template
 
-For existing projects only:
+For new projects only:
 
-1. Read their existing CLAUDE.md and summarize what's there (1-2 sentences) so the developer can confirm it's the right file.
-2. Explain: "I'll append 5 new sections (Codebase Overview, Architecture, Conventions, Commands, Critical Paths) and the playbook rules (Sub-Agent Behaviors, Workflow, Quality Standards) to your file. Your existing content will not be touched."
-3. Wait for developer confirmation.
-4. Read `.claude/templates/playbook-sections.md` and append its full contents to the end of CLAUDE.md using the Edit tool.
-5. After appending, proceed to Step 1 — CLAUDE.md now has markers.
+1. If CLAUDE.md already exists — whether it still carries `[TEAM FILLS IN` markers or is already fully configured — **never recreate or overwrite it.** Leave it as-is and proceed to Step 1, which handles both states. Recreating on a re-run would wipe a configured CLAUDE.md back to placeholders.
+2. Only when CLAUDE.md is absent, create it in the project root: a `# Project Instructions` heading followed by the full contents of `.claude/templates/playbook-sections.md` (drop the template's leading `---` separator line — it exists for the append path in Step 0B).
+3. Proceed to Step 1.
+
+---
+
+## Step 0B: Merge playbook structure into an existing CLAUDE.md
+
+For existing projects only. Governing rule: **nothing in the developer's CLAUDE.md is removed or rewritten without their explicit yes.**
+
+1. If CLAUDE.md already contains the playbook section headers (e.g., `# Sub-Agent Behaviors`), the playbook structure is already installed — tell the developer, skip the merge, and proceed to Step 1. A re-run must never append the sections a second time.
+2. Read their existing CLAUDE.md and summarize what's there (2-3 sentences) so the developer can confirm it's the right file.
+3. Read `.claude/templates/playbook-sections.md` and map the developer's existing content against the incoming sections, into three groups:
+   - **Seeds** — existing content that belongs in one of the 5 team sections (Codebase Overview, Architecture, Conventions, Commands, Critical Paths). E.g., they already document build commands or architecture. Propose filling the matching playbook section with their content (instead of a `[TEAM FILLS IN]` placeholder), removing the original only if it would otherwise be duplicated.
+   - **Overlaps** — existing rules that the playbook's rule sections (Sub-Agent Behaviors, Workflow, Quality Standards) supersede, duplicate, or contradict — e.g., their own sub-agent, review, or quality rules. For each, show both versions side by side and ask: **keep yours**, **adopt the playbook's** (theirs is removed), or **keep both** (theirs stays put as a project customization).
+   - **Untouched** — everything else stays exactly where it is.
+4. Present the merge plan (seeds, overlaps, what stays untouched), then walk through the seed and overlap decisions one at a time. Wait for the developer's answer on each.
+5. Apply the confirmed plan with the Edit tool: append the playbook sections from the template to the end of CLAUDE.md, fill seeded sections with the developer's existing content, and remove or relocate their original content ONLY where they said yes.
+6. Proceed to Step 1 — CLAUDE.md now has the playbook section headers; seeded sections are already filled, so Step 1 picks up only the remaining markers.
 
 ---
 
@@ -38,7 +52,7 @@ For existing projects only:
 Read `CLAUDE.md` in the project root. Identify which sections still contain the marker text `[TEAM FILLS IN`.
 
 - **Markers found** → skip any already-filled sections, proceed to Step 2 with the unfilled ones.
-- **No markers found, all headers present** → the playbook is fully configured. Tell the developer and stop.
+- **No markers found, all headers present** → all sections are already filled (e.g., a fully-seeded Step 0B merge, or a re-run on a configured project). Tell the developer, skip Steps 2–3, and proceed to Step 3A — the install offers and the Step 4 wrap-up checks still run.
 - **No markers found, missing headers** → this shouldn't happen after Step 0. Tell the developer something is unexpected and suggest re-running `/playbook-setup`.
 
 ---
@@ -92,6 +106,19 @@ Wait for the developer's response. If they provide corrections, incorporate them
 Once confirmed, replace the `[TEAM FILLS IN ...]` placeholder in CLAUDE.md with the confirmed content. Use the Edit tool — do not rewrite the entire file.
 
 Then move to the next unfilled section.
+
+---
+
+## Step 3A: Offer .gitignore entries
+
+The playbook repo gitignores a few paths, but the install deliberately does not copy its `.gitignore` — whether these paths are tracked is the developer's choice, not the playbook's. Offer each entry **individually**; never add one without an explicit yes.
+
+1. Read the project's `.gitignore` (if present). For each entry below not already covered, ask yes/skip with the rationale:
+   - `tasks/logs/` — **recommended.** Skills use it as scratch: Codex audit/review temps and kept research docs land here, and several skills assume it is ignored (their "a stranded temp can never be committed" safety claim depends on this entry). Declining is legitimate — e.g., to version research logs — but then a broad `git add` mid-run can commit stranded temp files; say so when the developer declines.
+   - `.claude/settings.local.json` — machine-local Claude Code settings (permissions, local overrides); conventionally untracked.
+   - `.claude/worktrees/` — Claude Code worktree checkouts (`/auto-issues` runs in these); always machine-local.
+   - `.claude/agents/` — only relevant if the developer later runs `/native-agents`: its install copies agent files here from templates, so ignoring keeps machine-installed copies out of the repo. Skip if they don't plan to use native agents — or if the team wants to share agent files through git.
+2. Append the accepted entries to `.gitignore`. If the file doesn't exist, create it only when at least one entry was accepted. Declined entries are skipped silently — no nagging on re-runs (an entry already present counts as covered).
 
 ---
 
@@ -156,7 +183,7 @@ After all sections are filled:
 1. Print a summary of what was filled
 2. Remind the developer: *"Review the full CLAUDE.md to make sure everything reads well together. You can always edit it manually later."*
 3. If the project doesn't have the `.claude/templates/` directory or `quickref.md`, mention that they should copy those from the playbook repo as well
-4. **Verify maintainer artifacts were removed.** Check whether `tasks/todo.md`, `tasks/completed.md`, `tasks/errors.md`, `tasks/issues.md`, `tasks/new-issues.md`, or `tasks/checkpoint.md` exist. The first five ship with the playbook repo as the maintainer's working artifacts and should have been cleared by `rm -rf tasks` in the README install flow; `tasks/checkpoint.md` is a local artifact from `/checkpoint` and is worth flagging the same way. If any are present, warn the developer: *"Found `tasks/[filename]` — this may be a leftover from the playbook maintainer's working state. Review the contents; if they're not yours, remove them before starting your own work."* Do not exit setup without surfacing this check.
+4. **Check for stray maintainer artifacts.** Check whether `tasks/todo.md`, `tasks/completed.md`, `tasks/errors.md`, `tasks/issues.md`, `tasks/new-issues.md`, or `tasks/checkpoint.md` exist. The first five ship with the playbook repo as the maintainer's working artifacts — the current README install never copies `tasks/`, but older install instructions moved it in wholesale; `tasks/checkpoint.md` is a local artifact from `/checkpoint` and is worth flagging the same way. If any are present and the developer didn't author them, warn the developer: *"Found `tasks/[filename]` — this may be a leftover from the playbook maintainer's working state. Review the contents; if they're not yours, remove them before starting your own work."* Do not exit setup without surfacing this check.
 5. Mention that RDPI commands will create artifacts in `tasks/` as you work (`research-codebase.md`, `design-decision.md`, `research-patterns.md`, `plan.md`). The `tasks/` directory is tracked in git so working state is versioned — add it to `.gitignore` if you prefer to keep it local only.
 
 ---

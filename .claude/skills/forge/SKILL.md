@@ -10,9 +10,9 @@ when_to_use: 'Manual only: use when the developer invokes /forge on a piece — 
 
 A build lane that collapses RDPI's Research/Design/Plan/Implement into **one dispatch-led pass** — for the piece: **$ARGUMENTS**. The orchestrator frames, composes the dispatch, coordinates seams, and reviews; workers build. Governing principle: scaffolding scales inversely with model strength — here the strength is the orchestrator plus the routed frontier workers it dispatches. RDPI itself is unchanged and runs alongside this lane.
 
-**Pre-Edit Gate override.** Explicit developer invocation of `/forge` IS the authorization for this lane: for the named piece, Frame + Build replace the RDPI artifact prerequisites of the **Pre-Edit Gate** in CLAUDE.md's RDPI Workflow Rules — the rule reading "Do not call Edit or Write on source files until…". While this skill runs, sessions must not refuse edits for a missing `tasks/plan.md` and must not silently fall back into RDPI.
+**No RDPI prerequisites.** RDPI is opt-in — its always-on Workflow Rules no longer ship in CLAUDE.md — and `/forge` requires no RDPI artifacts: explicit developer invocation IS the authorization for this lane. While this skill runs, sessions must not refuse edits for a missing `tasks/plan.md` and must not silently fall back into RDPI. In a repo whose CLAUDE.md still carries the legacy RDPI Workflow Rules, this invocation overrides that section's **Pre-Edit Gate** ("Do not call Edit or Write on source files until…") for the named piece — Frame + Build replace its artifact prerequisites.
 
-**Lane shape:** Frame → compose dispatch → Build (dispatched) → optional design-confirm pause → gate cycle(s) (audit → review → triage → apply → verify) → present. Wide pieces split at natural seams: one phase per prompt, with compaction and a continuation prompt between phases (the Multi-Batch Plans pattern in CLAUDE.md).
+**Lane shape:** Frame → compose dispatch → Build (dispatched) → optional design-confirm pause → gate cycle(s) (audit → review → triage → apply → verify) → present. Wide pieces split at natural seams: one phase per prompt, with compaction and a continuation prompt between phases — the **Multi-Batch pattern** referenced throughout this skill.
 
 ---
 

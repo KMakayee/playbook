@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 You are updating the RDPI playbook to the latest version. Walk through each step below, interacting with the developer at each decision point.
 
-**Key principle:** The top half of CLAUDE.md (team-specific sections) is never touched. Only playbook-managed files and the RDPI rules section are updated.
+**Key principle:** The top half of CLAUDE.md (team-specific sections) is never touched. Only playbook-managed files and the playbook rules section are updated.
 
 ---
 
@@ -75,8 +75,8 @@ quickref.md
 2. The default playbook source is `https://github.com/KMakayee/playbook.git`. If `.playbook-version` has a `source` field, use that instead. Ask the developer to confirm the source URL:
    > "Playbook source: `[URL]` — is this correct?"
 
-3. Read CLAUDE.md and check whether it contains the `# RDPI Workflow Rules` marker (or the legacy `# QRSPI Workflow Rules` / `# RPI Workflow Rules` markers).
-   - If none of the markers are found, warn: "CLAUDE.md does not contain the `# RDPI Workflow Rules` section — the CLAUDE.md partial merge (Category B) will be skipped. Run `/playbook-setup` to install the playbook structure."
+3. Read CLAUDE.md and check whether it contains the `# Sub-Agent Behaviors` marker (or one of the legacy markers from older installs: `# RDPI Workflow Rules`, `# QRSPI Workflow Rules`, `# RPI Workflow Rules`).
+   - If none of the markers are found, warn: "CLAUDE.md does not contain the `# Sub-Agent Behaviors` section — the CLAUDE.md partial merge (Category B) will be skipped. Run `/playbook-setup` to install the playbook structure."
    - Continue with the rest of the update (managed files can still be updated).
 
 ---
@@ -137,14 +137,16 @@ For each file in the managed files list above:
 CLAUDE.md requires special handling because the top half is team-owned and the bottom half is playbook-owned.
 
 1. Read the project's current CLAUDE.md.
-2. Find the boundary: locate the `---` line that immediately precedes `# RDPI Workflow Rules` (or the legacy `# QRSPI Workflow Rules` / `# RPI Workflow Rules`). This is the split point.
+2. Find the boundary: locate the `---` line that immediately precedes `# Sub-Agent Behaviors` (or, on an older install, one of the legacy headings: `# RDPI Workflow Rules`, `# QRSPI Workflow Rules`, `# RPI Workflow Rules`). This is the split point.
    - Everything above that `---` line (inclusive) is the **team-owned top half** — do not touch it.
-   - Everything from the workflow rules heading onward is the **playbook-owned bottom half**.
+   - Everything from that heading onward is the **playbook-owned bottom half**.
+
+   **Legacy RDPI migration:** if the boundary was found at a legacy heading, the latest upstream bottom half no longer contains those rules — the always-on RDPI Workflow Rules were removed from CLAUDE.md and RDPI is now opt-in via the skills (`/research-codebase`, `/design`, `/create-plan`, `/implement`). Tell the developer this explicitly before merging: adopting the update replaces the RDPI rules section with the current playbook sections (Sub-Agent Behaviors, Workflow, Quality Standards, Issue Tracking). If they want always-on RDPI enforcement, they can keep their RDPI rules as a project-specific customization — preserve it like any other customization in step 4 below.
 3. Read the latest CLAUDE.md from the temp directory. Extract its bottom half using the same boundary logic.
 4. Compare the current bottom half against the latest bottom half:
-   - If identical → skip silently, report "RDPI rules section is up to date."
+   - If identical → skip silently, report "Playbook rules section is up to date."
    - If different → summarize the changes and ask:
-     > "The RDPI rules section of CLAUDE.md has changed. Update? (yes / skip / show diff)"
+     > "The playbook rules section of CLAUDE.md has changed. Update? (yes / skip / show diff)"
      - **yes** → Merge the latest version into the bottom half. Do NOT wholesale-replace. Instead:
        1. Identify which differences are **upstream playbook updates** (new rules, formatting changes, restructured sections, removed content that was in the old upstream) vs **project-specific customizations** the user added (extra rules, extended bullets, custom checks not present in any upstream version).
        2. Apply the upstream changes while preserving project-specific customizations in their logical locations.
@@ -153,7 +155,7 @@ CLAUDE.md requires special handling because the top half is team-owned and the b
      - **skip** → Leave unchanged. Note it in the summary.
      - **show diff** → Show the diff of the bottom halves only, then ask yes/skip again.
 
-**Important:** After updating, verify the resulting CLAUDE.md by reading it back. Confirm the top half is completely untouched and the bottom half matches the latest.
+**Important:** After updating, verify the resulting CLAUDE.md by reading it back. Confirm the top half is completely untouched and the bottom half matches the confirmed merged result — the latest upstream plus any customizations the developer chose to preserve (including a kept legacy RDPI rules section), not necessarily the latest text verbatim.
 
 ---
 
@@ -269,7 +271,7 @@ Tell the developer: "Version tracking updated. Consider adding `.playbook-versio
    | quickref.md | Updated / Skipped / Already current / New — installed |
    | .claude/templates/playbook-sections.md | Updated / Skipped / Already current |
    | ... | ... |
-   | CLAUDE.md (RDPI rules) | Updated / Skipped / Already current |
+   | CLAUDE.md (playbook rules) | Updated / Skipped / Already current |
    | .playbook-version | Written |
 
    **Previous version:** [old commit or "none"]
@@ -277,7 +279,7 @@ Tell the developer: "Version tracking updated. Consider adding `.playbook-versio
    **Source:** [URL]
    ```
 
-3. **Verify no maintainer artifacts slipped in.** Check whether `tasks/todo.md`, `tasks/completed.md`, `tasks/errors.md`, `tasks/issues.md`, `tasks/new-issues.md`, or `tasks/checkpoint.md` exist in the project. `/playbook-update` does not touch `tasks/`, so any of these files present were either authored by the developer or leaked from the initial install (the README install flow includes `rm -rf tasks` to prevent this). If any are found, remind the developer: *"Found `tasks/[filename]` — verify the contents are yours. If they look like leftover maintainer state, remove them."* Do not exit update without surfacing this check.
+3. **Verify no maintainer artifacts slipped in.** Check whether `tasks/todo.md`, `tasks/completed.md`, `tasks/errors.md`, `tasks/issues.md`, `tasks/new-issues.md`, or `tasks/checkpoint.md` exist in the project. `/playbook-update` does not touch `tasks/`, and the current README install never copies it — so any of these files present were either authored by the developer or leaked from an older install whose instructions moved the playbook's `tasks/` in wholesale. If any are found, remind the developer: *"Found `tasks/[filename]` — verify the contents are yours. If they look like leftover maintainer state, remove them."* Do not exit update without surfacing this check.
 
 4. Remind the developer:
    > "Run `git diff` to review all changes, then commit when you're satisfied."
@@ -287,7 +289,7 @@ Tell the developer: "Version tracking updated. Consider adding `.playbook-versio
 ## Edge cases
 
 - **No network / clone fails:** Report the error clearly: "Could not reach the playbook source at `[URL]`. Check your network connection and the source URL, then try again." Clean up any partial temp directory.
-- **`# RDPI Workflow Rules` marker missing from CLAUDE.md (and no legacy `# QRSPI Workflow Rules` / `# RPI Workflow Rules`):** Abort the CLAUDE.md update only (not the whole command). Update other managed files normally. Suggest running `/playbook-setup` to fix the structure.
+- **`# Sub-Agent Behaviors` marker missing from CLAUDE.md (and no legacy `# RDPI Workflow Rules` / `# QRSPI Workflow Rules` / `# RPI Workflow Rules`):** Abort the CLAUDE.md update only (not the whole command). Update other managed files normally. Suggest running `/playbook-setup` to fix the structure.
 - **Old commit not in history:** Skip the targeted changelog. Show the latest 10 commits instead and note: "The previously installed commit is no longer in the source history (possibly due to a force-push). Showing recent commits instead."
 - **Developer has modified a managed file:** The diff will show their changes. They can choose to skip that file to preserve their modifications, or overwrite with the latest.
 - **Self-update:** `.claude/skills/playbook-update/SKILL.md` is in the managed files list. If it updates itself, tell the developer: "The `/playbook-update` skill itself was updated — any new logic in this update (including new legacy-removal entries that would be handled in Step 2.5) didn't run this pass because the agent loaded the old instructions at the start. To apply pending changes, run `/playbook-update` again — when it reports 'already on latest,' accept the force-update prompt to re-run with the new logic."

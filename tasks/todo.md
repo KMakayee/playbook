@@ -16,6 +16,7 @@ Numbering is reference-only, not execution order. The backlog splits into three 
 - **Issue-board remake (24).** Independent of the other fronts; touches the issue skills and boards only.
 - **Native-agents pair (22 → 23) — front complete.** `22` (install/auto-boot lane) landed 2026-06-11 as PR #33; `23` (workflow model routing + `/forge` rewrite) landed 2026-06-11 as PR #34. Both archived to `tasks/completed.md`.
 - **Relay usage tracking + auto-start (25).** Depends on `22` (landed); independent of the landed `23` (different files — `23` touched `/forge`/CLAUDE.md, `25` touches the relay template + `/native-agents` install/doctor). Merges former issues #9 + #10 off the issue board (2026-06-11).
+- **Playbook-command consolidation (26).** Independent of the other fronts; touches the three `playbook-*` skills and docs. Light ordering note vs `24`: both edit lifecycle references in the playbook skills — whichever lands second reconciles against the other's result.
 
 Cross-front: the landed `19`/`21` inline `13`'s bucket logic; if `13` later refines it, updating them is an enhancement, not a blocker.
 
@@ -491,3 +492,40 @@ CodexBar polls on its own schedule, so stats are computed on demand (with a shor
 - Do the optional schema fields (`credential_count`, `active_count`, `exhausted_count`, `quota_groups`) get meaningful values (e.g. upstream lane health) or stay omitted?
 - Whether inert plist *templates* for the local-only Vertex lane ship under `templates/native-agents/` (plists embed machine paths — must be generated/parameterized at install time, never hardcoded).
 
+
+---
+
+### 26. Consolidate the playbook commands into one `/playbook` skill with a subcommand argument — and add `uninstall`
+
+**Intent.** Replace the three separate maintenance commands (`/playbook-setup`, `/playbook-audit`, `/playbook-update`) with a single `/playbook` skill driven by a mode argument — `setup | audit | update | uninstall` — following the `/checkpoint` subcommand convention (`argument-hint` surfaces the options as you type; a bare invocation prompts for the mode; an unknown argument errors listing the valid modes). Developer direction (2026-06-12). The fourth mode is new capability: **uninstall**, the clean inverse of the install — remove what the playbook brought in, leave everything the developer owns.
+
+**Constraints.**
+- No capability loss: setup's guided CLAUDE.md create/merge paths (Steps 0A/0B re-run guards included), the `.gitignore` offer step, audit's health check, and update's managed-files + Category B partial merge all carry over into their modes.
+- Uninstall inherits the non-destructive principle (2026-06-12 install rework) in reverse: per-category confirmation, never silent deletion, and developer-authored content is untouchable — the team-owned CLAUDE.md top half, preserved customizations, their `tasks/` artifacts, and their `.gitignore` choices are offered for review, never force-removed. Same scope-validation discipline as the update skill's legacy-removals guardrails.
+- Consumer migration converges cleanly: repos on the three-skill layout pick up the consolidated skill through the normal update flow, the old skill folders are retired via the existing legacy-removals mechanism (`.claude/playbook-removals.md` + update Step 2.5), and no duplicate slash entries remain.
+- The self-update edge case (the update logic updating the very skill that is running) must survive the rename — the current `/playbook-update` self-update note is the precedent.
+- All references sync: README, quickref, the managed-files list, templates, and any skill that names the three commands.
+
+**Acceptance criteria.**
+1. A single `/playbook` skill exposes `setup`, `audit`, `update`, and `uninstall` modes; typing the command surfaces the options via `argument-hint`; bare `/playbook` asks which mode; an invalid argument errors with the valid list (the `/checkpoint` convention).
+2. Each migrated mode preserves the full behavior of the skill it replaces — verifiable by walking each retired skill's steps against the new mode.
+3. `uninstall` removes playbook-managed files and offers removal of the playbook-owned CLAUDE.md bottom half, with per-category confirmation and zero loss of developer-authored content.
+4. A consumer repo on the old three-skill layout converges via the update flow: consolidated skill installed, old skills removed through the removals manifest, no duplicate slash entries, `.playbook-version` flow intact.
+5. No stale references to `/playbook-setup`, `/playbook-audit`, or `/playbook-update` remain in the repo (README, quickref, CLAUDE.md, templates, skills).
+
+**Relevant paths.**
+- Skills to consolidate: `.claude/skills/playbook-setup/SKILL.md`, `.claude/skills/playbook-audit/SKILL.md`, `.claude/skills/playbook-update/SKILL.md`
+- Subcommand-pattern reference: `.claude/skills/checkpoint/SKILL.md` (argument table, invalid-arg handling)
+- Retirement mechanism: `.claude/playbook-removals.md` + the update skill's Step 2.5
+- Docs to sync: `README.md` (Setup + skills tables + Updating), `quickref.md`, `.claude/templates/playbook-sections.md`
+
+**Open questions for RDPI:**
+
+- Skill shape: one SKILL.md carrying all four modes (the three skills total ~700 lines — context cost of loading every mode to run one) vs a thin dispatcher SKILL.md with per-mode reference docs in the skill folder (forge's read-at-runtime pattern).
+- Uninstall scope: repo files only, or also offer to revert setup's machine-level side effects (global `~/.claude/skills/` copies, native-agents installs, setup-added `.gitignore` entries)?
+- Transition: hard cutover via the removals manifest, or keep the old names as deprecated thin aliases for one release window?
+- Mode keyword set: is `uninstall` the final spelling (vs `remove`), and do modes take sub-arguments (e.g. `/playbook update --force`)?
+
+**Design notes for RDPI to review (not pre-committed):**
+- The `/checkpoint` argument table (`checkpoint/SKILL.md:12-25`) is the closest in-repo precedent for mode parsing, including the reserved-keyword error path.
+- Uninstall's file inventory can likely derive from the update skill's managed-files list plus the removals manifest — one source of truth instead of a hand-maintained third list.
