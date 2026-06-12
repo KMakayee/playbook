@@ -302,3 +302,48 @@ Surfaced 2026-06-10 while checking whether `tasks/todo.md` aligns with `/create-
 ### Impacts
 
 [Filled by `/issue-update` after a related issue completes.]
+
+## #12 — Workflow post-mortem: per-session learnings drop under `tasks/logs/workflows/`
+
+**Status:** Draft
+**Priority:** Medium
+**Created:** 2026-06-11
+
+### Description
+
+Workflow-heavy sessions (RDPI implement runs, `/forge`, `/auto-issues`, Workflow-tool orchestrations) accumulate learnings — routing misfires, lane failures, classifier denials, recurring Codex-finding patterns — that currently evaporate at session end. The only reflection mechanism today is the Reflect step in the four git-ops skills (`/commit`, `/push-pr`, `/push-pr-light`, `/catchup`), which appends per-incident entries to the single cumulative `tasks/errors.md`. Workflow skills have no end-of-session review at all.
+
+Add a quick end-of-session post-mortem step for workflow skills: review the session's issues/learnings and drop at most ONE quick file per session under `tasks/logs/workflows/` (e.g. `<date>-<slug>.md`) — only when there was something to log; a clean session writes nothing. Keep it lightweight: a drop-in step, not a new pipeline. Experience running workflows in other projects shows they often produce many learnings per session, so the format must hold multiple entries in one file without ballooning into a report.
+
+### Acceptance Criteria
+
+- [ ] A shared post-mortem spec (template under `.claude/templates/` or a section in an existing one) that workflow skills reference inline — same pattern as the `error-report.md` Reflect step.
+- [ ] At most one file per session under `tasks/logs/workflows/`, created only when the session had errors/learnings; clean sessions write nothing.
+- [ ] Wired into the workflow skills (candidate set: `/implement`, `/issue-implement`, `/auto-issues`, `/forge`, `/implement-codex` — final set is a design decision).
+- [ ] Durable cross-session learnings still promote to `tasks/errors.md` (or auto-memory) — the post-mortem complements, never duplicates, the existing Reflect mechanism; design defines the promotion rule.
+- [ ] No mid-work interruptions: the post-mortem runs once at session end / present step, never as a mid-phase stop.
+
+### Constraints
+
+- `tasks/logs/` is gitignored today — per-session files there are machine-local scratch. If learnings should persist with the repo, design must pick the location deliberately.
+- A new shipped template touches `/playbook-update`'s managed-file list — account for it (same check as task 13 AC8).
+- Skills cannot slash-invoke other skills — the spec is applied inline (inline-contract convention).
+
+### Relevant paths
+
+- `.claude/templates/error-report.md` (existing reflection-prompt pattern)
+- `.claude/skills/{implement,issue-implement,auto-issues,forge,implement-codex}/SKILL.md`
+- `tasks/errors.md` (cumulative log; promotion target)
+- `.claude/skills/playbook-update/SKILL.md` (managed list)
+
+### Notes
+
+Open questions for RDPI:
+- Gitignored `tasks/logs/workflows/` vs a tracked location — where do learnings that matter beyond this machine live?
+- Which skills get the step; are Workflow-tool (multi-agent) runs covered via a CLAUDE.md rule instead of per-skill wiring?
+- Session identity for the filename — date + piece/issue slug, or checkpoint-style naming?
+- Promotion rule: what graduates from a session post-mortem into `tasks/errors.md` or auto-memory?
+
+### Impacts
+
+[Filled by `/issue-update` after a related issue completes.]
