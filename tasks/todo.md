@@ -416,6 +416,8 @@ A fresh session reads only that and continues — no SKILL.md, no artifacts.
 4. The CLAUDE.md Issue Tracking section, `.claude/templates/new-issues.md` (or its successor), and the mirrored `.claude/templates/playbook-sections.md` reflect the new location and layout.
 5. Lifecycle commands that reference the old files (`/finish`, `/playbook-audit`, `/playbook-update`, session-start validation) are reconciled.
 
+*(Note added 2026-06-12, scope for AC 4: `.claude/templates/playbook-sections.md` is currently missing the `# Issue Tracking` section that ships in CLAUDE.md's playbook-owned bottom half — so a CLAUDE.md created from the template (`/playbook-setup` Steps 0A/0B) lacks the section, and the first `/playbook-update` Category B merge reports it as an upstream addition. When this task reshapes Issue Tracking, add the section to the template too so template-created files match the shipped CLAUDE.md layout end to end.)*
+
 **Relevant paths.**
 - Current boards: `tasks/new-issues.md`, `tasks/issues.md`
 - Template: `.claude/templates/new-issues.md`
