@@ -201,7 +201,7 @@ git diff --stat                                                # → only forge/
 
 Plus a full read of the rewritten skill end-to-end: lane shape ↔ steps ↔ orchestration consistent; triage wording byte-identical to before (task 13).
 
-**Commit:** `feat(skills): rewrite /forge as piece-agnostic dispatch-led orchestration`
+**Commit:** `feat(skills): rewrite /forge as piece-agnostic dispatch-led orchestration` — ✅ done, all criteria pass (triage byte-identical; full-read consistency confirmed). Minor adaptation: continuation prompt's "test/typecheck commands" generalized to "the Frame-recorded per-type verify plan" for piece-agnostic consistency (3f extends, 3b/3d define per-type).
 
 ---
 
