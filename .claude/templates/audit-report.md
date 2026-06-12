@@ -12,10 +12,8 @@
 | Codebase Overview | _ok / stale / unconfigured_ | |
 | Architecture | _ok / stale / unconfigured_ | |
 | Conventions | _ok / stale / unconfigured_ | |
-| Testing | _ok / stale / unconfigured_ | |
-| Build & Run | _ok / stale / unconfigured_ | |
+| Commands | _ok / stale / unconfigured_ | |
 | Critical Paths | _ok / stale / unconfigured_ | |
-| Dependencies | _ok / stale / unconfigured_ | |
 
 **Actions taken:** [List any sections updated during this audit, or "None".]
 
@@ -36,6 +34,6 @@
 
 ## Summary
 
-- **CLAUDE.md:** [N] of 7 sections healthy, [N] stale, [N] unconfigured
+- **CLAUDE.md:** [N] of 5 sections healthy, [N] stale, [N] unconfigured
 - **Artifacts:** [clean / N files cleaned up]
 - **Next audit recommended:** [date, ~2-4 weeks from now]

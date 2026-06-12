@@ -26,7 +26,7 @@ Ask the developer:
 For existing projects only:
 
 1. Read their existing CLAUDE.md and summarize what's there (1-2 sentences) so the developer can confirm it's the right file.
-2. Explain: "I'll append 7 new sections (Codebase Overview, Architecture, Conventions, Testing, Build & Run, Critical Paths, Dependencies) and the RDPI Workflow Rules to your file. Your existing content will not be touched."
+2. Explain: "I'll append 5 new sections (Codebase Overview, Architecture, Conventions, Commands, Critical Paths) and the playbook rules (Sub-Agent Behaviors, Workflow, Quality Standards) to your file. Your existing content will not be touched."
 3. Wait for developer confirmation.
 4. Read `.claude/templates/playbook-sections.md` and append its full contents to the end of CLAUDE.md using the Edit tool.
 5. After appending, proceed to Step 1 — CLAUDE.md now has markers.
@@ -59,10 +59,8 @@ Use this prompt, substituting the actual unfilled section names for `[UNFILLED_S
 > - **Codebase Overview** — what the project does, who uses it, maturity stage (2-3 sentences)
 > - **Architecture** — primary language/framework, directory layout, key abstractions, DB layer, external services
 > - **Conventions** — naming conventions, import ordering, error handling patterns, logging style
-> - **Testing** — framework, test file locations, run commands, coverage expectations
-> - **Build & Run** — install, dev server, build, lint/format commands
-> - **Critical Paths** — auth, payments, migrations, public API contracts, files requiring extra caution
-> - **Dependencies** — noteworthy version constraints or unusual packages (skip obvious ones)
+> - **Commands** — install, dev server, build, lint/format, full-suite and single-file test commands; test framework and test-file location convention
+> - **Critical Paths** — auth, payments, migrations, public API contracts, must-not-change version constraints, files requiring extra caution
 
 Store the subagent's full response — you will use it in Step 3. **Do not read any additional source or config files yourself.**
 

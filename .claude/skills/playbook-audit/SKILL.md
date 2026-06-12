@@ -24,7 +24,7 @@ If `tasks/` does not exist, note it — there are no artifacts to clean up. Skip
 
 Spawn a single Explore subagent (`Agent` tool, `subagent_type: "Explore"`, thoroughness: "very thorough") with this prompt:
 
-> Compare the top-half sections of CLAUDE.md (Codebase Overview, Architecture, Conventions, Testing, Build & Run, Critical Paths, Dependencies) against the actual codebase state. For each section:
+> Compare the top-half sections of CLAUDE.md (Codebase Overview, Architecture, Conventions, Commands, Critical Paths) against the actual codebase state. For each section:
 > 1. If the section contains `[TEAM FILLS IN` markers, report it as "unconfigured".
 > 2. If the section contains `<!-- TODO` comments, report it as "unconfigured".
 > 3. Otherwise, check whether the described tech stack, file paths, commands, and conventions still match reality. Report any discrepancies with specific evidence (file paths, package.json entries, etc.).

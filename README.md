@@ -1,12 +1,11 @@
 # Agentic Engineering Playbook
 
-A workflow toolkit that pairs Claude and Codex for disciplined software engineering: Codex scans and cross-checks the codebase, while Claude synthesizes, prioritizes, and implements. Together, they catch mistakes neither would catch alone.
+An agentic engineering toolkit built on the Claude Code harness: it brings traditional engineering discipline — research before code, reviewed designs, approved plans, independent review — into agentic development with sub-agents, workflows, and multi-model routing. Claude orchestrates; Codex and Gemini take the lanes they're best at, and no model reviews its own work.
 
 ## Prerequisites
 
 - [Claude Code](https://claude.com/claude-code) — the runtime for slash commands
-- [Codex CLI](https://github.com/openai/codex) — invoked in every RDPI phase for independent review
-- [VibeProxy](https://github.com/automazeio/vibeproxy) — *optional*, macOS only; powers the native multi-model agents installed by `/native-agents`
+- [Codex CLI](https://github.com/openai/codex) — invoked for independent review and cross-checks
 
 ## Setup
 
@@ -39,21 +38,21 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 | Skill | Purpose |
 |---|---|
-| `/research-codebase` | Codex sweeps, Claude synthesizes; writes `tasks/research-codebase.md` |
-| `/design` | Evaluate options, run Codex cross-check, pick a winner; writes `tasks/design-decision.md`. Includes inline pattern research with RUN/SKIP gate. |
-| `/create-plan` | Draft plan, Codex reviews, absorb findings; writes `tasks/plan.md` |
-| `/implement` | Execute plan phase-by-phase, run Codex code review, apply triaged fixes via child process |
-| `/implement-codex` | *Experimental.* Codex drives implementation, Claude verifies per-phase. `/implement` remains the production path |
-| `/forge` | Piece-agnostic build lane — Frame → dispatch-led Build (Codex workers build code; artifacts follow the authoring chain) → Codex gate cycle (audit → review → triage → per-type verify) |
-| `/create-todo` | Create standalone `tasks/todo.md` for ad-hoc tracking |
+| `/research-codebase` | Investigate the codebase before writing code — current behavior, relevant paths, patterns, risks; writes `tasks/research-codebase.md` |
+| `/design` | Evaluate implementation options, cross-check them with a second model, and pick a winner; writes `tasks/design-decision.md` |
+| `/create-plan` | Turn the finalized design into a reviewed, step-by-step plan for your approval; writes `tasks/plan.md` |
+| `/implement` | Execute the approved plan phase-by-phase, then code-review the result and apply the fixes |
+| `/implement-codex` | *Experimental.* Like `/implement`, but Codex writes the code and Claude verifies each phase; `/implement` remains the production path |
+| `/forge` | Build one named piece (code, doc, spec, …) end-to-end: define its contract, build it, then review-and-fix until it passes |
+| `/create-todo` | Turn a rough goal into a structured task backlog in `tasks/todo.md` |
 
 **Issue workflow**
 
 | Skill | Purpose |
 |---|---|
-| `/issue-research` | Codex sweeps issue, Claude synthesizes + recommends approach; writes `tasks/research-issue-N.md` |
-| `/issue-plan` | Draft plan, Codex reviews, absorb findings; writes `tasks/plan-issue-N.md` |
-| `/issue-implement` | Execute plan phase-by-phase, run Codex code review, apply triaged fixes inline |
+| `/issue-research` | Investigate an issue and recommend an approach; writes `tasks/research-issue-N.md` |
+| `/issue-plan` | Write a reviewed implementation plan for an issue; writes `tasks/plan-issue-N.md` |
+| `/issue-implement` | Execute the issue's plan, then code-review the result and apply the fixes |
 | `/issue-update` | Check impact of completed issue on other open issues |
 | `/auto-issues` | Run the full pipeline for one issue end-to-end, unattended, inside its `worktree-issue-N` worktree |
 | `/issue-finish` | Commit remaining issue work, then clean up issue artifacts |
@@ -76,14 +75,14 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 | `/push-pr-light` | Push, open PR, light diff review, squash-merge by default |
 | `/catchup` | Catch a feature branch up to its default base — fetch, merge, surface conflicts, run validation, recommend `/push-pr` |
 | `/checkpoint` | Save / resume / discard work state in `tasks/checkpoint.md` (commits on save, consumes on resume) |
-| `/codex-review` | One-shot Codex second-opinion pass over a file, diff, artifact, or freeform target |
-| `/codex-audit` | Source-grounded Codex audit of a target against its source(s) for fidelity, completeness, and precision |
-| `/codex-research` | General-purpose Codex research / grounding (codebase, generative, or external prior-art) producing a kept research doc |
+| `/codex-review` | Get a second-opinion review of a file, diff, or artifact from a different model |
+| `/codex-audit` | Check that a derived artifact faithfully matches its source(s) — fidelity, completeness, precision |
+| `/codex-research` | Research a question — in the codebase, externally, or "is there a better way" — and keep the findings in `tasks/logs/research/` |
 | `/finish` | Wrap up task: verify, commit artifacts, clean up |
 
 ### Native multi-model agents (optional, macOS)
 
-`/native-agents` installs `codex`, `codex-xhigh`, and `gemini-flash` as native subagent types, served through a local model-routing relay in front of [VibeProxy](https://github.com/automazeio/vibeproxy)'s OAuth providers. Sessions opt in by launching with the installed `claude-native` launcher (fail-closed: it never starts Claude against an unverified relay); `/native-agents doctor` verifies the install end-to-end. Stock `claude` sessions are completely untouched. After a passing doctor run, the skill offers to make `claude` itself default to the relayed launcher via a shell alias — `command claude` always gives a stock session. Once installed, CLAUDE.md's Workflow section routes delegated work across the lanes by default (Codex = coding, Opus = audit/synthesis, Gemini Flash = volume/fetch); stock sessions fall back to Claude-only routing per the same section.
+`/native-agents` installs `codex`, `codex-xhigh`, and `gemini-flash` as native subagent types, served through a local model-routing relay. Sessions opt in via the installed `claude-native` launcher (fail-closed — stock `claude` sessions are untouched), and `/native-agents doctor` verifies the install end-to-end. Once installed, CLAUDE.md's Workflow section routes delegated work across the lanes by default — Codex codes, Opus audits and synthesizes, Gemini Flash takes volume — with stock sessions falling back to Claude-only routing.
 
 ### Templates
 
@@ -97,7 +96,7 @@ This detects your tech stack, fills in the `[TEAM FILLS IN]` sections of `CLAUDE
 
 ### Workflow rules
 
-`CLAUDE.md` includes the RDPI (Research, Design, Plan, Implement) workflow rules. Any task touching 2+ files or changing interfaces requires structured research, a reviewed design, an approved plan, and step-by-step implementation with verification. Every phase pairs Claude's synthesis with an independent Codex cross-check — the author never reviews its own work, and that rule is what separates this playbook from single-agent workflows. With `/native-agents` installed, CLAUDE.md's Workflow section extends it to a three-family allocation — Codex builds, Claude audits and synthesizes, Gemini Flash takes volume work and third-family verification. Trivial changes (single file, <20 lines) skip the process. See `quickref.md` for the full checklist.
+`CLAUDE.md` carries the always-loaded rules: sub-agent behaviors (recursion guard, grounded findings), the Workflow model-routing table (Codex builds, Claude audits and synthesizes, Gemini Flash takes volume work and third-family verification), and quality standards. The RDPI cycle (Research, Design, Plan, Implement) is opt-in — run it via the skills above when a task warrants structured research, a reviewed design, and an approved plan. Every phase pairs the author with an independent cross-check from another model — the author never reviews its own work, and that rule is what separates this playbook from single-agent workflows. See `quickref.md` for the operator checklist.
 
 ## Updating
 
@@ -127,4 +126,4 @@ Enabling LSP (Language Server Protocol) in Claude Code gives **~25% faster and c
 
 ---
 
-Credits to [HumanLayer](https://github.com/humanlayer) for the workflow foundation and to [Boris Cherny](https://x.com/bcherny) for orchestration principles. Two-agent orchestration pattern inspired by pairing human code review with an independent reviewer.
+Credits to [HumanLayer](https://github.com/humanlayer) for the workflow foundation and to [Boris Cherny](https://x.com/bcherny) and [Peter Steinberger](https://github.com/steipete) for orchestration principles. Two-agent orchestration pattern inspired by pairing human code review with an independent reviewer.

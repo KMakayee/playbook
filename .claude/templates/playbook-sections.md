@@ -21,22 +21,16 @@
 - Error handling patterns
 - Logging conventions]
 
-## Testing
+## Commands
 
-[TEAM FILLS IN — Testing setup:
-- Framework (e.g., Jest, Vitest, pytest)
-- Test file location convention (e.g., `__tests__/`, co-located `.test.ts`)
-- How to run the full suite: `[COMMAND]`
-- How to run a single test file: `[COMMAND]`
-- Minimum coverage expectations, if any]
-
-## Build & Run
-
-[TEAM FILLS IN — Commands to build and run locally:
+[TEAM FILLS IN — Commands the agent must use:
 - Install dependencies: `[COMMAND]`
 - Dev server: `[COMMAND]`
 - Production build: `[COMMAND]`
-- Lint / format: `[COMMAND]`]
+- Lint / format: `[COMMAND]`
+- Run the full test suite: `[COMMAND]`
+- Run a single test file: `[COMMAND]`
+Also note the test framework and test-file location convention (e.g., Vitest, co-located `.test.ts`).]
 
 ## Critical Paths
 
@@ -45,108 +39,24 @@
 - Payment / billing logic
 - Database migrations
 - Public API contracts
+- Dependency/version constraints that must not change (e.g., "do not upgrade X past Y")
 - Any file that should NOT be modified without explicit human approval]
-
-## Dependencies
-
-[TEAM FILLS IN — Key dependencies and version constraints worth noting. Omit obvious ones — only list what the agent needs to know to avoid breaking things.]
-
----
-
-# RDPI Workflow Rules
-
-**These rules are fixed. Do not modify them.**
-
-## Pre-Edit Gate
-
-**Before calling Edit or Write on any source file, classify the task:**
-
-| Classification | Criteria | Workflow |
-|---|---|---|
-| **Trivial** | Single file, under ~20 changed lines, no new abstractions, no changed interfaces | Implement directly — no RDPI needed |
-| **Non-trivial** | 2+ files, OR new/changed abstractions, OR modified interfaces/contracts, OR changed control flow across modules | **Full RDPI required** — all phases, no skipping |
-
-If uncertain, it is non-trivial. Do not call Edit or Write on source files until either (a) the task is trivial, or (b) `tasks/research-codebase.md` exists, the design in `tasks/design-decision.md` is finalized, and `tasks/plan.md` is approved.
-
-**Four-field intake (non-trivial tasks).** Before a non-trivial task enters Research it must carry four fields: **intent, constraints, acceptance criteria, relevant paths**. In the singleton flow, `/research-codebase` Step 2.5 captures and confirms them. In the issue workflow, intake is satisfied by the issue board: `### Description` (intent) and `### Acceptance Criteria` are mandatory, while `### Constraints` and `### Relevant paths` are optional — a missing optional section does not block `/issue-implement` or `/auto-issues`. For a bug fix, `intent` (the reported symptom) and `acceptance criteria` (expected correct behavior) are always required; `constraints` and `relevant paths` may be `unknown — discover during diagnosis`.
-
-**Bug fix mode:** When given a bug report, error log, or failing test — diagnose it autonomously. Do not ask the user to identify the root cause. The autonomy is about initiative and diagnosis, not about skipping process. A bug fix that meets the non-trivial criteria above still requires full RDPI. Arrive at the plan on your own, then present it for approval as usual.
-
-## Phase 1: Research (`/research-codebase`)
-
-Before writing any code, investigate the codebase to gather ground truth. Document what IS, not what should be.
-
-1. Run `/research-codebase` with the task description. Codex sweeps the codebase; Claude synthesizes. Produces `tasks/research-codebase.md` (max 1000 lines) — located paths, current behavior analysis, codebase patterns, design axes, risks, and open questions.
-2. **Verify context budget** — If above 30% context utilization after writing research, compact before proceeding.
-
-## Phase 2: Design (`/design`)
-
-Evaluate implementation options and pick a winner.
-
-1. Run `/design` — reads `tasks/research-codebase.md`, proposes options, runs Codex as an independent cross-check, and writes the final decision to `tasks/design-decision.md`.
-2. Pattern research runs inline via a RUN/SKIP gate — produces `tasks/research-patterns.md` when novel/complex external patterns apply.
-3. **Do not plan until the design is finalized.** If the review raises blocking concerns, address them first.
-
-## Phase 3: Plan (`/create-plan`)
-
-Generate a detailed implementation plan from the finalized design — do NOT plan from memory.
-
-1. Run `/create-plan` — reads research, design, and patterns artifacts; Claude drafts, Codex reviews, Claude absorbs findings. Produces `tasks/plan.md`.
-2. **Do not implement until the plan is approved.** If rejected or revised, update `tasks/plan.md` before proceeding.
-
-## Phase 4: Implement (`/implement`)
-
-**Prerequisite check:** Confirm that `tasks/plan.md` exists and the plan has been approved. If missing, stop — you have skipped a phase.
-
-Execute the approved plan. Do not improvise.
-
-1. Run `/implement` — executes the plan phase-by-phase, then runs Codex code review and applies triaged fixes via a child process.
-2. Follow the plan step by step. Deviations require a plan update first.
-3. Keep changes minimal — only modify what the plan specifies.
-4. Run tests after each logical unit of change, not just at the end.
-5. If something unexpected is encountered, **stop** and return to Research for that sub-problem.
-6. Track progress via checkboxes in `tasks/plan.md`. Commit after each phase with conventional commit messages.
-7. **Do not delete artifacts mid-task** — `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, and `tasks/plan.md` stay until the task is complete. They're part of the task's record and should only be removed after they've been committed.
-
-## Multi-Batch Plans
-
-When a plan contains multiple independent batches (e.g., a code review with 6 fix batches), do NOT implement them all in one pass. Each batch is a separate unit of work in its own prompt.
-
-1. During Phase 3, identify and list independent batches in the plan.
-2. Execute one batch per prompt. The pre-edit gate applies per-batch — trivial batches can skip RDPI, non-trivial batches get full RDPI.
-3. Compact between batches to keep context low.
-
----
-
-# Compaction Rules
-
-Context is a scarce resource. Compact proactively, not reactively. LLM reasoning quality degrades significantly above ~40% context utilization (the "Dumb Zone") — the 30-35% trigger below keeps a safety margin.
-
-| Trigger | Action |
-|---|---|
-| Context utilization reaches **30–35%** | Compact immediately — summarize conversation, drop raw file contents |
-| Switching between sub-problems | Compact before pivoting to the new sub-problem |
-| New conversation starts | Never carry forward a previous session's full context |
-
-When compacting:
-- Preserve: task description, file paths, key decisions, current phase, and artifact locations
-- Drop: raw file contents already written to artifacts, verbose tool output, superseded analysis
 
 ---
 
 # Sub-Agent Behaviors
 
-**Recursion guard:** Sub-agents are leaf tasks (read, search, report): they MUST NOT follow RDPI, and MUST NOT spawn sub-agents unless their spawn prompt explicitly grants the orchestrator role. The grant is non-transitive: an orchestrator spawns leaves only (max depth: parent → orchestrator → leaf).
+**Recursion guard:** Sub-agents are leaf tasks (read, search, report): they MUST NOT spawn sub-agents unless their spawn prompt explicitly grants the orchestrator role. The grant is non-transitive: an orchestrator spawns leaves only (max depth: parent → orchestrator → leaf).
 
 Grant the role only for adaptive investigation — when each next spawn depends on the previous result and the lead's accumulated context doesn't serialize well (deep debugging, unfamiliar-code archaeology). If the fan-out is plannable up front, don't grant: have the lead return a work-list as structured output and spawn its items from the parent or workflow script.
 
 ## Sub-Agent Use
 
-When spawning sub-agents in RDPI commands:
+When spawning sub-agents:
 
 - **Split test:** Spawn N sub-agents only if you can write N independent prompts where each result is usable without the others. If a gap can't be split this way, use one sub-agent.
 - **Batch parallel calls:** When spawning ≥2 sub-agents, send all `Agent` calls in a single message (one tool-use batch). "In parallel" alone is not enough — explicit batching is the steering signal.
-- **Acceptance contract:** Each spawn prompt must require file:line citations (for code reads) or source URLs (for web reads), and must instruct the sub-agent to flag any contradictions with prior findings.
+- **Acceptance contract:** Ask sub-agents to ground their findings — file:line citations for code reads, source URLs for web reads — and to flag contradictions with prior findings. Uncited claims are how sub-agent errors slip through.
 - **Parent-only fallback:** If output is missing citations/URLs or contradicts prior findings, the parent reads the relevant files/sources directly to fill the gap. Do not re-spawn for the same gap (the recursion guard above).
 
 ---
@@ -185,18 +95,5 @@ Model routing for delegated work — this section governs ALL agent dispatch: pl
 - **Read before modifying** — Do not propose changes to files you haven't read. Prefer editing existing files over creating new ones.
 - **Verify before completing** — prove it works: run tests, run the linter, check logs, diff against the target branch. "I think it works" is not verification.
 - **Find root causes** — no band-aids or temporary fixes. Trace symptoms to their source and fix the actual problem.
-- **Surgical changes** — every changed line needs a reason traceable to the plan. No features, refactoring, or "improvements" beyond what the plan specifies. If you can't explain why a line changed, revert it.
+- **Surgical changes** — keep diffs minimal and scoped to the task. No drive-by features, refactoring, or "improvements" beyond what was asked. When working from an approved plan, changes trace to the plan; otherwise they trace to the user's request.
 - **Demand elegance for non-trivial changes** — before implementing, ask "is there a simpler way?" Skip for mechanical or single-line fixes.
-- **Self-assess** — before marking any step complete, ask: "Would a staff engineer approve this?" If the answer is no, revise.
-- If a task seems too large, break it into sub-tasks that each follow RDPI independently.
-
----
-
-# Session-Start Validation
-
-At the start of each session, run these lightweight checks (no sub-agents, under 30 seconds total):
-
-1. **Active checkpoint** — If `tasks/checkpoint.md` exists, do not auto-resume. Tell the developer: "Found `tasks/checkpoint.md` from a prior session. Run `/checkpoint resume` to rehydrate, `/checkpoint discard` to drop it, or `/checkpoint replace` to overwrite with a fresh save." If the developer chooses resume, skip the leftover-artifact check below — `/checkpoint resume` is the cleanup path.
-2. **Leftover artifacts** — Check if `tasks/research-codebase.md`, `tasks/design-decision.md`, `tasks/research-patterns.md`, `tasks/plan.md`, or any `tasks/plan-issue-*.md` / `tasks/research-issue-*.md` files exist from a previous session. If found, notify the developer and ask whether to clean up or resume.
-3. **Unconfigured CLAUDE.md** — Scan the top half of CLAUDE.md for `[TEAM FILLS IN` markers or `<!-- TODO` comments. If found, mention that `/playbook-setup` can fill them in.
-4. **Playbook version** — If `.playbook-version` exists, read it. If the installed date is older than 30 days, mention that `/playbook-update` can check for updates.

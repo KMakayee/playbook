@@ -19,41 +19,52 @@
 
 | Skill                    | What it does                                                                   |
 |--------------------------|--------------------------------------------------------------------------------|
-| `/create-todo`           | Create standalone `tasks/todo.md` for ad-hoc tracking                          |
-| `/research-codebase` | Codex sweeps, Claude synthesizes → `tasks/research-codebase.md`                |
-| `/design`            | Options + Codex cross-check; inline pattern research → `tasks/design-decision.md` |
-| `/create-plan`       | Claude drafts + Codex reviews → `tasks/plan.md`                                |
-| `/implement`         | Execute plan + Codex code review + child-process fixes                         |
-| `/implement-codex`   | *Experimental.* Codex writes phases, Claude verifies; `/implement` stays production |
-| `/forge`             | Piece-agnostic build lane: Frame → dispatched Build (Codex workers / authoring chain) → Codex gate cycle → per-type verify |
+| `/create-todo`           | Turn a rough goal into a structured task backlog → `tasks/todo.md`             |
+| `/research-codebase` | Investigate the codebase before writing code — current behavior, relevant paths, patterns, risks → `tasks/research-codebase.md` |
+| `/design`            | Evaluate implementation options, cross-check them with a second model, and pick a winner → `tasks/design-decision.md` |
+| `/create-plan`       | Turn the finalized design into a reviewed, step-by-step implementation plan for your approval → `tasks/plan.md` |
+| `/implement`         | Execute the approved plan phase-by-phase, then code-review the result and apply the fixes |
+| `/implement-codex`   | *Experimental.* Like `/implement`, but Codex writes the code and Claude verifies each phase |
+| `/forge`             | Build one named piece (code, doc, spec, …) end-to-end: define its contract, build it, then review-and-fix until it passes |
 
 **Issue Board**
 
 | Skill                            | What it does                                              |
 |----------------------------------|-----------------------------------------------------------|
-| `/issue-research N`    | Codex sweeps + Claude synthesizes + recommends → `tasks/research-issue-N.md` |
-| `/issue-plan N`        | Draft plan, Codex reviews, absorb findings → `tasks/plan-issue-N.md`         |
-| `/issue-implement N`   | Execute plan + Codex code review + inline fixes                              |
+| `/issue-research N`    | Investigate issue N and recommend an approach → `tasks/research-issue-N.md` |
+| `/issue-plan N`        | Write a reviewed implementation plan for issue N → `tasks/plan-issue-N.md`   |
+| `/issue-implement N`   | Execute issue N's plan, then code-review the result and apply the fixes      |
 | `/issue-update N`      | After completion, check impact on other open issues                          |
-| `/auto-issues`         | Run full pipeline end-to-end (derives N from the `worktree-issue-N` branch)   |
+| `/auto-issues`         | Run research → plan → implement for one issue end-to-end (derives N from the `worktree-issue-N` branch) |
 | `/issue-finish [N]`    | Commit remaining work + clean up issue artifacts (N optional — overrides branch) |
 
 **Code Quality**
 
 | Skill           | What it does                                                                     |
 |-----------------|----------------------------------------------------------------------------------|
-| `/finish`       | Wrap up task: mark done, commit everything including RDPI artifacts             |
+| `/finish`       | Wrap up the current task — mark it done, commit all remaining work and artifacts |
 | `/commit`       | Stage, commit, and push to current branch                                        |
 | `/push-pr`      | Push, open PR, code review, squash-merge if passing                              |
 | `/push-pr-light`| Push, open PR, light diff review, squash-merge if passing                        |
 | `/catchup`      | Catch a feature branch up to its default base — fetch, merge, surface conflicts  |
 | `/checkpoint`   | Save / resume / discard work state in `tasks/checkpoint.md` (auto-detects RDPI phase + cursor) |
-| `/codex-review` | One-shot Codex second-opinion pass over a file, diff, artifact, or freeform target |
-| `/codex-audit`  | Audit a target against its source(s) for fidelity, completeness, and precision     |
-| `/codex-research`| Codex research / grounding — codebase, generative, or external prior-art (kept doc) |
-| `/simplify`     | Review changed code for reuse, quality, and efficiency (built-in)                |
-| `/batch`        | Decompose large changes into parallel sub-agents in isolated worktrees (built-in)|
-| `/loop`         | Run a prompt on a recurring interval, e.g. `/loop 5m check deploy` (built-in)   |
+| `/codex-review` | Get a second-opinion review of a file, diff, or artifact from a different model    |
+| `/codex-audit`  | Check that a derived artifact faithfully matches its source(s) — fidelity, completeness, precision |
+| `/codex-research`| Research a question — in the codebase, externally, or "is there a better way" — and keep the findings → `tasks/logs/research/` |
+
+**Built-in (Anthropic-maintained)**
+
+Default-installed in Claude Code and maintained by Anthropic — recommended alongside the playbook skills above.
+
+| Command          | What it does                                                                     |
+|------------------|----------------------------------------------------------------------------------|
+| `/simplify`      | Review changed code for reuse, quality, and efficiency                          |
+| `/batch`         | Decompose large changes into parallel sub-agents in isolated worktrees          |
+| `/loop`          | Run a prompt on a recurring interval, e.g. `/loop 5m check deploy`              |
+| `/deep-research` | Fan out web searches, verify claims across sources, synthesize a cited research report |
+| `/goal`          | Set a persistent objective the agent keeps working toward until done            |
+| `/workflows`     | Watch and manage running multi-agent workflows (spawn one by including `ultracode` in your prompt) |
+| `/fork`          | Spawn a subagent with a copy of the current context, give it its own instruction — its result comes back to the main chat |
 
 ---
 
@@ -91,46 +102,24 @@ LSP gives Claude instant, accurate code navigation — definitions, references, 
 
 ## Pre-Edit Gate
 
-**Before calling Edit or Write, classify the task:**
+Before asking the agent to change code, classify the task:
 
-- **Trivial:** single file, under ~20 changed lines, no new abstractions, no changed interfaces → implement directly
-- **Non-trivial:** 2+ files, OR new/changed abstractions, OR modified interfaces/contracts → **full RDPI required**
+- **Trivial** — single file, under ~20 lines, no new abstractions or interfaces → just ask for the change directly
+- **Non-trivial** — 2+ files, OR new/changed abstractions, interfaces, or cross-module control flow → run the RDPI cycle
 
-If uncertain, it is non-trivial. Do not Edit/Write source files until the task is trivial OR the design is finalized and `plan.md` is approved.
-
-**Bug fix mode:** Diagnose autonomously — don't ask the user to identify root cause. Non-trivial bug fixes still require full RDPI.
+If uncertain, treat it as non-trivial. For bugs: hand the agent the symptom and let it diagnose — don't do the root-cause hunt yourself.
 
 ---
 
-## Phase 1: Research
+## The RDPI Cycle
 
-1. Run `/research-codebase` with the task description — Codex sweeps, Claude synthesizes
-2. Produces `tasks/research-codebase.md` — located paths, current behavior, design axes, risks
-3. **Check context** — if above 30%, compact now
+**1. Research** — run `/research-codebase` with the task description → `tasks/research-codebase.md` (relevant paths, current behavior, risks).
 
-## Phase 2: Design
+**2. Design** — run `/design` → `tasks/design-decision.md`. Check the chosen option before moving on.
 
-1. Run `/design` — Claude proposes options, Codex cross-checks, Claude picks the winner → `tasks/design-decision.md`
-2. Pattern research runs inline via RUN/SKIP gate — produces `tasks/research-patterns.md` for novel/complex work
-3. **Do not plan until design is finalized**
+**3. Plan** — run `/create-plan` → `tasks/plan.md`. **Read and approve the plan before anything is implemented** — the plan is your alignment point with the agent; review the intent, not every line.
 
-## Phase 3: Plan
-
-1. Run `/create-plan` — Claude drafts, Codex reviews, Claude absorbs findings → `tasks/plan.md`
-2. **Get human approval** — do NOT implement until plan is reviewed
-
-> The plan creates **mental alignment** between you and the agent. Review the *intent*, not every line of generated code.
-
-## Phase 4: Implement
-
-1. Run `/implement` — executes the plan phase-by-phase, then runs Codex code review and applies triaged fixes via child process
-2. **Follow the plan exactly** — deviations require a plan update first
-3. **Change only what's specified** — no drive-by refactors or "improvements"
-4. **Test after each step** — not just at the end
-5. **Stop if surprised** — unexpected behavior → return to Research
-6. **Commit per phase** — conventional commit messages
-7. **Track progress** — checkboxes in `tasks/plan.md`
-8. **One batch per prompt** — if the plan has independent batches, execute each in its own prompt (pre-edit gate applies per-batch)
+**4. Implement** — run `/implement`. Executes the approved plan phase-by-phase with a code review at the end. If the plan lists independent batches, run one batch per prompt.
 
 ---
 
@@ -149,9 +138,8 @@ If uncertain, it is non-trivial. Do not Edit/Write source files until the task i
 
 - **Verify before completing** — prove it works (tests, logs, diff). Not "I think it works."
 - **Find root causes** — no band-aids. Trace to source, fix the real problem.
-- **Surgical changes** — every changed line needs a reason. Can't explain it? Revert it.
+- **Surgical changes** — minimal diffs, scoped to the task. No drive-by refactors or "improvements."
 - **Demand elegance** — "Is there a simpler way?" (skip for mechanical fixes)
-- **Self-assess** — "Would a staff engineer approve this?" If no, revise first.
 
 ---
 
@@ -180,28 +168,7 @@ Track these to know if the workflow is actually helping:
 
 ---
 
-## Starting a New Task
-
-```
-1. Fresh context window (or compact fully)
-2. Define the task: input, output, success criteria
-3. If non-trivial (see Pre-Edit Gate) → begin RDPI
-```
-
----
-
 ## Maintenance
 
-Run `/playbook-update` to fetch the latest playbook version and apply updates interactively. Your project-specific CLAUDE.md customizations are preserved during updates.
-
-Run `/playbook-audit` periodically to keep the playbook healthy.
-
-**What it does:**
-1. Compares each CLAUDE.md section against the actual codebase — flags stale or unconfigured sections
-2. Cleans up leftover task artifacts (`research-codebase.md`, `design-decision.md`, `research-patterns.md`, `plan.md`)
-3. Generates a health report in `tasks/audit-report.md`
-
-**When to run it:**
-- Every 2–4 weeks as routine maintenance
-- After major refactors that change tech stack, directory structure, or conventions
-- When Claude makes outdated assumptions about your codebase
+- `/playbook-update` — fetch and apply the latest playbook version; your CLAUDE.md customizations are preserved.
+- `/playbook-audit` — run every 2–4 weeks, after major refactors, or when Claude's assumptions feel stale: flags outdated CLAUDE.md sections, cleans leftover artifacts, writes `tasks/audit-report.md`.

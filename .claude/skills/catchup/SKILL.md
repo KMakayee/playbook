@@ -138,11 +138,11 @@ Surface a one-line reminder:
 
 Skip this step entirely if Step 3 short-circuited (already up to date).
 
-1. **Read CLAUDE.md.** Open the project's `CLAUDE.md`. Locate the `## Build & Run` and `## Testing` sections.
+1. **Read CLAUDE.md.** Open the project's `CLAUDE.md`. Locate the `## Commands` section.
 
-2. **Skip on placeholder.** If either section still contains `[TEAM FILLS IN` markers or unfilled `[COMMAND]` placeholders for the verification commands, report:
+2. **Skip on placeholder.** If the section still contains `[TEAM FILLS IN` markers or unfilled `[COMMAND]` placeholders for the verification commands, report:
 
-   > "No validation commands configured in CLAUDE.md — skipping. Add commands to the `Build & Run` and `Testing` sections to enable this step on future runs."
+   > "No validation commands configured in CLAUDE.md — skipping. Add commands to the `Commands` section to enable this step on future runs."
 
    Continue to Step 8.
 
