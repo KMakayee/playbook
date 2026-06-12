@@ -192,7 +192,7 @@ Small, self-contained fix to the tmp-file lifecycle/naming — logged as an issu
 
 - `.claude/skills/codex-review/SKILL.md` — tmp compose (Step 2), invoke (Step 3), spot-check (Step 4), cleanup (Step 5).
 - Sibling skills using the same fixed-name tmp pattern: `research-codebase`, `design`, `create-plan`, `implement`, `implement-codex` — check whether the concurrency collision is shared.
-- Prior art for a keep/promote path: none yet — `~/Projects/Omakase/omk-core/.claude/commands/codex-source-audit.md` also relies on fixed-name tmps and deletes them.
+- Prior art for a keep/promote path: none yet — `omk-core/.claude/commands/codex-source-audit.md` (machine-local omk-core checkout) also relies on fixed-name tmps and deletes them.
 
 ### Notes
 
@@ -302,6 +302,52 @@ Surfaced 2026-06-10 while checking whether `tasks/todo.md` aligns with `/create-
 ### Impacts
 
 [Filled by `/issue-update` after a related issue completes.]
+
+## #11 — Broaden the native agents' tool set: add Edit, Write, WebFetch, LSP
+
+**Status:** Draft
+**Priority:** High
+**Created:** 2026-06-11
+
+### Description
+
+The native agent definitions shipped by `/native-agents` (task 22) declare `tools: Read, Glob, Grep, Bash` — a read-and-report set. Developer direction (2026-06-11): the `codex`, `codex-xhigh`, and `gemini-flash` agents also need **Edit, Write, WebFetch, LSP** so workers can apply file changes directly, fetch web content, and use code intelligence.
+
+This aligns with already-recorded direction rather than fighting it: task 23's locked decision is "Codex builds all code" (workers write, the orchestrator frames/reviews), which is impossible without Edit/Write on the codex agents; and `gemini-flash`'s routing role explicitly includes fetching (research support: bulk source-fetching/collation), for which WebFetch is the sanctioned tool — notably on machines where a user-level `curl` deny makes WebFetch the only clean fetch path. Today's workaround (workers shelling out via Bash `cat >`/heredocs to write files) is worse than granting the dedicated tools: it bypasses the harness's edit-tracking and permission classification.
+
+The tool list lives in agent frontmatter only (no prose documents it — verified by grep): three repo template files, three repo project-agent files, and the three installed machine copies in `~/.claude/agents/`. The change itself is one line per file; the substance of the issue is the contract questions below, plus propagating to installed copies through the install/doctor diff-and-confirm path (never silently).
+
+### Acceptance Criteria
+
+- [ ] All three agent definitions (`codex`, `codex-xhigh`, `gemini-flash`) declare `Read, Glob, Grep, Bash, Edit, Write, WebFetch, LSP` (or a deliberately differentiated per-agent set if research decides differentiation — decision recorded either way) in both repo locations: `.claude/templates/native-agents/agents/*.md` and `.claude/agents/*.md`.
+- [ ] The Agent tool itself stays excluded — native agents remain non-spawning leaves under the recursion guard; the broadened set is reconciled with the leaf posture ("read, search, report" → leaf-write) in whatever wording the guard/task-23 routing needs.
+- [ ] A `/native-agents` install re-run propagates the new tool lines to `~/.claude/agents/*.md` via the existing diff-and-confirm convention (no silent overwrite).
+- [ ] Verified end-to-end in a relayed session: a `codex` agent successfully Edits an existing file and Writes a new one; a `gemini-flash` agent successfully WebFetches; LSP returns results for at least one operation through a relayed agent.
+- [ ] Any skill/doc prose that characterizes the native agents as read-only is updated (none found at logging time — re-verify during implementation).
+
+### Constraints
+
+- Tool-list change only — no relay, launcher, or system-prompt changes ride along.
+- The recursion guard holds: do not add `Agent` to the tool list.
+- Installed-copy updates go through the install/doctor flow's diff-and-confirm; never edit `~/.claude/agents/` silently from the implementation.
+
+### Relevant paths
+
+- `.claude/templates/native-agents/agents/codex.md`, `codex-xhigh.md`, `gemini-flash.md` — line 5 (`tools:`) in each.
+- `.claude/agents/codex.md`, `codex-xhigh.md`, `gemini-flash.md` — line 5 in each (repo-local copies).
+- `~/.claude/agents/` (machine) — same three files, updated via `/native-agents` re-run.
+- `.claude/skills/native-agents/SKILL.md` — install step that writes the agent files; doctor checks if any assert the tool list.
+- `tasks/todo.md` task 23 — the "Codex builds all code" + leaf-write reconciliation this unblocks.
+
+### Notes
+
+Logged 2026-06-11 from developer direction during the relay-usage-tracking discussion. Open question for research: whether WebFetch behaves identically for relayed models (its summarization pass uses a harness-side model, so it should be model-agnostic) — verify rather than assume.
+
+Update 2026-06-11 (task-23 merge): the substance landed with task 23 (`worktree-task-23`) — templates, repo project copies, and the synced machine copies now ship `Read, Edit, Write, Glob, Grep, LSP, WebFetch, WebSearch, Bash` (WebSearch added beyond this issue's ask), with the leaf posture reconciled via CLAUDE.md's writer grant. Remaining scope once that PR merges: the `/native-agents` install-skill lane — verify a re-run propagates the new lines through diff-and-confirm — plus this issue's live relayed-session end-to-end AC (doctor run: codex Edit/Write, gemini WebFetch, LSP through the relay).
+
+### Impacts
+
+Unblocks part of task 23 (`tasks/todo.md`) — its "Codex builds all code" dispatch assumes workers can write; coordinate so task 23's RDPI doesn't re-decide the tool set.
 
 ## #12 — Workflow post-mortem: per-session learnings drop under `tasks/logs/workflows/`
 
