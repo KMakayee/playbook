@@ -15,6 +15,7 @@ Numbering is reference-only, not execution order. The backlog splits into three 
 - **Checkpoint pair (17 → 18).** `18` (auto-rehydrate hook) consumes `17`'s (`/checkpoint` redesign) output, so `17` lands first. Independent of the other two fronts.
 - **Issue-board remake (24).** Independent of the other fronts; touches the issue skills and boards only.
 - **Native-agents pair (22 → 23).** `22` (install/auto-boot lane) landed 2026-06-11 as PR #33 (archived to `tasks/completed.md`) — the `codex`/`codex-xhigh`/`gemini-flash` agent types, relay, and `claude-native` launcher `23` routes to are installable. `23` (workflow model routing + `/forge` rewrite) is unblocked. One soft collision: `23` edits `/forge`, which task `13` also touches (bucket-vocabulary sweep) — independent sections, coordinate if both are in flight.
+- **Relay usage tracking + auto-start (25).** Depends on `22` (landed); independent of `23` (different files — `23` touches `/forge`/CLAUDE.md, `25` touches the relay template + `/native-agents` install/doctor). Merges former issues #9 + #10 off the issue board (2026-06-11).
 
 Cross-front: the landed `19`/`21` inline `13`'s bucket logic; if `13` later refines it, updating them is an enhancement, not a blocker.
 
@@ -24,7 +25,7 @@ Cross-front: the landed `19`/`21` inline `13`'s bucket logic; if `13` later refi
 
 ### 13. Port /triage skill + wire into Codex/cross-context review touchpoints
 
-**Intent.** Port the `triage.md` placeholder command from `~/Projects/Omakase/omk-core/.claude/commands/triage.md` into the playbook as a new skill (`.claude/skills/triage/SKILL.md`), with improvements identified during design. Then wire it into every place a Codex (or cross-context) review pass currently produces findings that Claude has to absorb ad-hoc, replacing the ad-hoc absorb steps with a structured `/triage` call. The skill verifies each claim, sorts into buckets (A.1 auto-fix / A.2 verified no-op / B tradeoff stop / C not legit), auto-applies A.1 mechanical fixes, stops at B tradeoffs for developer input. Also add a CLAUDE.md rule to harden invocation across non-RDPI contexts (freeform paste, sub-agent reports, etc.).
+**Intent.** Port the `triage.md` placeholder command from the machine-local omk-core checkout (`omk-core/.claude/commands/triage.md`) into the playbook as a new skill (`.claude/skills/triage/SKILL.md`), with improvements identified during design. Then wire it into every place a Codex (or cross-context) review pass currently produces findings that Claude has to absorb ad-hoc, replacing the ad-hoc absorb steps with a structured `/triage` call. The skill verifies each claim, sorts into buckets (A.1 auto-fix / A.2 verified no-op / B tradeoff stop / C not legit), auto-applies A.1 mechanical fixes, stops at B tradeoffs for developer input. Also add a CLAUDE.md rule to harden invocation across non-RDPI contexts (freeform paste, sub-agent reports, etc.).
 
 **Constraints.**
 - Skill must follow `disable-model-invocation: true` convention per established memory (side-effect workflow skills stay manual-invoke).
@@ -45,7 +46,7 @@ Cross-front: the landed `19`/`21` inline `13`'s bucket logic; if `13` later refi
 8. `/playbook-update`'s managed-file list (`playbook-update/SKILL.md:15`) accounts for the new `.claude/skills/triage/SKILL.md` — verify whether that list enumerates individual skills or globs `.claude/skills/`; if enumerated, add the new skill.
 
 **Relevant paths.**
-- Source: `~/Projects/Omakase/omk-core/.claude/commands/triage.md` (placeholder being ported)
+- Source: `omk-core/.claude/commands/triage.md` in the machine-local omk-core checkout (placeholder being ported)
 - New skill: `.claude/skills/triage/SKILL.md`
 - Skills to modify: `.claude/skills/codex-review/SKILL.md`, `.claude/skills/implement/SKILL.md`, `.claude/skills/implement-codex/SKILL.md`, `.claude/skills/issue-implement/SKILL.md`, `.claude/skills/create-plan/SKILL.md`, `.claude/skills/issue-plan/SKILL.md`, `.claude/skills/design/SKILL.md`, `.claude/skills/codex-audit/SKILL.md` (added by task 19 — see note added 2026-06-10 below)
 - Project rules: `CLAUDE.md` (RDPI workflow rules section)
@@ -118,7 +119,7 @@ These were surfaced during pre-RDPI design discussion. RDPI Research/Design phas
 
 **Relevant paths.**
 - New skill: `.claude/skills/codex-goal/SKILL.md`
-- Reference source: `~/Projects/Omakase/omk-core/.claude/commands/codex-do.md` (sibling skill pattern — arg parsing, baseline snapshot, bail clause, cleanup-then-present)
+- Reference source: `omk-core/.claude/commands/codex-do.md` in the machine-local omk-core checkout (sibling skill pattern — arg parsing, baseline snapshot, bail clause, cleanup-then-present)
 - Reference conventions: `.claude/skills/codex-review/SKILL.md` (target-resolution, codex-output-check), `.claude/skills/checkpoint/SKILL.md` (two-mode-via-state pattern), `.claude/skills/research-codebase/SKILL.md` (tmp-file naming)
 - Dependency: `.claude/skills/triage/SKILL.md` (must land first — see preceding task)
 - Tmp artifacts (cleaned in Bookend 2): `tasks/codex-goal-spec.md`, `tasks/codex-goal-baseline.tmp`
@@ -305,7 +306,7 @@ kind: light
 created: 2026-06-08T14:32:00Z
 session: b9c0c9b9-2e41-4597-ad56-789699d7931f
 branch: main
-worktree: /Users/chief/Projects/Tools/playbook
+worktree: /Users/X/Projects/Tools/playbook
 phase: implement
 plan: tasks/plan.md
 cursor: - [ ] Add guard clause to resolveConfig()
@@ -482,4 +483,68 @@ A fresh session reads only that and continues — no SKILL.md, no artifacts.
 - State organization: state subfolders (`tasks/issues/new/`, `tasks/issues/closed/`) vs. one folder with state recorded in each ticket file — file moves vs. field edits when an issue changes state.
 - Does the triage-inbox vs. active-board distinction survive as two states in one system, or collapse into the ticket lifecycle?
 - Ticket filename convention (number, slug, both) so the folder is scannable.
+
+---
+
+### 25. Relay usage tracking + reboot-proof auto-start — CodexBar LLM Proxy integration
+
+**Intent.** Make relayed non-Anthropic usage (`gemini-3.5-flash` via the Vertex lane, `gpt-5.5` via VibeProxy) visible in CodexBar with zero manual steps across reboots. Two halves, one outcome. (a) **Usage tracking in the relay** (locked decision — relay-resident, no standalone sidecar): the relay grows a `GET /v1/quota-stats` endpoint serving CodexBar's **LLM Proxy provider** schema, computed from the per-response `usage` blocks Claude Code already records in transcripts (`~/.claude/projects/**/*.jsonl`). (b) **Reboot-proof auto-start**: the `/native-agents` doctor's post-PASS offers grow a third independent option — a relay LaunchAgent (`RunAtLoad` + `KeepAlive`: starts at login, restarts on crash) — alongside the existing alias and global-agents offers (any combination of the three is valid). Merged from former issues #9 + #10 (moved off the issue board 2026-06-11) because the user-facing outcome is one: open CodexBar after a reboot and the relayed Gemini + GPT numbers are there.
+
+**Context — why this shape.** CodexBar's existing tabs can't show this traffic: the Vertex AI tab only counts provable Anthropic-on-Vertex entries (`msg_vrtx_` IDs / `claude-*@version` models / vertex metadata keys), and the Codex tab reads Codex CLI's own `~/.codex` session logs — direct `codex exec` runs (the codex trio skills) are already tracked there; only *relayed* native-subagent traffic has no CodexBar-visible source. Investigation (2026-06-11) found the sanctioned integration point: CodexBar's LLM Proxy provider polls `GET {base}/v1/quota-stats` with `Authorization: Bearer {key}` (configured via `~/.codexbar/config.json` — `enterpriseHost` + `apiKey`; env vars exist but won't reach a GUI app) and renders per-provider requests/tokens/approx-cost plus a summary in its own tab. Expected response schema (from `steipete/CodexBar` `Sources/CodexBarCore/Providers/LLMProxy/LLMProxyUsageFetcher.swift`):
+
+```json
+{
+  "providers": {
+    "gemini-3.5-flash": {
+      "total_requests": 5,
+      "tokens": { "input_cached": 0, "input_uncached": 26773, "output": 1548 },
+      "approx_cost": 0.01
+    },
+    "gpt-5.5": { "...": "..." }
+  },
+  "summary": { "total_requests": 21, "total_tokens": 58128, "approx_cost": 0.05 }
+}
+```
+
+CodexBar polls on its own schedule, so stats are computed on demand (with a short cache) — no cron/timer. A proof-of-concept transcript scan (2026-06-11) produced correct per-day, per-model totals (dedupe streamed updates by `message.id`; filter `message.model` starting `gemini`/`gpt`), so the data side is validated. The auto-start half picks up task 22's explicitly deferred launchd thread ("No launchd" scope boundary) as a user-choice offer, not a default. Known design tension recorded when launchd was first sketched: the relay's `uncaughtException`/`unhandledRejection` handlers deliberately **keep serving** (an unsupervised crash would lock every session on the port), but under launchd supervision the correct posture flips to **fail-fast** (let it crash; `KeepAlive` restarts it clean, since post-throw state may be corrupt) — the posture needs a deliberate selection mechanism, not one behavior silently serving both modes. Working precedent on the dev machine: the Vertex lane runs under two hand-built LaunchAgents (`com.X.vertex-adc-shim`, `com.X.gemini-cpa`, RunAtLoad + KeepAlive), recorded in the machine-local runbook.
+
+**Constraints.**
+- Tracking lives in the relay (locked 2026-06-11) — no standalone sidecar process.
+- Do NOT fake other providers' log formats (no synthetic `msg_vrtx_` IDs in transcripts, no synthetic `~/.codex` session files) — the LLM Proxy tab is the sanctioned surface; the Vertex AI and Codex tabs keep their current meanings.
+- Stats endpoint binds to 127.0.0.1 only, Bearer-key auth; responses carry aggregate numbers, never message content.
+- Auto-start is opt-in only; boot-on-demand stays the shipped default; declining the offer changes nothing; stock sessions stay untouched. The offer lives behind the same gate as the other two (codex probes passed).
+- Install-owned conventions hold: diff-and-confirm on re-run, never auto-kill a running relay, fail-closed on ambiguity. The relay change ships as a version bump through the normal install path (running-relay hash gate means a stale relay is reported, never killed).
+- Shipped artifacts stay project-agnostic: plist content generated at install time (node path via `command -v node`, `$HOME`-derived paths) — no hardcoded user paths in templates. Machine-local bits (`~/.codexbar/config.json` snippet, pricing values) are generated/documented at install time.
+- The Vertex-lane plists (`vertex-adc-shim`, `gemini-cpa`) remain local-only unless research explicitly decides to ship inert templates for them.
+- **The Vertex ADC lane is dev-machine-only — never the shipped/production path.** Serving Gemini from Vertex on the developer's user Application Default Credentials (shim + proxy) is a personal setup; shipped artifacts must not assume or depend on it. Note for the docs this task touches: any install that wants `gemini-flash` agents needs *some* Gemini credential lane — the install/doctor flow states that requirement explicitly and treats the actual credential setup as machine-local.
+- VibeProxy's app side is covered by its own Launch-at-Login setting — the offer verifies/echoes it, doesn't manage it.
+
+**Acceptance criteria.**
+1. Relay serves `GET /v1/quota-stats` returning the CodexBar LLM Proxy schema above with per-model requests, `input_cached`/`input_uncached`/`output` tokens, and `approx_cost` for relayed non-Anthropic models (`gemini-*`, `gpt-*`).
+2. Token counts match a manual transcript scan (streamed-update dedupe — no double counting), and direct Codex-CLI usage is NOT included (already on CodexBar's Codex tab; sources stay disjoint).
+3. CodexBar's LLM Proxy tab, configured via `~/.codexbar/config.json`, displays the relayed usage end-to-end on the dev machine.
+4. Per-model $/M pricing is user-configurable in one place; unknown models degrade gracefully (tokens counted, cost omitted).
+5. The doctor's post-PASS flow offers auto-start as a third independent option alongside the alias and global-agents offers; accepting makes the relay reboot-proof (starts at login, restarts on crash, warm-path `claude-native` finds it healthy without booting); declining changes nothing.
+6. The keep-serving vs fail-fast tension is resolved deliberately: supervised relay fails fast, unsupervised on-demand relay keeps serving — and the mechanism that selects the posture is explicit.
+7. The identity/staleness gates still hold end-to-end: a launchd-started relay passes the launcher's handshake + hash gate, and an install re-run that updates `relay.mjs` has a documented path to restart the supervised relay (never auto-kill — instruct, or use launchd's own restart).
+8. The doctor diagnoses auto-start state (agent loaded? process running? plist pointing at the installed relay?), verifies/echoes the VibeProxy Launch-at-Login recommendation, and a disable/uninstall path is documented (e.g. `launchctl bootout`) restoring boot-on-demand.
+9. CodexBar setup (config.json snippet + key generation) is documented in the `/native-agents` install/doctor flow as an opt-in offer.
+10. End-to-end outcome: after a reboot, with no manual steps, CodexBar's LLM Proxy tab populates with current relayed usage.
+
+**Relevant paths.**
+- `.claude/templates/native-agents/relay.mjs` — grows the endpoint; the keep-serving `uncaughtException`/`unhandledRejection` handlers the supervised posture must flip; `/health` + scriptHash conventions.
+- `.claude/scripts/native-agents/claude-native` + `start-relay.mjs` — boot-on-demand path that must coexist with a supervised relay (lock, health poll, hash gate).
+- `.claude/skills/native-agents/SKILL.md` — doctor steps 6/6b (the offer pattern to extend), install step 4 (machine-home writes), the fragility note + drift checklist; where the CodexBar-config offer lands.
+- External reference: `steipete/CodexBar` → `Sources/CodexBarCore/Providers/LLMProxy/*` (endpoint path logic appends `/v1/quota-stats`; schema decoder), `Vendored/CostUsage/CostUsageScanner+Claude.swift` (why gemini/gpt entries are invisible to the Vertex tab).
+- Dev-machine precedent (not in repo): `~/Library/LaunchAgents/com.X.vertex-adc-shim.plist`, `com.X.gemini-cpa.plist`; machine-local runbook in the relay tooling checkout (auto-start section).
+
+**Open questions for RDPI:**
+
+- Stats source: transcript-scan (covers history, survives relay restarts) vs relay in-band accounting (no filesystem scanning, but only sees future traffic and resets unless persisted) — or scan as source of truth with in-band as a freshness layer?
+- Where the $/M pricing constants live (relay-adjacent config file under `~/.claude/native-agents/`? generated at install with documented defaults?).
+- Does a small `relay-usage` CLI report ship alongside for terminal use, or is the CodexBar tab the only consumer?
+- Posture-selection mechanism for fail-fast vs keep-serving: env flag set in the plist, launchd detection, or a `--supervised` argv flag?
+- Bearer key generation/storage: per-install random key written to both the relay config and the `~/.codexbar/config.json` snippet — where does it live and who writes it?
+- Do the optional schema fields (`credential_count`, `active_count`, `exhausted_count`, `quota_groups`) get meaningful values (e.g. upstream lane health) or stay omitted?
+- Whether inert plist *templates* for the local-only Vertex lane ship under `templates/native-agents/` (plists embed machine paths — must be generated/parameterized at install time, never hardcoded).
 
