@@ -129,7 +129,7 @@ grep -rn "Read, Glob, Grep, Bash" .claude/ README.md quickref.md   # → no rema
 grep -n "tools" .claude/skills/native-agents/SKILL.md              # → read hits; confirm none asserts the old tools list
 ```
 
-**Commit:** `feat(native-agents): uniform builder tools + routing-aware descriptions on agent templates`
+**Commit:** `feat(native-agents): uniform builder tools + routing-aware descriptions on agent templates` — ✅ done, all criteria pass (no FAIL lines; no stale old-tools refs)
 
 ---
 
